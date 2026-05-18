@@ -77,8 +77,8 @@ const socialLinks = [
             class="post-it-image"
             src="/images/post-it-reworking.png"
             alt=""
-            width="1000"
-            height="1000"
+            width="1200"
+            height="1200"
             loading="eager"
             decoding="async"
             draggable="false"
@@ -228,17 +228,7 @@ const socialLinks = [
   }
 
   .post-it-wrap::before {
-    position: absolute;
-    right: 18%;
-    bottom: 14.5%;
-    left: 15%;
-    z-index: -1;
-    height: 4.6%;
-    content: "";
-    border-radius: 999px;
-    background: rgba(42, 31, 18, 0.18);
-    filter: blur(0.32rem);
-    transform: rotate(-3deg) translateY(0.08rem);
+    content: none;
   }
 
   .post-it-image {
@@ -247,9 +237,7 @@ const socialLinks = [
     width: clamp(13rem, 26vw, 18.5rem);
     max-width: 100%;
     height: auto;
-    filter:
-      drop-shadow(0 0.04rem 0.025rem rgba(42, 31, 18, 0.12))
-      drop-shadow(0.08rem 0.08rem 0.09rem rgba(42, 31, 18, 0.05));
+    filter: none;
     transform: rotate(-3.2deg);
     user-select: none;
     -webkit-user-drag: none;
