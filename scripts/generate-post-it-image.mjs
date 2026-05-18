@@ -3,66 +3,20 @@ import sharp from "sharp";
 
 const sourcePath = "scripts/assets/post-it-ai-source.png";
 const outputPath = "public/images/post-it-reworking.png";
+const transparentMatte = [255, 214, 49];
 
 const source = sharp(sourcePath).ensureAlpha();
 const { data, info } = await source.raw().toBuffer({ resolveWithObject: true });
 const output = Buffer.alloc(data.length);
-const rowMin = new Array(info.height).fill(info.width);
-const rowMax = new Array(info.height).fill(-1);
-const columnMin = new Array(info.width).fill(info.height);
-const columnMax = new Array(info.width).fill(-1);
 
 let minX = info.width;
 let minY = info.height;
 let maxX = 0;
 let maxY = 0;
 
-const pixelSignals = (r, g, b) => {
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const chroma = max - min;
-  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-
-  const isYellowPaper = r > 150 && g > 125 && b < 190 && chroma > 32 && luma > 150;
-  const isBlackInk = luma < 92;
-  const isPaperEdge = r > 195 && g > 160 && b < 215 && chroma > 18 && luma > 170;
-
-  return { isBlackInk, isPaper: isYellowPaper || isPaperEdge };
-};
-
-for (let y = 0; y < info.height; y += 1) {
-  for (let x = 0; x < info.width; x += 1) {
-    const index = (y * info.width + x) * info.channels;
-    const { isPaper } = pixelSignals(data[index], data[index + 1], data[index + 2]);
-
-    if (isPaper) {
-      rowMin[y] = Math.min(rowMin[y], x);
-      rowMax[y] = Math.max(rowMax[y], x);
-      columnMin[x] = Math.min(columnMin[x], y);
-      columnMax[x] = Math.max(columnMax[x], y);
-    }
-  }
-}
-
-const alphaForPixel = (r, g, b, x, y) => {
-  const { isBlackInk, isPaper } = pixelSignals(r, g, b);
-  const rowHasPaper = rowMax[y] >= rowMin[y];
-  const columnHasPaper = columnMax[x] >= columnMin[x];
-  const insidePaperRow = rowHasPaper && x >= rowMin[y] + 2 && x <= rowMax[y] - 2;
-  const insidePaperColumn = columnHasPaper && y >= columnMin[x] + 2 && y <= columnMax[x] - 2;
-  const insideInkSafeArea =
-    rowHasPaper &&
-    columnHasPaper &&
-    x >= rowMin[y] + 44 &&
-    x <= rowMax[y] - 44 &&
-    y >= columnMin[x] + 44 &&
-    y <= columnMax[x] - 44;
-
-  if (isPaper || (isBlackInk && insidePaperRow && insidePaperColumn && insideInkSafeArea)) {
-    return 255;
-  }
-
-  return 0;
+const isGreenScreen = (r, g, b) => {
+  const greenDominance = g - Math.max(r, b);
+  return g > 120 && greenDominance > 22 && g > r * 1.1 && g > b * 1.1;
 };
 
 for (let y = 0; y < info.height; y += 1) {
@@ -71,14 +25,14 @@ for (let y = 0; y < info.height; y += 1) {
     const r = data[index];
     const g = data[index + 1];
     const b = data[index + 2];
-    const alpha = alphaForPixel(r, g, b, x, y);
+    const alpha = isGreenScreen(r, g, b) ? 0 : 255;
 
-    output[index] = r;
-    output[index + 1] = g;
-    output[index + 2] = b;
+    output[index] = alpha === 255 ? r : transparentMatte[0];
+    output[index + 1] = alpha === 255 ? g : transparentMatte[1];
+    output[index + 2] = alpha === 255 ? b : transparentMatte[2];
     output[index + 3] = alpha;
 
-    if (alpha > 8) {
+    if (alpha > 0) {
       minX = Math.min(minX, x);
       minY = Math.min(minY, y);
       maxX = Math.max(maxX, x);
@@ -87,15 +41,17 @@ for (let y = 0; y < info.height; y += 1) {
   }
 }
 
-const margin = 68;
+if (maxX < minX || maxY < minY) {
+  throw new Error(`No post-it pixels found in ${sourcePath}`);
+}
+
+const margin = 78;
 const left = Math.max(0, minX - margin);
 const top = Math.max(0, minY - margin);
 const right = Math.min(info.width - 1, maxX + margin);
 const bottom = Math.min(info.height - 1, maxY + margin);
 
-await fs.mkdir("public/images", { recursive: true });
-
-await sharp(output, {
+const resized = await sharp(output, {
   raw: {
     width: info.width,
     height: info.height,
@@ -110,8 +66,45 @@ await sharp(output, {
   })
   .resize(1000, 1000, {
     fit: "contain",
-    background: { r: 0, g: 0, b: 0, alpha: 0 }
+    background: { r: transparentMatte[0], g: transparentMatte[1], b: transparentMatte[2], alpha: 0 }
   })
+  .raw()
+  .toBuffer({ resolveWithObject: true });
+
+const cleaned = Buffer.from(resized.data);
+
+for (let y = 0; y < resized.info.height; y += 1) {
+  for (let x = 0; x < resized.info.width; x += 1) {
+    const index = (y * resized.info.width + x) * 4;
+    const r = cleaned[index];
+    const g = cleaned[index + 1];
+    const b = cleaned[index + 2];
+    const a = cleaned[index + 3];
+
+    if (a < 28 || isGreenScreen(r, g, b)) {
+      cleaned[index] = transparentMatte[0];
+      cleaned[index + 1] = transparentMatte[1];
+      cleaned[index + 2] = transparentMatte[2];
+      cleaned[index + 3] = 0;
+      continue;
+    }
+
+    const greenDominance = g - Math.max(r, b);
+    if (greenDominance > 10) {
+      cleaned[index + 1] = Math.min(g, Math.max(r, b) + 4);
+    }
+  }
+}
+
+await fs.mkdir("public/images", { recursive: true });
+
+await sharp(cleaned, {
+  raw: {
+    width: resized.info.width,
+    height: resized.info.height,
+    channels: 4
+  }
+})
   .png({ compressionLevel: 9 })
   .toFile(outputPath);
 

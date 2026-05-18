@@ -60,16 +60,30 @@ const socialLinks = [
     <main class="page" aria-labelledby="page-title">
       <section class="composition">
         <h1 id="page-title" class="sr-only">Matthieu Babe</h1>
+        <p class="sr-only">I'm reworking this place.</p>
         <img
-          class="post-it-image"
-          src="/images/post-it-reworking.png"
-          alt="I'm reworking this place"
-          width="1000"
-          height="1000"
+          class="name-tape-image"
+          src="/images/name-tape.png"
+          alt=""
+          width="1500"
+          height="339"
           loading="eager"
           decoding="async"
           draggable="false"
+          aria-hidden="true"
         />
+        <div class="post-it-wrap" aria-hidden="true">
+          <img
+            class="post-it-image"
+            src="/images/post-it-reworking.png"
+            alt=""
+            width="1000"
+            height="1000"
+            loading="eager"
+            decoding="async"
+            draggable="false"
+          />
+        </div>
       </section>
 
       <nav class="socials" aria-label="Social links">
@@ -165,11 +179,14 @@ const socialLinks = [
     position: relative;
     z-index: 1;
     display: grid;
+    grid-template-rows: auto auto;
     place-items: center;
+    align-content: center;
+    row-gap: clamp(0.85rem, 2.2vh, 1.25rem);
     align-self: center;
     justify-self: center;
     width: min(100%, 42rem);
-    min-height: clamp(19rem, 54svh, 29rem);
+    min-height: clamp(25rem, 62svh, 35rem);
     padding: clamp(1rem, 4vw, 2.4rem);
   }
 
@@ -185,15 +202,52 @@ const socialLinks = [
     border: 0;
   }
 
+  .name-tape-image {
+    z-index: 2;
+    display: block;
+    width: clamp(16rem, 34vw, 30rem);
+    max-width: 94vw;
+    height: auto;
+    filter:
+      drop-shadow(0 0.15rem 0.08rem rgba(42, 31, 18, 0.12))
+      drop-shadow(0.18rem 0.28rem 0.28rem rgba(42, 31, 18, 0.08));
+    transform: rotate(-3deg);
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .post-it-wrap {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: max-content;
+    max-width: 100%;
+  }
+
+  .post-it-wrap::before {
+    position: absolute;
+    right: 20%;
+    bottom: 7%;
+    left: 12%;
+    z-index: -1;
+    height: 5%;
+    content: "";
+    border-radius: 999px;
+    background: rgba(42, 31, 18, 0.07);
+    filter: blur(0.24rem);
+    transform: rotate(-2deg);
+  }
+
   .post-it-image {
     z-index: 1;
     display: block;
-    width: clamp(16rem, 38vw, 25rem);
+    width: clamp(15rem, 32vw, 22rem);
     max-width: 100%;
     height: auto;
     filter:
-      drop-shadow(0 0.18rem 0.12rem rgba(42, 31, 18, 0.16))
-      drop-shadow(0.22rem 0.38rem 0.28rem rgba(42, 31, 18, 0.12));
+      drop-shadow(0 0.06rem 0.035rem rgba(42, 31, 18, 0.12))
+      drop-shadow(0.08rem 0.12rem 0.12rem rgba(42, 31, 18, 0.06));
     user-select: none;
     -webkit-user-drag: none;
   }
@@ -284,12 +338,17 @@ const socialLinks = [
 
     .composition {
       width: 100%;
-      min-height: min(64svh, 26rem);
+      min-height: min(68svh, 32rem);
       padding-inline: 0.5rem;
+      row-gap: clamp(0.75rem, 2vh, 1rem);
+    }
+
+    .name-tape-image {
+      width: min(86vw, 23rem);
     }
 
     .post-it-image {
-      width: min(84vw, 22rem);
+      width: min(78vw, 20rem);
     }
 
     .socials {
@@ -303,8 +362,12 @@ const socialLinks = [
   }
 
   @media (max-width: 360px) {
+    .name-tape-image {
+      width: min(84vw, 20rem);
+    }
+
     .post-it-image {
-      width: min(84vw, 19rem);
+      width: min(78vw, 18rem);
     }
 
     .social-link {
@@ -319,10 +382,15 @@ const socialLinks = [
     .composition {
       min-height: auto;
       padding-block: 0.75rem;
+      row-gap: 0.6rem;
+    }
+
+    .name-tape-image {
+      width: min(58vw, 18rem);
     }
 
     .post-it-image {
-      width: min(62vw, 17rem);
+      width: min(52vw, 16rem);
     }
   }
 </style>
