@@ -1,13 +1,19 @@
+import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import sharp from "sharp";
 import TextToSVG from "text-to-svg";
 
-const textToSvg = TextToSVG.loadSync("public/fonts/caveat-700.ttf");
+const handwritingFontPath = [
+  "/System/Library/Fonts/Supplemental/Bradley Hand Bold.ttf",
+  "public/fonts/caveat-700.ttf"
+].find((fontPath) => existsSync(fontPath));
+
+const textToSvg = TextToSVG.loadSync(handwritingFontPath);
 
 const textLines = [
-  { text: "I'm", x: 0, y: -82, size: 112, rotate: -2 },
-  { text: "reworking", x: 4, y: 30, size: 100, rotate: -1 },
-  { text: "this place", x: 8, y: 130, size: 98, rotate: -1.5 }
+  { text: "I'm", x: -8, y: -78, size: 120, rotate: -4.4 },
+  { text: "reworking", x: 2, y: 38, size: 92, rotate: -1.4 },
+  { text: "this place", x: 14, y: 132, size: 90, rotate: -2.8 }
 ];
 
 const textPaths = textLines
@@ -18,13 +24,56 @@ const textPaths = textLines
       fontSize: size,
       anchor: "center middle",
       attributes: {
-        fill: "#15130f"
+        fill: "#0b3c98"
       }
     });
 
     return `<g transform="rotate(${rotate} ${x} ${y})">${path}</g>`;
   })
   .join("\n");
+
+const maskTextPaths = textLines
+  .map(({ text, x, y, size, rotate }) => {
+    const path = textToSvg.getPath(text, {
+      x,
+      y,
+      fontSize: size,
+      anchor: "center middle",
+      attributes: {
+        fill: "#ffffff"
+      }
+    });
+
+    return `<g transform="rotate(${rotate} ${x} ${y})">${path}</g>`;
+  })
+  .join("\n");
+
+let randomSeed = 29;
+const random = () => {
+  randomSeed = (randomSeed * 1664525 + 1013904223) % 4294967296;
+  return randomSeed / 4294967296;
+};
+
+const inkTextureStrokes = Array.from({ length: 118 }, (_, index) => {
+  const x = -220 + random() * 450;
+  const y = -126 + random() * 308;
+  const length = 12 + random() * 58;
+  const rotate = -7 + random() * 14;
+  const opacity = index % 5 === 0 ? 0.3 : 0.13 + random() * 0.16;
+  const width = 0.45 + random() * 0.75;
+
+  return `<path d="M${x.toFixed(1)},${y.toFixed(1)} c${(length * 0.34).toFixed(1)},${(-1 + random() * 2).toFixed(1)} ${(length * 0.66).toFixed(1)},${(-1 + random() * 2).toFixed(1)} ${length.toFixed(1)},${(-1 + random() * 2).toFixed(1)}" transform="rotate(${rotate.toFixed(2)} ${x.toFixed(1)} ${y.toFixed(1)})" fill="none" stroke="#001f75" stroke-width="${width.toFixed(2)}" stroke-linecap="round" opacity="${opacity.toFixed(2)}"/>`;
+}).join("\n");
+
+const dryInkBreaks = Array.from({ length: 54 }, () => {
+  const x = -210 + random() * 430;
+  const y = -120 + random() * 300;
+  const length = 8 + random() * 30;
+  const rotate = -14 + random() * 28;
+  const opacity = 0.08 + random() * 0.08;
+
+  return `<path d="M${x.toFixed(1)},${y.toFixed(1)} l${length.toFixed(1)},${(-0.8 + random() * 1.6).toFixed(1)}" transform="rotate(${rotate.toFixed(2)} ${x.toFixed(1)} ${y.toFixed(1)})" fill="none" stroke="#ffdc46" stroke-width="${(0.55 + random() * 0.7).toFixed(2)}" stroke-linecap="round" opacity="${opacity.toFixed(2)}"/>`;
+}).join("\n");
 
 const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="860" viewBox="0 0 1000 860">
@@ -55,6 +104,17 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
     <clipPath id="noteClip">
       <path d="M-323,-289 C-214,-304 -101,-301 5,-308 C111,-315 214,-303 326,-294 C346,-177 345,-70 337,57 C333,119 330,177 323,236 C219,264 101,276 -2,279 C-111,282 -211,270 -319,253 C-336,135 -337,17 -335,-92 C-333,-164 -331,-227 -323,-289 Z"/>
     </clipPath>
+
+    <mask id="inkMask" maskUnits="userSpaceOnUse" x="-260" y="-160" width="540" height="350">
+      <rect x="-260" y="-160" width="540" height="350" fill="#000000"/>
+      ${maskTextPaths}
+    </mask>
+
+    <filter id="ballpointWobble" x="-8%" y="-10%" width="116%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018 0.08" numOctaves="2" seed="11" result="noise"/>
+      <feMorphology in="SourceGraphic" operator="erode" radius="0.65" result="thinnerInk"/>
+      <feDisplacementMap in="thinnerInk" in2="noise" scale="0.75" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
   </defs>
 
   <rect width="1000" height="860" fill="none"/>
@@ -79,8 +139,17 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
       <path d="M244,149 C278,158 305,178 326,220 L236,221 C237,194 239,170 244,149 Z" fill="url(#cornerShade)" opacity="0.62"/>
     </g>
 
-    <g transform="translate(0 6)">
-      ${textPaths}
+    <g transform="translate(0 6)" filter="url(#ballpointWobble)">
+      <g opacity="0.9">
+        ${textPaths}
+      </g>
+      <g transform="translate(0.55 -0.35)" opacity="0.11">
+        ${textPaths}
+      </g>
+      <g mask="url(#inkMask)" opacity="1">
+        ${inkTextureStrokes}
+        ${dryInkBreaks}
+      </g>
     </g>
   </g>
 </svg>`;
