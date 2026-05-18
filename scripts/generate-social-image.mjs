@@ -23,10 +23,8 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
       <feDropShadow dx="0" dy="20" stdDeviation="18" flood-color="#4b3823" flood-opacity="0.18"/>
     </filter>
   </defs>
-  <rect width="1200" height="630" fill="#f7f2e8"/>
+  <rect width="1200" height="630" fill="#ffffff"/>
   <rect width="1200" height="630" fill="url(#dots)"/>
-  <circle cx="190" cy="120" r="260" fill="#fff4cf" opacity="0.42"/>
-  <circle cx="1010" cy="520" r="300" fill="#eadcc4" opacity="0.45"/>
   <g filter="url(#shadow)" transform="translate(600 315) rotate(-4)">
     <path d="M-410,-76 L-368,-91 L-323,-72 L-276,-89 L-228,-72 L-178,-90 L-130,-73 L-82,-91 L-36,-74 L12,-89 L60,-72 L110,-91 L158,-73 L206,-88 L252,-70 L302,-89 L350,-72 L412,-82 L402,72 L350,88 L302,70 L254,87 L206,72 L158,89 L110,71 L62,90 L14,72 L-36,88 L-84,71 L-132,89 L-180,70 L-228,87 L-278,70 L-324,86 L-368,69 L-414,82 Z" fill="rgba(255,252,241,0.9)" stroke="rgba(92,78,54,0.22)" stroke-width="2"/>
     <g transform="rotate(1.5) translate(0 14)">${textPath}</g>

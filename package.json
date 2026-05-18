@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
     "build": "ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "generate:postit": "node scripts/generate-post-it-image.mjs",
     "generate:social": "node scripts/generate-social-image.mjs",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview"
   },

@@ -35,7 +35,7 @@ const socialLinks = [
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={pageDescription} />
-    <meta name="theme-color" content="#f7f2e8" />
+    <meta name="theme-color" content="#ffffff" />
     <link rel="canonical" href={siteUrl} />
 
     <meta property="og:title" content={pageTitle} />
@@ -58,7 +58,6 @@ const socialLinks = [
   </head>
   <body>
     <main class="page" aria-labelledby="page-title">
-      <div class="grain" aria-hidden="true"></div>
       <div class="sketch-line sketch-line-one" aria-hidden="true"></div>
       <div class="sketch-line sketch-line-two" aria-hidden="true"></div>
 
@@ -67,9 +66,16 @@ const socialLinks = [
           <span>Matthieu Babe</span>
         </h1>
 
-        <div class="post-it" role="note" aria-label="Site status">
-          <p>I'm reworking this place</p>
-        </div>
+        <img
+          class="post-it-image"
+          src="/images/post-it-reworking.png"
+          alt="I'm reworking this place"
+          width="1000"
+          height="860"
+          loading="eager"
+          decoding="async"
+          draggable="false"
+        />
       </section>
 
       <nav class="socials" aria-label="Social links">
@@ -123,9 +129,8 @@ const socialLinks = [
 
   :root {
     color-scheme: light;
-    --paper: #f7f2e8;
-    --paper-warm: #efe4d0;
-    --dot: rgba(39, 39, 37, 0.18);
+    --paper: #ffffff;
+    --dot: rgba(39, 39, 37, 0.16);
     --ink: #1c1a17;
     --ink-soft: rgba(28, 26, 23, 0.72);
     --tape: rgba(255, 252, 241, 0.78);
@@ -171,22 +176,8 @@ const socialLinks = [
       clamp(1rem, 4vw, 3.5rem)
       max(1.25rem, env(safe-area-inset-bottom));
     background:
-      radial-gradient(circle at center, var(--dot) 0 1.65px, transparent 1.8px) 0 0 / 42px 42px,
-      radial-gradient(circle at 18% 18%, rgba(255, 245, 210, 0.8), transparent 24rem),
-      linear-gradient(135deg, #fffaf0 0%, var(--paper) 42%, var(--paper-warm) 100%);
-  }
-
-  .grain {
-    position: absolute;
-    inset: -20%;
-    z-index: -1;
-    pointer-events: none;
-    background-image:
-      radial-gradient(circle at 25% 25%, rgba(57, 46, 30, 0.04) 0 1px, transparent 1.3px),
-      radial-gradient(circle at 70% 55%, rgba(255, 255, 255, 0.42) 0 1px, transparent 1.5px);
-    background-size: 19px 21px, 31px 29px;
-    opacity: 0.65;
-    transform: rotate(-3deg);
+      radial-gradient(circle at center, var(--dot) 0 1.45px, transparent 1.6px) 0 0 / 42px 42px,
+      var(--paper);
   }
 
   .sketch-line {
@@ -269,65 +260,15 @@ const socialLinks = [
     transform: rotate(1.5deg);
   }
 
-  .post-it {
-    position: relative;
-    display: grid;
-    z-index: 2;
-    width: clamp(14.7rem, 44vw, 23rem);
-    min-height: clamp(12rem, 28vw, 18rem);
-    margin-top: clamp(1.6rem, 3.8vw, 3.1rem);
-    place-items: center;
-    padding: clamp(1.3rem, 4vw, 2.5rem);
-    color: var(--ink);
-    background:
-      linear-gradient(160deg, rgba(255, 255, 255, 0.28), transparent 32%),
-      radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.36), transparent 22%),
-      linear-gradient(180deg, #ffe477, var(--note));
-    box-shadow:
-      0 1.2rem 2.6rem var(--note-shadow),
-      0 0.2rem 0.45rem rgba(73, 49, 8, 0.18),
-      inset 0 -1.1rem 1.4rem rgba(188, 133, 6, 0.12);
-    transform: rotate(2.3deg);
-  }
-
-  .post-it::before {
-    position: absolute;
-    inset: 0;
-    content: "";
-    pointer-events: none;
-    background:
-      repeating-linear-gradient(0deg, transparent 0 16px, rgba(94, 66, 13, 0.055) 17px 18px),
-      radial-gradient(circle at 12% 18%, rgba(119, 82, 11, 0.16) 0 1px, transparent 1.4px),
-      radial-gradient(circle at 69% 74%, rgba(119, 82, 11, 0.12) 0 1px, transparent 1.5px);
-    background-size: auto, 41px 41px, 53px 47px;
-    mix-blend-mode: multiply;
-    opacity: 0.72;
-  }
-
-  .post-it::after {
-    position: absolute;
-    right: 0.6rem;
-    bottom: 0.55rem;
-    width: 3.2rem;
-    height: 3.2rem;
-    content: "";
-    background: linear-gradient(135deg, transparent 0 50%, rgba(187, 128, 7, 0.16) 51% 100%);
-    clip-path: polygon(100% 0, 0 100%, 100% 100%);
-    opacity: 0.9;
-  }
-
-  .post-it p {
-    position: relative;
+  .post-it-image {
     z-index: 1;
-    max-width: 10ch;
-    margin: 0;
-    font-family: "Caveat", "Bradley Hand", "Comic Sans MS", cursive;
-    font-size: clamp(3rem, 9vw, 5.9rem);
-    font-weight: 700;
-    line-height: 0.82;
-    text-align: center;
-    letter-spacing: 0;
-    transform: rotate(-2deg);
+    display: block;
+    width: clamp(20rem, 52vw, 34rem);
+    max-width: 100%;
+    height: auto;
+    margin-top: clamp(0.75rem, 2.4vw, 1.8rem);
+    user-select: none;
+    -webkit-user-drag: none;
   }
 
   .socials {
@@ -425,16 +366,9 @@ const socialLinks = [
       font-size: clamp(2.1rem, 12vw, 3.7rem);
     }
 
-    .post-it {
-      width: min(82vw, 20rem);
-      min-height: clamp(12.2rem, 52vw, 16rem);
-      margin-top: clamp(1.25rem, 5vw, 2.2rem);
-    }
-
-    .post-it p {
-      max-width: 9ch;
-      font-size: clamp(3rem, 14vw, 4.8rem);
-      line-height: 0.88;
+    .post-it-image {
+      width: min(100%, 30rem);
+      margin-top: clamp(0.9rem, 4vw, 1.45rem);
     }
 
     .sketch-line {
@@ -452,8 +386,8 @@ const socialLinks = [
   }
 
   @media (max-width: 360px) {
-    .post-it {
-      width: min(86vw, 17.5rem);
+    .post-it-image {
+      width: min(100%, 27rem);
     }
 
     .social-link {
@@ -470,16 +404,9 @@ const socialLinks = [
       padding-block: 0.75rem;
     }
 
-    .post-it {
-      width: min(72vw, 18rem);
-      min-height: 9.1rem;
-      margin-top: 1.85rem;
-      padding: 1rem;
-    }
-
-    .post-it p {
-      font-size: clamp(2.35rem, 9vh, 3.35rem);
-      line-height: 0.9;
+    .post-it-image {
+      width: min(78vw, 22rem);
+      margin-top: 0.9rem;
     }
   }
 </style>
