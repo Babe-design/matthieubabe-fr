@@ -50,8 +50,15 @@ const alphaForPixel = (r, g, b, x, y) => {
   const columnHasPaper = columnMax[x] >= columnMin[x];
   const insidePaperRow = rowHasPaper && x >= rowMin[y] + 2 && x <= rowMax[y] - 2;
   const insidePaperColumn = columnHasPaper && y >= columnMin[x] + 2 && y <= columnMax[x] - 2;
+  const insideInkSafeArea =
+    rowHasPaper &&
+    columnHasPaper &&
+    x >= rowMin[y] + 44 &&
+    x <= rowMax[y] - 44 &&
+    y >= columnMin[x] + 44 &&
+    y <= columnMax[x] - 44;
 
-  if (isPaper || (isBlackInk && insidePaperRow && insidePaperColumn)) {
+  if (isPaper || (isBlackInk && insidePaperRow && insidePaperColumn && insideInkSafeArea)) {
     return 255;
   }
 
