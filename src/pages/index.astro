@@ -58,20 +58,20 @@ const socialLinks = [
   </head>
   <body>
     <main class="page" aria-labelledby="page-title">
+      <h1 id="page-title" class="sr-only">Matthieu Babe</h1>
+      <p class="sr-only">I'm reworking this place.</p>
+      <img
+        class="name-tape-image"
+        src="/images/name-tape.png"
+        alt=""
+        width="1500"
+        height="339"
+        loading="eager"
+        decoding="async"
+        draggable="false"
+        aria-hidden="true"
+      />
       <section class="composition">
-        <h1 id="page-title" class="sr-only">Matthieu Babe</h1>
-        <p class="sr-only">I'm reworking this place.</p>
-        <img
-          class="name-tape-image"
-          src="/images/name-tape.png"
-          alt=""
-          width="1500"
-          height="339"
-          loading="eager"
-          decoding="async"
-          draggable="false"
-          aria-hidden="true"
-        />
         <div class="post-it-wrap" aria-hidden="true">
           <img
             class="post-it-image"
@@ -162,7 +162,7 @@ const socialLinks = [
   .page {
     position: relative;
     display: grid;
-    grid-template-rows: 1fr auto;
+    place-items: center;
     min-height: 100svh;
     overflow-x: hidden;
     isolation: isolate;
@@ -179,15 +179,14 @@ const socialLinks = [
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-rows: auto auto;
     place-items: center;
     align-content: center;
-    row-gap: clamp(0.85rem, 2.2vh, 1.25rem);
-    align-self: center;
-    justify-self: center;
     width: min(100%, 42rem);
-    min-height: clamp(25rem, 62svh, 35rem);
-    padding: clamp(1rem, 4vw, 2.4rem);
+    min-height: clamp(20rem, 58svh, 32rem);
+    padding:
+      clamp(3.8rem, 11vh, 5.8rem)
+      clamp(0.75rem, 4vw, 2.4rem)
+      clamp(4.4rem, 12vh, 6rem);
   }
 
   .sr-only {
@@ -203,15 +202,18 @@ const socialLinks = [
   }
 
   .name-tape-image {
-    z-index: 2;
+    position: fixed;
+    top: max(0.8rem, env(safe-area-inset-top));
+    left: 50%;
+    z-index: 3;
     display: block;
-    width: clamp(16rem, 34vw, 30rem);
-    max-width: 94vw;
+    width: clamp(12rem, 24vw, 20rem);
+    max-width: 76vw;
     height: auto;
     filter:
       drop-shadow(0 0.15rem 0.08rem rgba(42, 31, 18, 0.12))
       drop-shadow(0.18rem 0.28rem 0.28rem rgba(42, 31, 18, 0.08));
-    transform: rotate(-3deg);
+    transform: translateX(-50%) rotate(-2.8deg);
     user-select: none;
     -webkit-user-drag: none;
   }
@@ -227,42 +229,43 @@ const socialLinks = [
 
   .post-it-wrap::before {
     position: absolute;
-    right: 20%;
-    bottom: 7%;
-    left: 12%;
+    right: 18%;
+    bottom: 14.5%;
+    left: 15%;
     z-index: -1;
-    height: 5%;
+    height: 4.6%;
     content: "";
     border-radius: 999px;
-    background: rgba(42, 31, 18, 0.07);
-    filter: blur(0.24rem);
-    transform: rotate(-2deg);
+    background: rgba(42, 31, 18, 0.18);
+    filter: blur(0.32rem);
+    transform: rotate(-3deg) translateY(0.08rem);
   }
 
   .post-it-image {
     z-index: 1;
     display: block;
-    width: clamp(15rem, 32vw, 22rem);
+    width: clamp(13rem, 26vw, 18.5rem);
     max-width: 100%;
     height: auto;
     filter:
-      drop-shadow(0 0.06rem 0.035rem rgba(42, 31, 18, 0.12))
-      drop-shadow(0.08rem 0.12rem 0.12rem rgba(42, 31, 18, 0.06));
+      drop-shadow(0 0.04rem 0.025rem rgba(42, 31, 18, 0.12))
+      drop-shadow(0.08rem 0.08rem 0.09rem rgba(42, 31, 18, 0.05));
+    transform: rotate(-3.2deg);
     user-select: none;
     -webkit-user-drag: none;
   }
 
   .socials {
-    position: relative;
-    z-index: 1;
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 3;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
     align-items: center;
-    gap: clamp(0.55rem, 1.5vw, 0.85rem);
-    width: min(100%, 36rem);
-    margin-inline: auto;
-    padding-bottom: clamp(0.1rem, 1vh, 0.85rem);
+    gap: clamp(0.48rem, 1.2vw, 0.72rem);
+    width: auto;
   }
 
   .social-link {
@@ -272,44 +275,35 @@ const socialLinks = [
     min-width: 3rem;
     min-height: 3rem;
     padding: 0.72rem;
-    border: 1px solid rgba(28, 26, 23, 0.18);
+    border: 0;
     border-radius: 999px;
     color: var(--ink);
-    background: rgba(255, 252, 241, 0.54);
+    background: rgba(255, 255, 255, 0.48);
+    -webkit-backdrop-filter: blur(18px) saturate(1.75);
+    backdrop-filter: blur(18px) saturate(1.75);
     text-decoration: none;
-    box-shadow: 0 0.38rem 0.8rem rgba(69, 55, 32, 0.08);
-    transform: rotate(var(--tilt));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.28),
+      0 0.55rem 1.4rem rgba(35, 31, 24, 0.12);
     transition:
       background-color 150ms ease,
       box-shadow 150ms ease,
       transform 150ms ease;
   }
 
-  .social-link:nth-child(1) {
-    --tilt: -2deg;
-  }
-
-  .social-link:nth-child(2) {
-    --tilt: 1.5deg;
-  }
-
-  .social-link:nth-child(3) {
-    --tilt: -1deg;
-  }
-
-  .social-link:nth-child(4) {
-    --tilt: 2deg;
-  }
-
   .social-link:hover {
-    background: rgba(255, 252, 241, 0.92);
-    box-shadow: 0 0.58rem 1rem rgba(69, 55, 32, 0.13);
-    transform: translateY(-2px) rotate(var(--tilt));
+    background: rgba(255, 255, 255, 0.68);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.82),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.32),
+      0 0.7rem 1.6rem rgba(35, 31, 24, 0.15);
+    transform: translateY(-2px);
   }
 
   .social-link:focus-visible {
-    outline: 3px solid rgba(28, 26, 23, 0.78);
-    outline-offset: 4px;
+    outline: 2px solid rgba(28, 26, 23, 0.62);
+    outline-offset: 3px;
   }
 
   .social-link svg {
@@ -331,29 +325,31 @@ const socialLinks = [
 
   @media (max-width: 720px) {
     .page {
-      grid-template-rows: minmax(0, 1fr) auto;
       padding-inline: clamp(0.8rem, 4vw, 1.25rem);
-      background-size: 36px 36px, auto, auto;
+      background-size: 36px 36px, auto;
     }
 
     .composition {
       width: 100%;
-      min-height: min(68svh, 32rem);
-      padding-inline: 0.5rem;
-      row-gap: clamp(0.75rem, 2vh, 1rem);
+      min-height: min(65svh, 30rem);
+      padding:
+        clamp(3.5rem, 10vh, 4.8rem)
+        0.5rem
+        clamp(4.8rem, 12vh, 6rem);
     }
 
     .name-tape-image {
-      width: min(86vw, 23rem);
+      width: min(68vw, 16rem);
     }
 
     .post-it-image {
-      width: min(78vw, 20rem);
+      width: min(68vw, 17.25rem);
     }
 
     .socials {
-      max-width: 22rem;
-      gap: 0.5rem;
+      right: max(0.82rem, env(safe-area-inset-right));
+      bottom: max(0.82rem, env(safe-area-inset-bottom));
+      gap: 0.45rem;
     }
 
     .social-link {
@@ -363,11 +359,11 @@ const socialLinks = [
 
   @media (max-width: 360px) {
     .name-tape-image {
-      width: min(84vw, 20rem);
+      width: min(64vw, 14rem);
     }
 
     .post-it-image {
-      width: min(78vw, 18rem);
+      width: min(68vw, 15.4rem);
     }
 
     .social-link {
@@ -380,17 +376,16 @@ const socialLinks = [
 
   @media (max-height: 650px) {
     .composition {
-      min-height: auto;
-      padding-block: 0.75rem;
-      row-gap: 0.6rem;
+      min-height: min(54svh, 22rem);
+      padding-block: clamp(2.8rem, 10vh, 4rem) clamp(4rem, 14vh, 5rem);
     }
 
     .name-tape-image {
-      width: min(58vw, 18rem);
+      width: min(32vw, 15rem);
     }
 
     .post-it-image {
-      width: min(52vw, 16rem);
+      width: min(34vw, 14rem);
     }
   }
 </style>

@@ -76,6 +76,7 @@ const resized = await sharp(output, {
   .toBuffer({ resolveWithObject: true });
 
 const cleaned = Buffer.from(resized.data);
+const inkMask = new Uint8ClampedArray(resized.info.width * resized.info.height);
 
 for (let y = 0; y < resized.info.height; y += 1) {
   for (let x = 0; x < resized.info.width; x += 1) {
@@ -97,10 +98,67 @@ for (let y = 0; y < resized.info.height; y += 1) {
     if (greenDominance > 16) {
       cleaned[index + 1] = Math.min(g, Math.max(r, b) + 8);
     }
+
+    const blueInk =
+      a > 96 &&
+      b > 72 &&
+      b > r * 1.12 &&
+      b > g * 1.04 &&
+      g < 190;
+
+    if (blueInk) {
+      const blueStrength = Math.min(1, (b - Math.max(r, g) + 42) / 92);
+      inkMask[y * resized.info.width + x] = Math.round(blueStrength * 255);
+    }
   }
 }
 
-await sharp(cleaned, {
+const markerInk = [18, 18, 16];
+const inkened = Buffer.from(cleaned);
+
+for (let y = 0; y < resized.info.height; y += 1) {
+  for (let x = 0; x < resized.info.width; x += 1) {
+    const index = (y * resized.info.width + x) * 4;
+    const a = cleaned[index + 3];
+
+    if (a === 0) {
+      continue;
+    }
+
+    let strength = inkMask[y * resized.info.width + x] / 255;
+
+    for (let oy = -2; oy <= 2; oy += 1) {
+      for (let ox = -2; ox <= 2; ox += 1) {
+        const nx = x + ox;
+        const ny = y + oy;
+
+        if (nx < 0 || ny < 0 || nx >= resized.info.width || ny >= resized.info.height) {
+          continue;
+        }
+
+        const distance = Math.hypot(ox, oy);
+        if (distance > 2.2) {
+          continue;
+        }
+
+        const neighbor = inkMask[ny * resized.info.width + nx] / 255;
+        const falloff = Math.max(0, 1 - distance / 2.35);
+        strength = Math.max(strength, neighbor * falloff * 0.82);
+      }
+    }
+
+    if (strength <= 0.04) {
+      continue;
+    }
+
+    const markerOpacity = Math.min(0.94, 0.3 + strength * 0.72);
+    inkened[index] = Math.round(cleaned[index] * (1 - markerOpacity) + markerInk[0] * markerOpacity);
+    inkened[index + 1] = Math.round(cleaned[index + 1] * (1 - markerOpacity) + markerInk[1] * markerOpacity);
+    inkened[index + 2] = Math.round(cleaned[index + 2] * (1 - markerOpacity) + markerInk[2] * markerOpacity);
+  }
+}
+
+await sharp(inkened, {
   raw: {
     width: resized.info.width,
     height: resized.info.height,
