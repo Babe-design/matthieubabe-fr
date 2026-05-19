@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2560" height="1440" viewBox="0 0 2560 1440" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="blueBase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#092945"/>
+      <stop offset="0.5" stop-color="#0b4774"/>
+      <stop offset="1" stop-color="#061c33"/>
+    </linearGradient>
+    <radialGradient id="blueGlow" cx="50%" cy="55%" r="68%">
+      <stop offset="0" stop-color="#27a7dc" stop-opacity="0.22"/>
+      <stop offset="0.48" stop-color="#0f6fa5" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="#02101e" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="blueMinor" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#d9f8ff" stroke-opacity="0.1" stroke-width="1"/>
+    </pattern>
+    <pattern id="blueMajor" width="160" height="160" patternUnits="userSpaceOnUse">
+      <path d="M160 0H0V160" fill="none" stroke="#e8fbff" stroke-opacity="0.26" stroke-width="1.4"/>
+    </pattern>
+    <pattern id="blueDots" width="64" height="64" patternUnits="userSpaceOnUse">
+      <circle cx="0" cy="0" r="1.4" fill="#ecfdff" fill-opacity="0.18"/>
+    </pattern>
+    <filter id="paperNoise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.62" numOctaves="4" seed="43"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.11"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+
+  <rect width="2560" height="1440" fill="url(#blueBase)"/>
+  <rect width="2560" height="1440" fill="url(#blueGlow)"/>
+  <rect width="2560" height="1440" fill="url(#blueMinor)"/>
+  <rect width="2560" height="1440" fill="url(#blueDots)"/>
+  <rect width="2560" height="1440" fill="url(#blueMajor)"/>
+
+  <g fill="none" stroke="#e7fbff" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M132 180H2428V1260H132z" stroke-opacity="0.28" stroke-width="1.6"/>
+    <path d="M132 340H2428M132 500H2428M132 660H2428M132 820H2428M132 980H2428M132 1140H2428" stroke-opacity="0.17" stroke-width="1.1"/>
+    <path d="M292 180V1260M452 180V1260M612 180V1260M772 180V1260M932 180V1260M1092 180V1260M1252 180V1260M1412 180V1260M1572 180V1260M1732 180V1260M1892 180V1260M2052 180V1260M2212 180V1260" stroke-opacity="0.17" stroke-width="1.1"/>
+    <path d="M180 1190L910 460L1390 940L2190 140M420 210L2175 1198M250 975L2250 648" stroke-opacity="0.17" stroke-width="1.5"/>
+    <path d="M500 1160A430 430 0 0 1 930 730M1670 470A245 245 0 0 1 1915 225M1730 945A315 315 0 0 0 2045 630" stroke-opacity="0.24" stroke-width="1.4"/>
+    <circle cx="880" cy="720" r="170" stroke-opacity="0.18" stroke-width="1.2"/>
+    <circle cx="880" cy="720" r="92" stroke-opacity="0.16" stroke-width="1"/>
+    <path d="M710 720H1050M880 550V890" stroke-opacity="0.16" stroke-width="1"/>
+    <path d="M1540 890h410v230h-410zM1540 890l410 230M1950 890l-410 230" stroke-opacity="0.18" stroke-width="1.2"/>
+    <path d="M372 292h320v190H372zM1848 278h268v144H1848zM352 860h245v245H352z" stroke-opacity="0.14" stroke-width="1.1"/>
+    <path d="M420 1110l55-55l52 52M1850 420l72-72h128M1580 1040l112-112h178" stroke-opacity="0.2" stroke-width="1.4"/>
+  </g>
+
+  <g fill="#e9fbff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" opacity="0.32">
+    <text x="190" y="150" font-size="18">PLAN 01</text>
+    <text x="2140" y="150" font-size="18">SCALE 1:1</text>
+    <text x="150" y="1310" font-size="15">X 000</text>
+    <text x="2310" y="1310" font-size="15">Y 1440</text>
+    <text x="1895" y="363" font-size="14">DETAIL A</text>
+    <text x="394" y="334" font-size="14">GRID REF</text>
+    <text x="1564" y="1088" font-size="14">CUT LINE</text>
+    <text x="990" y="685" font-size="13" transform="rotate(-35 990 685)">45 DEG</text>
+    <text x="1778" y="880" font-size="13" transform="rotate(-18 1778 880)">R315</text>
+  </g>
+
+  <g fill="none" stroke="#e9fbff" stroke-opacity="0.34">
+    <path d="M72 70H2488V1370H72z" stroke-width="1"/>
+    <path d="M72 86h26M72 102h15M72 118h15M72 134h15M72 150h26M2488 86h-26M2488 102h-15M2488 118h-15M2488 134h-15M2488 150h-26" stroke-width="1"/>
+    <path d="M160 70v26M176 70v15M192 70v15M208 70v15M224 70v26M160 1370v-26M176 1370v-15M192 1370v-15M208 1370v-15M224 1370v-26" stroke-width="1"/>
+  </g>
+
+  <rect width="2560" height="1440" filter="url(#paperNoise)" opacity="0.46"/>
+  <rect width="2560" height="1440" fill="#02101e" opacity="0.09"/>
+</svg>

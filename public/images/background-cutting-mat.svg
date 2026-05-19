@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2560" height="1440" viewBox="0 0 2560 1440" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="matBase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#062819"/>
+      <stop offset="0.42" stop-color="#053f2d"/>
+      <stop offset="0.72" stop-color="#07553d"/>
+      <stop offset="1" stop-color="#031e17"/>
+    </linearGradient>
+    <radialGradient id="matGlow" cx="42%" cy="82%" r="72%">
+      <stop offset="0" stop-color="#00c28a" stop-opacity="0.3"/>
+      <stop offset="0.38" stop-color="#00996e" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#00120d" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="minorGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#44d7a4" stroke-opacity="0.09" stroke-width="1"/>
+    </pattern>
+    <pattern id="majorGrid" width="200" height="200" patternUnits="userSpaceOnUse">
+      <path d="M200 0H0V200" fill="none" stroke="#48e0ad" stroke-opacity="0.2" stroke-width="1.6"/>
+    </pattern>
+    <pattern id="dashGrid" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M80 40H0M40 0V80" fill="none" stroke="#b7ffe8" stroke-opacity="0.07" stroke-width="1" stroke-dasharray="5 9"/>
+    </pattern>
+    <pattern id="topTicks" width="40" height="64" patternUnits="userSpaceOnUse">
+      <path d="M0 0V64M10 0V18M20 0V30M30 0V18" stroke="#8dffd8" stroke-opacity="0.28" stroke-width="1"/>
+    </pattern>
+    <pattern id="sideTicks" width="64" height="40" patternUnits="userSpaceOnUse">
+      <path d="M0 0H64M0 10H18M0 20H30M0 30H18" stroke="#8dffd8" stroke-opacity="0.28" stroke-width="1"/>
+    </pattern>
+    <filter id="matGrain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" seed="28"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.12"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+
+  <rect width="2560" height="1440" fill="url(#matBase)"/>
+  <rect width="2560" height="1440" fill="url(#matGlow)"/>
+  <rect width="2560" height="1440" fill="url(#minorGrid)"/>
+  <rect width="2560" height="1440" fill="url(#dashGrid)"/>
+  <rect width="2560" height="1440" fill="url(#majorGrid)"/>
+
+  <g opacity="0.55">
+    <rect x="16" y="16" width="2528" height="1408" fill="none" stroke="#51eab8" stroke-opacity="0.35" stroke-width="1.2"/>
+    <rect x="16" y="16" width="2528" height="64" fill="url(#topTicks)" opacity="0.65"/>
+    <rect x="16" y="1360" width="2528" height="64" fill="url(#topTicks)" opacity="0.65" transform="rotate(180 1280 1392)"/>
+    <rect x="16" y="16" width="64" height="1408" fill="url(#sideTicks)" opacity="0.65"/>
+    <rect x="2480" y="16" width="64" height="1408" fill="url(#sideTicks)" opacity="0.65" transform="rotate(180 2512 720)"/>
+  </g>
+
+  <g fill="#86ffe0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18" opacity="0.22">
+    <text x="251" y="58">2</text><text x="451" y="58">4</text><text x="651" y="58">6</text><text x="851" y="58">8</text><text x="1051" y="58">10</text><text x="1251" y="58">12</text><text x="1451" y="58">14</text><text x="1651" y="58">16</text><text x="1851" y="58">18</text><text x="2051" y="58">20</text><text x="2251" y="58">22</text><text x="2451" y="58">24</text>
+    <text x="28" y="246">12</text><text x="28" y="446">10</text><text x="28" y="646">8</text><text x="28" y="846">6</text><text x="28" y="1046">4</text><text x="28" y="1246">2</text>
+    <text x="2498" y="246">12</text><text x="2498" y="446">10</text><text x="2498" y="646">8</text><text x="2498" y="846">6</text><text x="2498" y="1046">4</text><text x="2498" y="1246">2</text>
+  </g>
+
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M80 1360L1160 280M310 1388L2230 820M620 90L2380 1335M1210 70L1850 710M1560 40L790 810" stroke="#7bf8d5" stroke-opacity="0.13" stroke-width="1.3"/>
+    <path d="M0 1395C360 1315 650 1130 650 860C650 575 430 405 270 250" stroke="#7bf8d5" stroke-opacity="0.12" stroke-width="1.2"/>
+    <path d="M115 1330A560 560 0 0 0 645 800" stroke="#7bf8d5" stroke-opacity="0.22" stroke-width="2"/>
+    <path d="M125 1326L135 1294M158 1318L166 1289M191 1308L199 1279M224 1296L233 1268M257 1280L270 1252M290 1262L306 1235M323 1239L341 1214M356 1213L378 1192M389 1184L415 1168M421 1151L450 1138M452 1115L484 1105M482 1077L516 1070M509 1038L545 1035M532 998L569 999M549 958L587 963" stroke="#8dffd8" stroke-opacity="0.24" stroke-width="1.1"/>
+    <path d="M2060 925A220 220 0 0 1 2280 705M1650 492A140 140 0 0 1 1790 352" stroke="#7bf8d5" stroke-opacity="0.15" stroke-width="1.3"/>
+    <path d="M1420 900h375v185h-375zM1390 870l430 245M1820 870l-430 245" stroke="#7bf8d5" stroke-opacity="0.1" stroke-width="1.2"/>
+    <path d="M70 118h230v520H70zM1920 180h370v205H1920zM2120 1085h185v205H2120z" stroke="#7bf8d5" stroke-opacity="0.1" stroke-width="1"/>
+    <path d="M810 810h34v34h-34zM1225 565h34v34h-34zM1720 205h34v34h-34z" fill="#58f2bf" stroke="none" opacity="0.13"/>
+  </g>
+
+  <g fill="#90ffe0" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" opacity="0.18">
+    <text x="1228" y="590">A4</text>
+    <text x="815" y="835">A5</text>
+    <text x="1722" y="230">43</text>
+    <text x="87" y="132">VT</text>
+    <text x="88" y="322">TEMP</text>
+    <text x="456" y="1190" transform="rotate(-35 456 1190)">45</text>
+    <text x="2142" y="820" transform="rotate(-10 2142 820)">120</text>
+    <text x="1618" y="474" transform="rotate(-11 1618 474)">105</text>
+    <text x="2380" y="760" transform="rotate(-23 2380 760)">15</text>
+  </g>
+
+  <rect width="2560" height="1440" filter="url(#matGrain)" opacity="0.5"/>
+  <rect width="2560" height="1440" fill="none" stroke="#052015" stroke-width="36" opacity="0.35"/>
+  <rect width="2560" height="1440" fill="url(#matBase)" opacity="0.12"/>
+</svg>

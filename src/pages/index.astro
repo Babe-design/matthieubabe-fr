@@ -27,10 +27,25 @@ const socialLinks = [
     icon: "linkedin"
   }
 ];
+
+const backgroundOptions = [
+  {
+    id: "paper",
+    label: "Dotted paper background"
+  },
+  {
+    id: "cutting",
+    label: "Cutting mat background"
+  },
+  {
+    id: "blueprint",
+    label: "Blueprint background"
+  }
+];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-background="paper">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -55,6 +70,18 @@ const socialLinks = [
 
     <title>{pageTitle}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      (() => {
+        try {
+          const savedBackground = localStorage.getItem("matthieu-background");
+          if (["paper", "cutting", "blueprint"].includes(savedBackground)) {
+            document.documentElement.dataset.background = savedBackground;
+          }
+        } catch {
+          document.documentElement.dataset.background = "paper";
+        }
+      })();
+    </script>
   </head>
   <body>
     <svg
@@ -118,6 +145,23 @@ const socialLinks = [
         </div>
       </section>
 
+      <div class="background-switcher" role="group" aria-label="Background style">
+        {
+          backgroundOptions.map((option) => (
+            <button
+              class={`background-button background-button-${option.id}`}
+              type="button"
+              data-background-option={option.id}
+              aria-label={option.label}
+              aria-pressed={option.id === "paper" ? "true" : "false"}
+              title={option.label}
+            >
+              <span class="background-swatch" aria-hidden="true" />
+            </button>
+          ))
+        }
+      </div>
+
       <nav class="socials" aria-label="Social links">
         {
           socialLinks.map((link) => (
@@ -155,6 +199,55 @@ const socialLinks = [
         }
       </nav>
     </main>
+    <script is:inline>
+      (() => {
+        const allowedBackgrounds = ["paper", "cutting", "blueprint"];
+        const themeColors = {
+          paper: "#ffffff",
+          cutting: "#063826",
+          blueprint: "#0a3d66"
+        };
+        const root = document.documentElement;
+        const metaTheme = document.querySelector('meta[name="theme-color"]');
+        const buttons = Array.from(
+          document.querySelectorAll("[data-background-option]")
+        );
+
+        const applyBackground = (nextBackground, shouldPersist = true) => {
+          const background = allowedBackgrounds.includes(nextBackground)
+            ? nextBackground
+            : "paper";
+
+          root.dataset.background = background;
+          if (metaTheme) {
+            metaTheme.setAttribute("content", themeColors[background]);
+          }
+          buttons.forEach((button) => {
+            button.setAttribute(
+              "aria-pressed",
+              String(button.dataset.backgroundOption === background)
+            );
+          });
+
+          if (!shouldPersist) {
+            return;
+          }
+
+          try {
+            localStorage.setItem("matthieu-background", background);
+          } catch {
+            /* Preference persistence is a nice-to-have. */
+          }
+        };
+
+        applyBackground(root.dataset.background, false);
+        buttons.forEach((button) => {
+          button.addEventListener("click", () => {
+            applyBackground(button.dataset.backgroundOption);
+          });
+        });
+      })();
+    </script>
   </body>
 </html>
 
@@ -164,6 +257,31 @@ const socialLinks = [
     --paper: #ffffff;
     --dot: rgba(39, 39, 37, 0.16);
     --ink: #1c1a17;
+    --page-background-color: var(--paper);
+    --page-background-image: radial-gradient(circle at center, var(--dot) 0 1.45px, transparent 1.6px);
+    --page-background-size: 42px 42px;
+    --page-background-position: 0 0;
+    --page-background-repeat: repeat;
+  }
+
+  html[data-background="cutting"] {
+    --page-background-color: #063826;
+    --page-background-image:
+      linear-gradient(180deg, rgba(1, 16, 11, 0.16), rgba(1, 16, 11, 0.28)),
+      url("/images/background-cutting-mat.svg");
+    --page-background-size: cover, cover;
+    --page-background-position: center, center;
+    --page-background-repeat: no-repeat, no-repeat;
+  }
+
+  html[data-background="blueprint"] {
+    --page-background-color: #0a3d66;
+    --page-background-image:
+      linear-gradient(180deg, rgba(2, 13, 27, 0.1), rgba(2, 13, 27, 0.22)),
+      url("/images/background-blueprint.svg");
+    --page-background-size: cover, cover;
+    --page-background-position: center, center;
+    --page-background-repeat: no-repeat, no-repeat;
   }
 
   * {
@@ -202,9 +320,12 @@ const socialLinks = [
       max(1.25rem, env(safe-area-inset-top))
       clamp(1rem, 4vw, 3.5rem)
       max(1.25rem, env(safe-area-inset-bottom));
-    background:
-      radial-gradient(circle at center, var(--dot) 0 1.45px, transparent 1.6px) 0 0 / 42px 42px,
-      var(--paper);
+    background-color: var(--page-background-color);
+    background-image: var(--page-background-image);
+    background-position: var(--page-background-position);
+    background-repeat: var(--page-background-repeat);
+    background-size: var(--page-background-size);
+    transition: background-color 220ms ease;
   }
 
   .glass-filter-defs {
@@ -280,6 +401,172 @@ const socialLinks = [
     transform: rotate(-3.2deg);
     user-select: none;
     -webkit-user-drag: none;
+  }
+
+  .background-switcher {
+    position: fixed;
+    left: max(1rem, env(safe-area-inset-left));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 0.28rem;
+    padding: 0.34rem;
+    border-radius: 999px;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.24) 46%, rgba(255, 255, 255, 0.52)),
+      rgba(255, 255, 255, 0.22);
+    -webkit-backdrop-filter: blur(26px) saturate(1.9) brightness(1.08);
+    backdrop-filter: blur(26px) saturate(1.9) brightness(1.08);
+    box-shadow:
+      0 1.1rem 2.6rem rgba(28, 25, 20, 0.14),
+      0 0.22rem 0.62rem rgba(28, 25, 20, 0.08),
+      inset 0 1px 1px rgba(255, 255, 255, 0.92),
+      inset 0 -1px 1px rgba(255, 255, 255, 0.34),
+      inset 0 0 0 0.5px rgba(255, 255, 255, 0.64);
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .background-switcher::before,
+  .background-switcher::after {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    content: "";
+  }
+
+  .background-switcher::before {
+    z-index: -1;
+    background:
+      radial-gradient(circle at 20% 14%, rgba(255, 255, 255, 0.9), transparent 32%),
+      linear-gradient(115deg, transparent 10%, rgba(255, 255, 255, 0.52) 25%, transparent 47%);
+    opacity: 0.68;
+    mix-blend-mode: screen;
+  }
+
+  .background-switcher::after {
+    z-index: 0;
+    box-shadow:
+      inset 1px 1px 1.5px rgba(255, 255, 255, 0.82),
+      inset -1px -1px 1.5px rgba(255, 255, 255, 0.2);
+  }
+
+  @supports ((backdrop-filter: url("#liquid-glass-refraction")) or (-webkit-backdrop-filter: url("#liquid-glass-refraction"))) {
+    .background-switcher {
+      -webkit-backdrop-filter: url("#liquid-glass-refraction") blur(22px) saturate(1.95) brightness(1.08);
+      backdrop-filter: url("#liquid-glass-refraction") blur(22px) saturate(1.95) brightness(1.08);
+    }
+  }
+
+  .background-button {
+    position: relative;
+    z-index: 1;
+    display: inline-grid;
+    place-items: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at 32% 18%, rgba(255, 255, 255, 0.42), transparent 38%),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.015) 56%, rgba(255, 255, 255, 0.1)),
+      rgba(255, 255, 255, 0.02);
+    box-shadow:
+      inset 0 1px 0.75px rgba(255, 255, 255, 0.34),
+      inset 0 -1px 1px rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition:
+      background-color 150ms ease,
+      box-shadow 150ms ease,
+      transform 150ms ease;
+  }
+
+  .background-button::before,
+  .background-button::after {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    content: "";
+  }
+
+  .background-button::before {
+    background:
+      linear-gradient(122deg, transparent 15%, rgba(255, 255, 255, 0.48) 33%, transparent 51%),
+      radial-gradient(circle at 76% 18%, rgba(255, 255, 255, 0.44), transparent 29%);
+    opacity: 0.36;
+    transform: translateX(-8%) rotate(-7deg);
+  }
+
+  .background-button::after {
+    box-shadow:
+      inset 0.75px 0.75px 1px rgba(255, 255, 255, 0.34),
+      inset 0 0 11px rgba(255, 255, 255, 0.08);
+  }
+
+  .background-button:hover {
+    background:
+      radial-gradient(circle at 28% 14%, rgba(255, 255, 255, 0.9), transparent 36%),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.06) 58%, rgba(255, 255, 255, 0.24)),
+      rgba(255, 255, 255, 0.12);
+    transform: translateY(-1px) scale(1.035);
+  }
+
+  .background-button:focus-visible {
+    outline: 0;
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.94),
+      0 0 0 4px rgba(28, 26, 23, 0.58),
+      inset 0 1px 0.75px rgba(255, 255, 255, 0.95),
+      inset 0 -1px 1px rgba(255, 255, 255, 0.28),
+      inset 0 0 0 0.5px rgba(255, 255, 255, 0.44);
+  }
+
+  .background-button[aria-pressed="true"] {
+    background:
+      radial-gradient(circle at 32% 18%, rgba(255, 255, 255, 0.95), transparent 36%),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.16) 58%, rgba(255, 255, 255, 0.38)),
+      rgba(255, 255, 255, 0.22);
+    box-shadow:
+      inset 0 1px 0.75px rgba(255, 255, 255, 0.95),
+      inset 0 -1px 1px rgba(255, 255, 255, 0.28),
+      inset 0 0 0 0.5px rgba(255, 255, 255, 0.54),
+      0 0.24rem 0.8rem rgba(28, 25, 20, 0.08);
+  }
+
+  .background-swatch {
+    position: relative;
+    z-index: 1;
+    width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 999px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.46),
+      0 0.08rem 0.22rem rgba(28, 25, 20, 0.18);
+    overflow: hidden;
+  }
+
+  .background-button-paper .background-swatch {
+    background:
+      radial-gradient(circle, rgba(39, 39, 37, 0.26) 0 1.3px, transparent 1.5px) 1px 1px / 7px 7px,
+      #ffffff;
+  }
+
+  .background-button-cutting .background-swatch {
+    background:
+      linear-gradient(rgba(88, 242, 191, 0.32) 1px, transparent 1px) 0 0 / 7px 7px,
+      linear-gradient(90deg, rgba(88, 242, 191, 0.32) 1px, transparent 1px) 0 0 / 7px 7px,
+      linear-gradient(135deg, #073824, #087254);
+  }
+
+  .background-button-blueprint .background-swatch {
+    background:
+      linear-gradient(rgba(232, 251, 255, 0.46) 1px, transparent 1px) 0 0 / 7px 7px,
+      linear-gradient(90deg, rgba(232, 251, 255, 0.46) 1px, transparent 1px) 0 0 / 7px 7px,
+      linear-gradient(135deg, #0b3459, #1681b8);
   }
 
   .socials {
@@ -439,7 +726,10 @@ const socialLinks = [
   @media (max-width: 720px) {
     .page {
       padding-inline: clamp(0.8rem, 4vw, 1.25rem);
-      background-size: 36px 36px, auto;
+    }
+
+    html[data-background="paper"] .page {
+      background-size: 36px 36px;
     }
 
     .composition {
@@ -466,6 +756,12 @@ const socialLinks = [
       padding: 0.32rem;
     }
 
+    .background-switcher {
+      left: max(0.82rem, env(safe-area-inset-left));
+      bottom: max(0.82rem, env(safe-area-inset-bottom));
+      padding: 0.32rem;
+    }
+
     .social-link {
       padding: 0.72rem;
     }
@@ -486,6 +782,22 @@ const socialLinks = [
       padding: 0.64rem 0.68rem;
     }
 
+  }
+
+  @media (max-width: 480px) {
+    .background-switcher {
+      flex-direction: column;
+    }
+
+    .background-button {
+      min-width: 2.75rem;
+      min-height: 2.75rem;
+    }
+
+    .background-swatch {
+      width: 1.16rem;
+      height: 1.16rem;
+    }
   }
 
   @media (max-height: 650px) {
