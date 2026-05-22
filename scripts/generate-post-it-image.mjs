@@ -1,104 +1,187 @@
 import sharp from "sharp";
 
-const sourcePath = "scripts/assets/post-it-options-source.png";
+const sourcePath = "scripts/assets/post-it-final-source.png";
 const outputPath = "public/images/post-it-reworking.png";
-const crop = { left: 1220, top: 130, width: 580, height: 640 };
 const canvasSize = 1200;
-const subjectWidth = 1040;
-const subjectLeft = 80;
-const subjectTop = 42;
+const crop = { left: 102, top: 74, width: 820, height: 790 };
+const subjectWidth = 1100;
+
+const polygon = [
+  [172, 181],
+  [819, 141],
+  [888, 732],
+  [234, 812]
+].map(([x, y]) => [x - crop.left, y - crop.top]);
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-const source = sharp(sourcePath).extract(crop).ensureAlpha();
-const { data, info } = await source.raw().toBuffer({ resolveWithObject: true });
-const noteSpans = Array.from({ length: info.height }, () => ({
-  min: info.width,
-  max: -1
-}));
+const smoothstep = (edge0, edge1, value) => {
+  const t = clamp((value - edge0) / (edge1 - edge0), 0, 1);
+  return t * t * (3 - 2 * t);
+};
 
-for (let y = 0; y < info.height; y += 1) {
-  for (let x = 0; x < info.width; x += 1) {
-    const index = (y * info.width + x) * info.channels;
-    const r = data[index];
-    const g = data[index + 1];
-    const b = data[index + 2];
-    const maxChannel = Math.max(r, g, b);
-    const minChannel = Math.min(r, g, b);
-    const isPostItYellow =
-      r > 150 &&
-      g > 105 &&
-      b < 170 &&
-      maxChannel - minChannel > 38 &&
-      r > g * 0.92 &&
-      g > b * 1.35;
+const pixelIndex = (x, y, width, channels = 4) => (y * width + x) * channels;
 
-    if (isPostItYellow) {
-      noteSpans[y].min = Math.min(noteSpans[y].min, x);
-      noteSpans[y].max = Math.max(noteSpans[y].max, x);
+const distanceToSegment = (px, py, ax, ay, bx, by) => {
+  const abx = bx - ax;
+  const aby = by - ay;
+  const apx = px - ax;
+  const apy = py - ay;
+  const abLengthSquared = abx * abx + aby * aby;
+  const t = abLengthSquared === 0 ? 0 : clamp((apx * abx + apy * aby) / abLengthSquared, 0, 1);
+  const closestX = ax + abx * t;
+  const closestY = ay + aby * t;
+
+  return Math.hypot(px - closestX, py - closestY);
+};
+
+const pointInPolygon = (px, py, points) => {
+  let inside = false;
+
+  for (let i = 0, j = points.length - 1; i < points.length; j = i, i += 1) {
+    const [xi, yi] = points[i];
+    const [xj, yj] = points[j];
+    const intersects = yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi;
+
+    if (intersects) {
+      inside = !inside;
     }
   }
-}
 
-for (let y = 1; y < info.height - 1; y += 1) {
-  if (noteSpans[y].max - noteSpans[y].min >= 80) {
-    continue;
+  return inside;
+};
+
+const signedDistanceToPolygon = (px, py, points) => {
+  let distance = Number.POSITIVE_INFINITY;
+
+  for (let i = 0; i < points.length; i += 1) {
+    const [ax, ay] = points[i];
+    const [bx, by] = points[(i + 1) % points.length];
+    distance = Math.min(distance, distanceToSegment(px, py, ax, ay, bx, by));
   }
 
-  const previous = noteSpans[y - 1];
-  const next = noteSpans[y + 1];
+  return pointInPolygon(px, py, points) ? distance : -distance;
+};
 
-  if (previous.max - previous.min > 120 && next.max - next.min > 120) {
-    noteSpans[y].min = Math.round((previous.min + next.min) / 2);
-    noteSpans[y].max = Math.round((previous.max + next.max) / 2);
-  }
-}
+const makeTransparentSubject = async () => {
+  const source = sharp(sourcePath).extract(crop).ensureAlpha();
+  const { data, info } = await source.raw().toBuffer({ resolveWithObject: true });
+  const output = Buffer.alloc(info.width * info.height * 4);
+  const feather = 2.2;
 
-const rgba = Buffer.alloc(data.length);
+  for (let y = 0; y < info.height; y += 1) {
+    for (let x = 0; x < info.width; x += 1) {
+      const sourceIndex = pixelIndex(x, y, info.width, info.channels);
+      const outputIndex = pixelIndex(x, y, info.width, 4);
+      const distance = signedDistanceToPolygon(x + 0.5, y + 0.5, polygon);
+      const alpha = Math.round(255 * smoothstep(-feather, feather, distance));
 
-for (let y = 0; y < info.height; y += 1) {
-  const span = noteSpans[y];
-  const hasPostIt = span.max - span.min > 120;
+      if (alpha <= 2) {
+        continue;
+      }
 
-  for (let x = 0; x < info.width; x += 1) {
-    const index = (y * info.width + x) * 4;
-    const r = data[index];
-    const g = data[index + 1];
-    const b = data[index + 2];
-    const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    const insidePostIt = hasPostIt && x >= span.min - 1 && x <= span.max + 1;
-
-    if (insidePostIt) {
-      rgba[index] = r;
-      rgba[index + 1] = g;
-      rgba[index + 2] = b;
-      rgba[index + 3] = 255;
-      continue;
-    }
-
-    // Recreate the generated contact shadow as alpha so the dotted page
-    // background can remain visible around the note.
-    const shadowAlpha = clamp(Math.round((255 - luma) * 1.05), 0, 70);
-
-    if (shadowAlpha > 3) {
-      rgba[index] = 28;
-      rgba[index + 1] = 24;
-      rgba[index + 2] = 20;
-      rgba[index + 3] = shadowAlpha;
+      output[outputIndex] = data[sourceIndex];
+      output[outputIndex + 1] = data[sourceIndex + 1];
+      output[outputIndex + 2] = data[sourceIndex + 2];
+      output[outputIndex + 3] = alpha;
     }
   }
-}
 
-const subject = await sharp(rgba, {
+  return sharp(output, {
+    raw: {
+      width: info.width,
+      height: info.height,
+      channels: 4
+    }
+  })
+    .resize({ width: subjectWidth, kernel: "lanczos3" })
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+};
+
+const shadowFromSubject = async ({ subject, left, top, blur, offsetX, offsetY, opacity, contactOnly }) => {
+  const shadow = Buffer.alloc(canvasSize * canvasSize * 4);
+  const width = subject.info.width;
+  const height = subject.info.height;
+
+  for (let y = 0; y < height; y += 1) {
+    const yProgress = y / Math.max(1, height - 1);
+    const verticalFalloff = contactOnly
+      ? smoothstep(0.62, 1, yProgress)
+      : 0.28 + smoothstep(0.15, 1, yProgress) * 0.72;
+
+    for (let x = 0; x < width; x += 1) {
+      const sourceIndex = pixelIndex(x, y, width, 4);
+      const alpha = subject.data[sourceIndex + 3];
+
+      if (alpha <= 3) {
+        continue;
+      }
+
+      const targetX = left + offsetX + x;
+      const targetY = top + offsetY + y;
+
+      if (targetX < 0 || targetY < 0 || targetX >= canvasSize || targetY >= canvasSize) {
+        continue;
+      }
+
+      const targetIndex = pixelIndex(targetX, targetY, canvasSize, 4);
+      shadow[targetIndex] = 36;
+      shadow[targetIndex + 1] = 28;
+      shadow[targetIndex + 2] = 14;
+      shadow[targetIndex + 3] = clamp(
+        shadow[targetIndex + 3] + Math.round(alpha * opacity * verticalFalloff),
+        0,
+        255
+      );
+    }
+  }
+
+  return sharp(shadow, {
+    raw: {
+      width: canvasSize,
+      height: canvasSize,
+      channels: 4
+    }
+  })
+    .blur(blur)
+    .png()
+    .toBuffer();
+};
+
+const subject = await makeTransparentSubject();
+const subjectPng = await sharp(subject.data, {
   raw: {
-    width: info.width,
-    height: info.height,
+    width: subject.info.width,
+    height: subject.info.height,
     channels: 4
   }
 })
-  .resize({ width: subjectWidth, kernel: "lanczos3" })
   .png()
   .toBuffer();
+
+const left = Math.round((canvasSize - subject.info.width) / 2);
+const top = 58;
+const broadShadow = await shadowFromSubject({
+  subject,
+  left,
+  top,
+  blur: 26,
+  offsetX: 22,
+  offsetY: 34,
+  opacity: 0.07,
+  contactOnly: false
+});
+const contactShadow = await shadowFromSubject({
+  subject,
+  left,
+  top,
+  blur: 9,
+  offsetX: 8,
+  offsetY: 13,
+  opacity: 0.025,
+  contactOnly: true
+});
 
 await sharp({
   create: {
@@ -108,7 +191,11 @@ await sharp({
     background: { r: 255, g: 255, b: 255, alpha: 0 }
   }
 })
-  .composite([{ input: subject, left: subjectLeft, top: subjectTop }])
+  .composite([
+    { input: broadShadow, left: 0, top: 0 },
+    { input: contactShadow, left: 0, top: 0 },
+    { input: subjectPng, left, top }
+  ])
   .png({ compressionLevel: 9 })
   .toFile(outputPath);
 
