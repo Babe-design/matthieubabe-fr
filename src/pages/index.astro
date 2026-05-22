@@ -88,38 +88,6 @@ const backgroundOptions = [
     </script>
   </head>
   <body>
-    <svg
-      class="glass-filter-defs"
-      aria-hidden="true"
-      focusable="false"
-      width="0"
-      height="0"
-    >
-      <filter
-        id="liquid-glass-refraction"
-        x="-30%"
-        y="-30%"
-        width="160%"
-        height="160%"
-        color-interpolation-filters="sRGB"
-      >
-        <feTurbulence
-          type="fractalNoise"
-          baseFrequency="0.018 0.032"
-          numOctaves="2"
-          seed="17"
-          result="grain"
-        />
-        <feGaussianBlur in="grain" stdDeviation="1.35" result="softGrain" />
-        <feDisplacementMap
-          in="SourceGraphic"
-          in2="softGrain"
-          scale="17"
-          xChannelSelector="R"
-          yChannelSelector="G"
-        />
-      </filter>
-    </svg>
     <main class="page" aria-labelledby="page-title">
       <h1 id="page-title" class="sr-only">Matthieu Babe</h1>
       <p class="sr-only">I'm reworking this place.</p>
@@ -150,6 +118,7 @@ const backgroundOptions = [
       </section>
 
       <div class="background-switcher" role="group" aria-label="Background style">
+        <span class="background-selected-indicator" aria-hidden="true"></span>
         {
           backgroundOptions.map((option) => (
             <button
@@ -213,9 +182,48 @@ const backgroundOptions = [
         };
         const root = document.documentElement;
         const metaTheme = document.querySelector('meta[name="theme-color"]');
+        const switcher = document.querySelector(".background-switcher");
         const buttons = Array.from(
           document.querySelectorAll("[data-background-option]")
         );
+        let indicatorFrame = 0;
+
+        const syncSelectedIndicator = () => {
+          if (!switcher || buttons.length === 0) {
+            return;
+          }
+
+          const selectedButton =
+            buttons.find((button) => button.getAttribute("aria-pressed") === "true") ||
+            buttons[0];
+          const switcherRect = switcher.getBoundingClientRect();
+          const buttonRect = selectedButton.getBoundingClientRect();
+          const switcherStyles = getComputedStyle(switcher);
+          const borderLeft = parseFloat(switcherStyles.borderLeftWidth) || 0;
+          const borderTop = parseFloat(switcherStyles.borderTopWidth) || 0;
+
+          switcher.style.setProperty(
+            "--indicator-x",
+            `${buttonRect.left - switcherRect.left - borderLeft}px`
+          );
+          switcher.style.setProperty(
+            "--indicator-y",
+            `${buttonRect.top - switcherRect.top - borderTop}px`
+          );
+          switcher.style.setProperty("--indicator-width", `${buttonRect.width}px`);
+          switcher.style.setProperty("--indicator-height", `${buttonRect.height}px`);
+        };
+
+        const queueSelectedIndicatorSync = () => {
+          if (indicatorFrame) {
+            cancelAnimationFrame(indicatorFrame);
+          }
+
+          indicatorFrame = requestAnimationFrame(() => {
+            indicatorFrame = 0;
+            syncSelectedIndicator();
+          });
+        };
 
         const applyBackground = (nextBackground, shouldPersist = true) => {
           const background = allowedBackgrounds.includes(nextBackground)
@@ -232,6 +240,7 @@ const backgroundOptions = [
               String(button.dataset.backgroundOption === background)
             );
           });
+          queueSelectedIndicatorSync();
 
           if (!shouldPersist) {
             return;
@@ -245,11 +254,25 @@ const backgroundOptions = [
         };
 
         applyBackground(root.dataset.background, false);
+        window.addEventListener("resize", queueSelectedIndicatorSync, {
+          passive: true
+        });
+        window.addEventListener("load", queueSelectedIndicatorSync, {
+          once: true
+        });
+
+        if ("ResizeObserver" in window && switcher) {
+          const resizeObserver = new ResizeObserver(queueSelectedIndicatorSync);
+          resizeObserver.observe(switcher);
+          buttons.forEach((button) => resizeObserver.observe(button));
+        }
+
         buttons.forEach((button) => {
           button.addEventListener("click", () => {
             applyBackground(button.dataset.backgroundOption);
           });
         });
+        queueSelectedIndicatorSync();
       })();
     </script>
     <SpeedInsights />
@@ -267,6 +290,14 @@ const backgroundOptions = [
     --page-background-size: 42px 42px;
     --page-background-position: 0 0;
     --page-background-repeat: repeat;
+    --control-surface: rgba(43, 43, 45, 0.74);
+    --control-border: rgba(255, 255, 255, 0.12);
+    --control-shadow: rgba(16, 15, 14, 0.18);
+    --control-ink: rgba(255, 255, 255, 0.9);
+    --control-ink-muted: rgba(255, 255, 255, 0.58);
+    --selected-surface: rgba(247, 247, 249, 0.96);
+    --selected-ink: rgba(15, 15, 17, 0.96);
+    --focus-ring: rgba(0, 122, 255, 0.74);
   }
 
   html[data-background="cutting"] {
@@ -277,6 +308,14 @@ const backgroundOptions = [
     --page-background-size: cover, cover;
     --page-background-position: center, center;
     --page-background-repeat: no-repeat, no-repeat;
+    --control-surface: rgba(246, 248, 246, 0.54);
+    --control-border: rgba(255, 255, 255, 0.48);
+    --control-shadow: rgba(0, 14, 9, 0.26);
+    --control-ink: rgba(12, 22, 17, 0.92);
+    --control-ink-muted: rgba(10, 19, 15, 0.6);
+    --selected-surface: rgba(248, 250, 248, 0.94);
+    --selected-ink: rgba(8, 17, 13, 0.96);
+    --focus-ring: rgba(245, 255, 251, 0.84);
   }
 
   html[data-background="blueprint"] {
@@ -287,6 +326,14 @@ const backgroundOptions = [
     --page-background-size: cover, cover;
     --page-background-position: center, center;
     --page-background-repeat: no-repeat, no-repeat;
+    --control-surface: rgba(246, 248, 252, 0.54);
+    --control-border: rgba(255, 255, 255, 0.48);
+    --control-shadow: rgba(0, 12, 25, 0.26);
+    --control-ink: rgba(8, 15, 24, 0.9);
+    --control-ink-muted: rgba(9, 16, 24, 0.58);
+    --selected-surface: rgba(248, 250, 255, 0.94);
+    --selected-ink: rgba(6, 12, 22, 0.96);
+    --focus-ring: rgba(242, 249, 255, 0.86);
   }
 
   * {
@@ -331,13 +378,6 @@ const backgroundOptions = [
     background-repeat: var(--page-background-repeat);
     background-size: var(--page-background-size);
     transition: background-color 220ms ease;
-  }
-
-  .glass-filter-defs {
-    position: absolute;
-    width: 0;
-    height: 0;
-    overflow: hidden;
   }
 
   .composition {
@@ -413,56 +453,44 @@ const backgroundOptions = [
     left: max(1rem, env(safe-area-inset-left));
     bottom: max(1rem, env(safe-area-inset-bottom));
     z-index: 4;
+    --indicator-x: 0.3rem;
+    --indicator-y: 0.3rem;
+    --indicator-width: 2.8rem;
+    --indicator-height: 2.8rem;
     display: flex;
     align-items: center;
-    gap: 0.28rem;
-    padding: 0.34rem;
-    border-radius: 999px;
-    background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.24) 46%, rgba(255, 255, 255, 0.52)),
-      rgba(255, 255, 255, 0.22);
-    -webkit-backdrop-filter: blur(26px) saturate(1.9) brightness(1.08);
-    backdrop-filter: blur(26px) saturate(1.9) brightness(1.08);
+    gap: 0.18rem;
+    padding: 0.3rem;
+    border: 1px solid var(--control-border);
+    border-radius: 2rem;
+    background: var(--control-surface);
+    -webkit-backdrop-filter: blur(24px) saturate(1.25);
+    backdrop-filter: blur(24px) saturate(1.25);
     box-shadow:
-      0 1.1rem 2.6rem rgba(28, 25, 20, 0.14),
-      0 0.22rem 0.62rem rgba(28, 25, 20, 0.08),
-      inset 0 1px 1px rgba(255, 255, 255, 0.92),
-      inset 0 -1px 1px rgba(255, 255, 255, 0.34),
-      inset 0 0 0 0.5px rgba(255, 255, 255, 0.64);
+      0 1rem 2.2rem var(--control-shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
     isolation: isolate;
     overflow: hidden;
   }
 
-  .background-switcher::before,
-  .background-switcher::after {
+  .background-selected-indicator {
     position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    content: "";
-  }
-
-  .background-switcher::before {
-    z-index: -1;
-    background:
-      radial-gradient(circle at 20% 14%, rgba(255, 255, 255, 0.9), transparent 32%),
-      linear-gradient(115deg, transparent 10%, rgba(255, 255, 255, 0.52) 25%, transparent 47%);
-    opacity: 0.68;
-    mix-blend-mode: screen;
-  }
-
-  .background-switcher::after {
+    top: 0;
+    left: 0;
     z-index: 0;
+    width: var(--indicator-width);
+    height: var(--indicator-height);
+    border-radius: 1.58rem;
+    background: var(--selected-surface);
     box-shadow:
-      inset 1px 1px 1.5px rgba(255, 255, 255, 0.82),
-      inset -1px -1px 1.5px rgba(255, 255, 255, 0.2);
-  }
-
-  @supports ((backdrop-filter: url("#liquid-glass-refraction")) or (-webkit-backdrop-filter: url("#liquid-glass-refraction"))) {
-    .background-switcher {
-      -webkit-backdrop-filter: url("#liquid-glass-refraction") blur(22px) saturate(1.95) brightness(1.08);
-      backdrop-filter: url("#liquid-glass-refraction") blur(22px) saturate(1.95) brightness(1.08);
-    }
+      0 0.26rem 0.7rem rgba(0, 0, 0, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+    transform: translate3d(var(--indicator-x), var(--indicator-y), 0);
+    transition:
+      width 360ms cubic-bezier(0.22, 1, 0.36, 1),
+      height 360ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .background-button {
@@ -470,88 +498,54 @@ const backgroundOptions = [
     z-index: 1;
     display: inline-grid;
     place-items: center;
-    min-width: 2.75rem;
-    min-height: 2.75rem;
+    min-width: 2.8rem;
+    min-height: 2.8rem;
     padding: 0;
     border: 0;
-    border-radius: 999px;
-    background:
-      radial-gradient(circle at 32% 18%, rgba(255, 255, 255, 0.42), transparent 38%),
-      linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.015) 56%, rgba(255, 255, 255, 0.1)),
-      rgba(255, 255, 255, 0.02);
-    box-shadow:
-      inset 0 1px 0.75px rgba(255, 255, 255, 0.34),
-      inset 0 -1px 1px rgba(255, 255, 255, 0.1);
+    border-radius: 1.55rem;
+    background: transparent;
+    color: var(--control-ink-muted);
+    box-shadow: none;
     cursor: pointer;
     transition:
-      background-color 150ms ease,
-      box-shadow 150ms ease,
-      transform 150ms ease;
-  }
-
-  .background-button::before,
-  .background-button::after {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    content: "";
-  }
-
-  .background-button::before {
-    background:
-      linear-gradient(122deg, transparent 15%, rgba(255, 255, 255, 0.48) 33%, transparent 51%),
-      radial-gradient(circle at 76% 18%, rgba(255, 255, 255, 0.44), transparent 29%);
-    opacity: 0.36;
-    transform: translateX(-8%) rotate(-7deg);
-  }
-
-  .background-button::after {
-    box-shadow:
-      inset 0.75px 0.75px 1px rgba(255, 255, 255, 0.34),
-      inset 0 0 11px rgba(255, 255, 255, 0.08);
+      color 180ms ease,
+      transform 180ms ease;
   }
 
   .background-button:hover {
-    background:
-      radial-gradient(circle at 28% 14%, rgba(255, 255, 255, 0.9), transparent 36%),
-      linear-gradient(145deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.06) 58%, rgba(255, 255, 255, 0.24)),
-      rgba(255, 255, 255, 0.12);
-    transform: translateY(-1px) scale(1.035);
+    color: var(--control-ink);
+    transform: scale(1.04);
   }
 
   .background-button:focus-visible {
-    outline: 0;
-    box-shadow:
-      0 0 0 2px rgba(255, 255, 255, 0.94),
-      0 0 0 4px rgba(28, 26, 23, 0.58),
-      inset 0 1px 0.75px rgba(255, 255, 255, 0.95),
-      inset 0 -1px 1px rgba(255, 255, 255, 0.28),
-      inset 0 0 0 0.5px rgba(255, 255, 255, 0.44);
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
   }
 
   .background-button[aria-pressed="true"] {
-    background:
-      radial-gradient(circle at 32% 18%, rgba(255, 255, 255, 0.95), transparent 36%),
-      linear-gradient(145deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.16) 58%, rgba(255, 255, 255, 0.38)),
-      rgba(255, 255, 255, 0.22);
-    box-shadow:
-      inset 0 1px 0.75px rgba(255, 255, 255, 0.95),
-      inset 0 -1px 1px rgba(255, 255, 255, 0.28),
-      inset 0 0 0 0.5px rgba(255, 255, 255, 0.54),
-      0 0.24rem 0.8rem rgba(28, 25, 20, 0.08);
+    color: var(--selected-ink);
   }
 
   .background-swatch {
     position: relative;
     z-index: 1;
-    width: 1.3rem;
-    height: 1.3rem;
-    border-radius: 999px;
+    width: 1.18rem;
+    height: 1.18rem;
+    border-radius: 0.28rem;
     box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.46),
-      0 0.08rem 0.22rem rgba(28, 25, 20, 0.18);
+      inset 0 0 0 1px rgba(255, 255, 255, 0.42),
+      0 0.06rem 0.16rem rgba(0, 0, 0, 0.18);
     overflow: hidden;
+    transition:
+      box-shadow 180ms ease,
+      transform 180ms ease;
+  }
+
+  .background-button[aria-pressed="true"] .background-swatch {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+      0 0.08rem 0.2rem rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
   }
 
   .background-button-paper .background-swatch {
@@ -583,56 +577,18 @@ const backgroundOptions = [
     flex-wrap: nowrap;
     justify-content: flex-end;
     align-items: center;
-    gap: clamp(0.28rem, 0.8vw, 0.42rem);
+    gap: 0.18rem;
     width: auto;
-    padding: 0.36rem;
-    border-radius: 999px;
-    background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.22) 44%, rgba(255, 255, 255, 0.5)),
-      rgba(255, 255, 255, 0.2);
-    -webkit-backdrop-filter: blur(26px) saturate(1.9) brightness(1.08);
-    backdrop-filter: blur(26px) saturate(1.9) brightness(1.08);
+    padding: 0.3rem;
+    border: 1px solid var(--control-border);
+    border-radius: 2rem;
+    background: var(--control-surface);
+    -webkit-backdrop-filter: blur(24px) saturate(1.25);
+    backdrop-filter: blur(24px) saturate(1.25);
     box-shadow:
-      0 1.1rem 2.6rem rgba(28, 25, 20, 0.14),
-      0 0.22rem 0.62rem rgba(28, 25, 20, 0.08),
-      inset 0 1px 1px rgba(255, 255, 255, 0.92),
-      inset 0 -1px 1px rgba(255, 255, 255, 0.34),
-      inset 0 0 0 0.5px rgba(255, 255, 255, 0.64);
-    isolation: isolate;
+      0 1rem 2.2rem var(--control-shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
     overflow: hidden;
-  }
-
-  .socials::before,
-  .socials::after {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    content: "";
-  }
-
-  .socials::before {
-    z-index: -1;
-    background:
-      radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.92), transparent 31%),
-      radial-gradient(circle at 84% 86%, rgba(255, 255, 255, 0.3), transparent 36%),
-      linear-gradient(115deg, transparent 8%, rgba(255, 255, 255, 0.62) 21%, transparent 42%);
-    opacity: 0.72;
-    mix-blend-mode: screen;
-  }
-
-  .socials::after {
-    z-index: 0;
-    box-shadow:
-      inset 1px 1px 1.5px rgba(255, 255, 255, 0.82),
-      inset -1px -1px 1.5px rgba(255, 255, 255, 0.2);
-  }
-
-  @supports ((backdrop-filter: url("#liquid-glass-refraction")) or (-webkit-backdrop-filter: url("#liquid-glass-refraction"))) {
-    .socials {
-      -webkit-backdrop-filter: url("#liquid-glass-refraction") blur(22px) saturate(1.95) brightness(1.08);
-      backdrop-filter: url("#liquid-glass-refraction") blur(22px) saturate(1.95) brightness(1.08);
-    }
   }
 
   .social-link {
@@ -641,72 +597,34 @@ const backgroundOptions = [
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 2.95rem;
-    min-height: 2.95rem;
+    min-width: 2.8rem;
+    min-height: 2.8rem;
     padding: 0.72rem;
     border: 0;
-    border-radius: 999px;
-    color: rgba(22, 21, 19, 0.9);
-    background:
-      radial-gradient(circle at 32% 18%, rgba(255, 255, 255, 0.42), transparent 38%),
-      linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.015) 56%, rgba(255, 255, 255, 0.1)),
-      rgba(255, 255, 255, 0.02);
+    border-radius: 1.55rem;
+    color: var(--control-ink);
+    background: transparent;
     text-decoration: none;
-    box-shadow:
-      inset 0 1px 0.75px rgba(255, 255, 255, 0.34),
-      inset 0 -1px 1px rgba(255, 255, 255, 0.1);
-    overflow: hidden;
+    box-shadow: none;
     transition:
-      background-color 150ms ease,
-      box-shadow 150ms ease,
       color 150ms ease,
+      opacity 150ms ease,
       transform 150ms ease;
   }
 
   .social-link::before,
   .social-link::after {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    content: "";
-  }
-
-  .social-link::before {
-    background:
-      linear-gradient(122deg, transparent 15%, rgba(255, 255, 255, 0.5) 33%, transparent 51%),
-      radial-gradient(circle at 76% 18%, rgba(255, 255, 255, 0.44), transparent 29%);
-    opacity: 0.38;
-    transform: translateX(-8%) rotate(-7deg);
-  }
-
-  .social-link::after {
-    box-shadow:
-      inset 0.75px 0.75px 1px rgba(255, 255, 255, 0.34),
-      inset 0 0 11px rgba(255, 255, 255, 0.08);
+    content: none;
   }
 
   .social-link:hover {
-    color: rgba(14, 13, 12, 0.96);
-    background:
-      radial-gradient(circle at 28% 14%, rgba(255, 255, 255, 0.9), transparent 36%),
-      linear-gradient(145deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.06) 58%, rgba(255, 255, 255, 0.24)),
-      rgba(255, 255, 255, 0.12);
-    box-shadow:
-      inset 0 1px 0.75px rgba(255, 255, 255, 0.95),
-      inset 0 -1px 1px rgba(255, 255, 255, 0.28),
-      inset 0 0 0 0.5px rgba(255, 255, 255, 0.44);
-    transform: translateY(-1px) scale(1.035);
+    opacity: 0.82;
+    transform: scale(1.06);
   }
 
   .social-link:focus-visible {
-    outline: 0;
-    box-shadow:
-      0 0 0 2px rgba(255, 255, 255, 0.94),
-      0 0 0 4px rgba(28, 26, 23, 0.58),
-      inset 0 1px 0.75px rgba(255, 255, 255, 0.95),
-      inset 0 -1px 1px rgba(255, 255, 255, 0.28),
-      inset 0 0 0 0.5px rgba(255, 255, 255, 0.44);
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
   }
 
   .social-link svg {
