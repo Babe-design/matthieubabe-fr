@@ -1,4 +1,6 @@
 ---
+import Analytics from '@vercel/analytics/astro';
+
 const pageTitle = "Matthieu Babe";
 const pageDescription =
   "Matthieu Babe is reworking this place. A quieter, more personal site is coming soon.";
@@ -52,6 +54,7 @@ const backgroundOptions = [
     <meta name="description" content={pageDescription} />
     <meta name="theme-color" content="#ffffff" />
     <link rel="canonical" href={siteUrl} />
+    <Analytics />
 
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={pageDescription} />
