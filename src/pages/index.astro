@@ -74,6 +74,13 @@ const backgroundOptions = [
 
     <title>{pageTitle}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      as="image"
+      href="/images/post-it-reworking-1200.png"
+      imagesrcset="/images/post-it-reworking-1200.png 1200w, /images/post-it-reworking-2000.png 2000w"
+      imagesizes="(max-height: 650px) 14rem, (max-width: 720px) 68vw, 18.5rem"
+    />
     <script is:inline>
       (() => {
         const allowedBackgrounds = ["paper", "cutting", "blueprint"];
@@ -121,11 +128,14 @@ const backgroundOptions = [
         <div class="post-it-wrap" aria-hidden="true">
           <img
             class="post-it-image"
-            src="/images/post-it-reworking.png"
+            src="/images/post-it-reworking-1200.png"
+            srcset="/images/post-it-reworking-1200.png 1200w, /images/post-it-reworking-2000.png 2000w"
+            sizes="(max-height: 650px) 14rem, (max-width: 720px) 68vw, 18.5rem"
             alt=""
-            width="1200"
-            height="1200"
+            width="2000"
+            height="2000"
             loading="eager"
+            fetchpriority="high"
             decoding="async"
             draggable="false"
           />
