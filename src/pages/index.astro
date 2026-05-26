@@ -300,6 +300,9 @@ const backgroundOptions = [
         queueSelectedIndicatorSync();
       })();
     </script>
+    <script>
+      import "../scripts/liquid-glass-controls";
+    </script>
     <SpeedInsights />
   </body>
 </html>
@@ -529,6 +532,46 @@ const backgroundOptions = [
       transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
+  .liquid-glass-layer {
+    position: absolute;
+    z-index: 0;
+    display: block;
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+  }
+
+  .liquid-glass-canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  html[data-liquid-glass="active"] .background-switcher,
+  html[data-liquid-glass="active"] .socials {
+    border-color: transparent;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  html[data-liquid-glass="active"] .liquid-glass-layer {
+    opacity: 1;
+  }
+
+  html[data-liquid-glass="active"] .background-selected-indicator {
+    z-index: 1;
+    background: transparent;
+    box-shadow: none;
+  }
+
   .background-button {
     position: relative;
     z-index: 1;
@@ -624,6 +667,7 @@ const backgroundOptions = [
     box-shadow:
       0 1rem 2.2rem var(--control-shadow),
       inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    isolation: isolate;
     overflow: hidden;
   }
 
@@ -646,6 +690,11 @@ const backgroundOptions = [
       color 150ms ease,
       opacity 150ms ease,
       transform 150ms ease;
+  }
+
+  html[data-liquid-glass="active"] .background-button,
+  html[data-liquid-glass="active"] .social-link {
+    z-index: 2;
   }
 
   .social-link::before,
