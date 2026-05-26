@@ -323,6 +323,11 @@ const backgroundOptions = [
     --control-shadow: rgba(16, 15, 14, 0.18);
     --control-ink: rgba(255, 255, 255, 0.9);
     --control-ink-muted: rgba(255, 255, 255, 0.58);
+    --control-glass-top: rgba(255, 255, 255, 0.22);
+    --control-glass-bottom: rgba(20, 20, 22, 0.5);
+    --control-glass-edge: rgba(255, 255, 255, 0.3);
+    --control-glass-shine: rgba(255, 255, 255, 0.42);
+    --control-glass-depth: rgba(0, 0, 0, 0.24);
     --selected-surface: rgba(247, 247, 249, 0.96);
     --selected-ink: rgba(15, 15, 17, 0.96);
     --focus-ring: rgba(0, 122, 255, 0.74);
@@ -341,6 +346,11 @@ const backgroundOptions = [
     --control-shadow: rgba(0, 14, 9, 0.26);
     --control-ink: rgba(12, 22, 17, 0.92);
     --control-ink-muted: rgba(10, 19, 15, 0.6);
+    --control-glass-top: rgba(255, 255, 255, 0.66);
+    --control-glass-bottom: rgba(206, 232, 218, 0.34);
+    --control-glass-edge: rgba(255, 255, 255, 0.68);
+    --control-glass-shine: rgba(255, 255, 255, 0.82);
+    --control-glass-depth: rgba(0, 27, 18, 0.24);
     --selected-surface: rgba(248, 250, 248, 0.94);
     --selected-ink: rgba(8, 17, 13, 0.96);
     --focus-ring: rgba(245, 255, 251, 0.84);
@@ -359,6 +369,11 @@ const backgroundOptions = [
     --control-shadow: rgba(0, 12, 25, 0.26);
     --control-ink: rgba(8, 15, 24, 0.9);
     --control-ink-muted: rgba(9, 16, 24, 0.58);
+    --control-glass-top: rgba(255, 255, 255, 0.68);
+    --control-glass-bottom: rgba(208, 222, 238, 0.34);
+    --control-glass-edge: rgba(255, 255, 255, 0.7);
+    --control-glass-shine: rgba(255, 255, 255, 0.84);
+    --control-glass-depth: rgba(0, 24, 52, 0.24);
     --selected-surface: rgba(248, 250, 255, 0.94);
     --selected-ink: rgba(6, 12, 22, 0.96);
     --focus-ring: rgba(242, 249, 255, 0.86);
@@ -502,14 +517,49 @@ const backgroundOptions = [
     padding: 0.3rem;
     border: 1px solid var(--control-border);
     border-radius: 2rem;
-    background: var(--control-surface);
-    -webkit-backdrop-filter: blur(24px) saturate(1.25);
-    backdrop-filter: blur(24px) saturate(1.25);
+    background:
+      linear-gradient(145deg, var(--control-glass-top), var(--control-surface) 48%, var(--control-glass-bottom)),
+      var(--control-surface);
+    -webkit-backdrop-filter: blur(34px) saturate(1.55) brightness(1.08);
+    backdrop-filter: blur(34px) saturate(1.55) brightness(1.08);
     box-shadow:
-      0 1rem 2.2rem var(--control-shadow),
-      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      0 1.25rem 2.7rem var(--control-shadow),
+      0 0.22rem 0.5rem rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 var(--control-glass-edge),
+      inset 0 -0.9rem 1.4rem var(--control-glass-depth);
     isolation: isolate;
     overflow: hidden;
+  }
+
+  .background-switcher::before,
+  .background-switcher::after,
+  .socials::before,
+  .socials::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .background-switcher::before,
+  .socials::before {
+    background:
+      radial-gradient(circle at 22% 16%, var(--control-glass-shine), transparent 32%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.32), transparent 44%),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.14), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.12));
+    opacity: 0.76;
+  }
+
+  .background-switcher::after,
+  .socials::after {
+    inset: 1px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background:
+      linear-gradient(135deg, transparent 0 42%, rgba(255, 255, 255, 0.28) 48%, transparent 56%),
+      radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, 0.16), transparent 58%);
+    opacity: 0.68;
   }
 
   .background-selected-indicator {
@@ -520,10 +570,15 @@ const backgroundOptions = [
     width: var(--indicator-width);
     height: var(--indicator-height);
     border-radius: 1.58rem;
-    background: var(--selected-surface);
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.9), var(--selected-surface) 44%, rgba(225, 231, 239, 0.52)),
+      var(--selected-surface);
+    -webkit-backdrop-filter: blur(18px) saturate(1.35) brightness(1.08);
+    backdrop-filter: blur(18px) saturate(1.35) brightness(1.08);
     box-shadow:
-      0 0.26rem 0.7rem rgba(0, 0, 0, 0.16),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      0 0.34rem 0.92rem rgba(0, 0, 0, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      inset 0 -0.38rem 0.8rem rgba(0, 0, 0, 0.08);
     pointer-events: none;
     transform: translate3d(var(--indicator-x), var(--indicator-y), 0);
     transition:
@@ -661,12 +716,16 @@ const backgroundOptions = [
     padding: 0.3rem;
     border: 1px solid var(--control-border);
     border-radius: 2rem;
-    background: var(--control-surface);
-    -webkit-backdrop-filter: blur(24px) saturate(1.25);
-    backdrop-filter: blur(24px) saturate(1.25);
+    background:
+      linear-gradient(145deg, var(--control-glass-top), var(--control-surface) 48%, var(--control-glass-bottom)),
+      var(--control-surface);
+    -webkit-backdrop-filter: blur(34px) saturate(1.55) brightness(1.08);
+    backdrop-filter: blur(34px) saturate(1.55) brightness(1.08);
     box-shadow:
-      0 1rem 2.2rem var(--control-shadow),
-      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      0 1.25rem 2.7rem var(--control-shadow),
+      0 0.22rem 0.5rem rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 var(--control-glass-edge),
+      inset 0 -0.9rem 1.4rem var(--control-glass-depth);
     isolation: isolate;
     overflow: hidden;
   }
@@ -695,6 +754,13 @@ const backgroundOptions = [
   html[data-liquid-glass="active"] .background-button,
   html[data-liquid-glass="active"] .social-link {
     z-index: 2;
+  }
+
+  html[data-liquid-glass="active"] .background-switcher::before,
+  html[data-liquid-glass="active"] .background-switcher::after,
+  html[data-liquid-glass="active"] .socials::before,
+  html[data-liquid-glass="active"] .socials::after {
+    content: none;
   }
 
   .social-link::before,
