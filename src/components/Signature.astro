@@ -1,0 +1,34 @@
+---
+import { site, changelog } from "../data/site";
+const latest = changelog[0].date;
+const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"short", timeZone:"UTC"}).format(new Date(latest));
+---
+<footer class="signature">
+  <p class="signature-links">
+    Reach me on{ " " }
+    {site.links.map((link, i) => <><a href={link.href} target="_blank" rel="noopener noreferrer">{link.name}</a>{i < site.links.length - 1 ? ", " : ""}</>)}
+    {site.email && <> or <a href={`mailto:${site.email}`}>email</a></>}
+  </p>
+  <p class="last-updated">
+    Last updated <time datetime={latest} data-updated-at={latest} title={`${formatted} UTC`}>{formatted} UTC</time><span data-ago hidden> ago</span>
+  </p>
+  <p class="changelog-link">Visit the <a href="/changelog/">changelog</a>.</p>
+</footer>
+<script>
+  const timer = document.querySelector<HTMLTimeElement>("[data-updated-at]");
+  if (timer) {
+    const updatedAt = Date.parse(timer.dataset.updatedAt!);
+    const tick = () => {
+      const elapsed = Math.max(0, Math.floor((Date.now() - updatedAt) / 1000));
+      const days = Math.floor(elapsed / 86400);
+      const hours = Math.floor((elapsed % 86400) / 3600);
+      const minutes = Math.floor((elapsed % 3600) / 60);
+      const seconds = elapsed % 60;
+      timer.textContent = `${days ? `${days}d ` : ""}${hours}h ${minutes}m ${seconds}s`;
+      document.querySelector<HTMLElement>("[data-ago]")?.removeAttribute("hidden");
+    };
+    tick();
+    const interval = window.setInterval(tick, 1000);
+    window.addEventListener("pagehide", () => window.clearInterval(interval), { once: true });
+  }
+</script>

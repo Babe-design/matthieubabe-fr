@@ -1,0 +1,23 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import Signature from "../components/Signature.astro";
+import { changelog } from "../data/site";
+const formatDate = (date: string) => new Intl.DateTimeFormat("en", { month: "long", day: "numeric", year: "numeric", timeZone: "America/Los_Angeles" }).format(new Date(date));
+---
+<SiteLayout title="Changelog — Matthieu Babe" description="A small record of what changes here, over time.">
+  <main id="content" class="changelog-content">
+    <a class="back-link" href="/">Back home</a>
+    <h1>Changelog</h1>
+    <p class="changelog-intro">A small record of what changes here, over time.</p>
+    <ol class="changelog-list">
+      {changelog.map(entry => <li class="changelog-entry">
+        <time datetime={entry.date}>{formatDate(entry.date)}</time>
+        <div>
+          <h2>{entry.title}</h2>
+          <ul>{entry.changes.map(change => <li>{change}</li>)}</ul>
+        </div>
+      </li>)}
+    </ol>
+  </main>
+  <Signature />
+</SiteLayout>

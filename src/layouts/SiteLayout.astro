@@ -1,0 +1,50 @@
+---
+import Analytics from "@vercel/analytics/astro";
+import SpeedInsights from "@vercel/speed-insights/astro";
+import { site } from "../data/site";
+import "../styles/site.css";
+interface Props { title?: string; description?: string; home?: boolean; }
+const { home = false, title = site.name, description = "The personal space of Matthieu Babe. A few things, over time." } = Astro.props;
+const canonical = new URL(Astro.url.pathname, site.url);
+---
+<!doctype html>
+<html lang="en" data-background="paper">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{title}</title>
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={`${site.url}/social/og-image.png`} />
+    <meta property="og:image:alt" content="Handwritten Matthieu Babe label on dotted paper" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${site.url}/social/og-image.png`} />
+    <meta name="twitter:image:alt" content="Handwritten Matthieu Babe label on dotted paper" />
+    <link rel="preload" as="image" href="/images/name-tape.png" />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin-400-normal.woff2" crossorigin />
+    <Analytics />
+  </head>
+  <body class:list={{ "is-home": home }}>
+    <a class="skip-link" href="#content">Skip to content</a>
+    {home && <div class="scroll-light" aria-hidden="true"></div>}
+    <div class="site-shell">
+      <header class="site-header">
+        <a class="name-tape" href="/" aria-label="Matthieu Babe — home" aria-current={Astro.url.pathname === "/" ? "page" : undefined}>
+          <img src="/images/name-tape.png" alt="Matthieu Babe" width="1500" height="339" fetchpriority="high" draggable="false" />
+        </a>
+      </header>
+      <slot />
+    </div>
+    <SpeedInsights />
+  </body>
+</html>
