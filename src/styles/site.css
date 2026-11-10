@@ -59,6 +59,24 @@ p { margin: 0; }
 .name-tape { display: block; flex: 0 0 var(--tape-width); width: var(--tape-width); transform: rotate(-2.8deg); transform-origin: 17.5% 50%; }
 .status-note { margin-top: 22px; color: #777; font: 400 15px/1.6 "IBM Plex Mono", monospace; letter-spacing: 0; white-space: nowrap; }
 .status-note code { font: inherit; }
+.typewriter { display: inline-grid; vertical-align: baseline; }
+.typewriter-measure, .typewriter-line { grid-area: 1 / 1; }
+.typewriter-measure { visibility: hidden; padding-inline-end: 1.25ch; }
+.typewriter-line { white-space: pre; }
+.typing-cursor {
+  display: inline-block;
+  inline-size: 1ch;
+  block-size: 1.1em;
+  margin-inline-start: .2ch;
+  vertical-align: -.18em;
+  background: #737373;
+}
+.status-note[data-typing="done"] .typing-cursor { animation: cursor-blink 1100ms step-end 450ms infinite; }
+.status-note[data-typing-paused] .typing-cursor { animation-play-state: paused; }
+@keyframes cursor-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .status-note[data-typing] .typing-cursor { animation: none; opacity: .8; }
+}
 .name-tape img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; filter: drop-shadow(0 3px 3px rgba(0,0,0,.1)); }
 .home-content { min-height: max(240px, calc(100svh - var(--top-space) - 48px)); padding-top: 24px; }
 .intro { padding-left: var(--name-inset); font-size: 18px; line-height: 1.4; letter-spacing: -.02em; }

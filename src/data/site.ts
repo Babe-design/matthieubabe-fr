@@ -15,6 +15,15 @@ export const site = {
 // Newest first. Use an ISO timestamp with a timezone for every published update.
 export const changelog = [
   {
+    date: "2026-11-10T02:06:50Z",
+    title: "A thought, typed out.",
+    changes: [
+      "The status types itself once, then waits with a blinking block cursor.",
+      "Removed the trailing dots and kept the layout steady while typing.",
+      "Reduced motion shows the full text with a still cursor."
+    ]
+  },
+  {
     date: "2026-11-10T01:57:40Z",
     title: "A quieter arrival.",
     changes: [
