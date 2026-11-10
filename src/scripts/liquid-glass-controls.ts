@@ -5,7 +5,7 @@ type LiquidHtml = InstanceType<LiquidCore["Html"]>;
 type LiquidContainer = InstanceType<LiquidCore["Container"]>;
 type LiquidGlass = InstanceType<LiquidCore["Glass"]>;
 
-type ControlKind = "background-switcher" | "socials";
+type ControlKind = "socials";
 
 type LiquidControlOptions = {
   kind: ControlKind;
@@ -44,12 +44,6 @@ declare global {
 }
 
 const controlOptions: LiquidControlOptions[] = [
-  {
-    kind: "background-switcher",
-    selector: ".background-switcher",
-    padding: 18,
-    selectedSelector: ".background-button[aria-pressed='true']"
-  },
   {
     kind: "socials",
     selector: ".socials",

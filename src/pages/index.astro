@@ -31,20 +31,6 @@ const socialLinks = [
   }
 ];
 
-const backgroundOptions = [
-  {
-    id: "paper",
-    label: "Dotted paper background"
-  },
-  {
-    id: "cutting",
-    label: "Cutting mat background"
-  },
-  {
-    id: "blueprint",
-    label: "Blueprint background"
-  }
-];
 ---
 
 <!doctype html>
@@ -91,16 +77,7 @@ const backgroundOptions = [
         };
         const root = document.documentElement;
         const metaTheme = document.querySelector('meta[name="theme-color"]');
-        let background = "paper";
-
-        try {
-          const savedBackground = localStorage.getItem("matthieu-background");
-          if (allowedBackgrounds.includes(savedBackground)) {
-            background = savedBackground;
-          }
-        } catch {
-          background = "paper";
-        }
+        const background = allowedBackgrounds[Math.floor(Math.random() * allowedBackgrounds.length)];
 
         root.dataset.background = background;
         if (metaTheme) {
@@ -142,24 +119,6 @@ const backgroundOptions = [
         </div>
       </section>
 
-      <div class="background-switcher" role="group" aria-label="Background style">
-        <span class="background-selected-indicator" aria-hidden="true"></span>
-        {
-          backgroundOptions.map((option) => (
-            <button
-              class={`background-button background-button-${option.id}`}
-              type="button"
-              data-background-option={option.id}
-              aria-label={option.label}
-              aria-pressed={option.id === "paper" ? "true" : "false"}
-              title={option.label}
-            >
-              <span class="background-swatch" aria-hidden="true" />
-            </button>
-          ))
-        }
-      </div>
-
       <nav class="socials" aria-label="Social links">
         {
           socialLinks.map((link) => (
@@ -197,109 +156,6 @@ const backgroundOptions = [
         }
       </nav>
     </main>
-    <script is:inline>
-      (() => {
-        const allowedBackgrounds = ["paper", "cutting", "blueprint"];
-        const themeColors = {
-          paper: "#ffffff",
-          cutting: "#063826",
-          blueprint: "#0a3d66"
-        };
-        const root = document.documentElement;
-        const metaTheme = document.querySelector('meta[name="theme-color"]');
-        const switcher = document.querySelector(".background-switcher");
-        const buttons = Array.from(
-          document.querySelectorAll("[data-background-option]")
-        );
-        let indicatorFrame = 0;
-
-        const syncSelectedIndicator = () => {
-          if (!switcher || buttons.length === 0) {
-            return;
-          }
-
-          const selectedButton =
-            buttons.find((button) => button.getAttribute("aria-pressed") === "true") ||
-            buttons[0];
-          const switcherRect = switcher.getBoundingClientRect();
-          const buttonRect = selectedButton.getBoundingClientRect();
-          const switcherStyles = getComputedStyle(switcher);
-          const borderLeft = parseFloat(switcherStyles.borderLeftWidth) || 0;
-          const borderTop = parseFloat(switcherStyles.borderTopWidth) || 0;
-
-          switcher.style.setProperty(
-            "--indicator-x",
-            `${buttonRect.left - switcherRect.left - borderLeft}px`
-          );
-          switcher.style.setProperty(
-            "--indicator-y",
-            `${buttonRect.top - switcherRect.top - borderTop}px`
-          );
-          switcher.style.setProperty("--indicator-width", `${buttonRect.width}px`);
-          switcher.style.setProperty("--indicator-height", `${buttonRect.height}px`);
-        };
-
-        const queueSelectedIndicatorSync = () => {
-          if (indicatorFrame) {
-            cancelAnimationFrame(indicatorFrame);
-          }
-
-          indicatorFrame = requestAnimationFrame(() => {
-            indicatorFrame = 0;
-            syncSelectedIndicator();
-          });
-        };
-
-        const applyBackground = (nextBackground, shouldPersist = true) => {
-          const background = allowedBackgrounds.includes(nextBackground)
-            ? nextBackground
-            : "paper";
-
-          root.dataset.background = background;
-          if (metaTheme) {
-            metaTheme.setAttribute("content", themeColors[background]);
-          }
-          buttons.forEach((button) => {
-            button.setAttribute(
-              "aria-pressed",
-              String(button.dataset.backgroundOption === background)
-            );
-          });
-          queueSelectedIndicatorSync();
-
-          if (!shouldPersist) {
-            return;
-          }
-
-          try {
-            localStorage.setItem("matthieu-background", background);
-          } catch {
-            /* Preference persistence is a nice-to-have. */
-          }
-        };
-
-        applyBackground(root.dataset.background, false);
-        window.addEventListener("resize", queueSelectedIndicatorSync, {
-          passive: true
-        });
-        window.addEventListener("load", queueSelectedIndicatorSync, {
-          once: true
-        });
-
-        if ("ResizeObserver" in window && switcher) {
-          const resizeObserver = new ResizeObserver(queueSelectedIndicatorSync);
-          resizeObserver.observe(switcher);
-          buttons.forEach((button) => resizeObserver.observe(button));
-        }
-
-        buttons.forEach((button) => {
-          button.addEventListener("click", () => {
-            applyBackground(button.dataset.backgroundOption);
-          });
-        });
-        queueSelectedIndicatorSync();
-      })();
-    </script>
     <script>
       import "../scripts/liquid-glass-controls";
     </script>
@@ -502,37 +358,6 @@ const backgroundOptions = [
     -webkit-user-drag: none;
   }
 
-  .background-switcher {
-    position: fixed;
-    left: calc(env(safe-area-inset-left) + 1rem);
-    bottom: calc(env(safe-area-inset-bottom) + 1rem);
-    z-index: 4;
-    --indicator-x: 0.3rem;
-    --indicator-y: 0.3rem;
-    --indicator-width: 2.8rem;
-    --indicator-height: 2.8rem;
-    display: flex;
-    align-items: center;
-    gap: 0.18rem;
-    padding: 0.3rem;
-    border: 1px solid var(--control-border);
-    border-radius: 2rem;
-    background:
-      linear-gradient(145deg, var(--control-glass-top), var(--control-surface) 48%, var(--control-glass-bottom)),
-      var(--control-surface);
-    -webkit-backdrop-filter: blur(34px) saturate(1.55) brightness(1.08);
-    backdrop-filter: blur(34px) saturate(1.55) brightness(1.08);
-    box-shadow:
-      0 1.25rem 2.7rem var(--control-shadow),
-      0 0.22rem 0.5rem rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 var(--control-glass-edge),
-      inset 0 -0.9rem 1.4rem var(--control-glass-depth);
-    isolation: isolate;
-    overflow: hidden;
-  }
-
-  .background-switcher::before,
-  .background-switcher::after,
   .socials::before,
   .socials::after {
     content: "";
@@ -542,8 +367,6 @@ const backgroundOptions = [
     border-radius: inherit;
     pointer-events: none;
   }
-
-  .background-switcher::before,
   .socials::before {
     background:
       radial-gradient(circle at 22% 16%, var(--control-glass-shine), transparent 32%),
@@ -551,8 +374,6 @@ const backgroundOptions = [
       linear-gradient(90deg, rgba(255, 255, 255, 0.14), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.12));
     opacity: 0.76;
   }
-
-  .background-switcher::after,
   .socials::after {
     inset: 1px;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -560,31 +381,6 @@ const backgroundOptions = [
       linear-gradient(135deg, transparent 0 42%, rgba(255, 255, 255, 0.28) 48%, transparent 56%),
       radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, 0.16), transparent 58%);
     opacity: 0.68;
-  }
-
-  .background-selected-indicator {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 0;
-    width: var(--indicator-width);
-    height: var(--indicator-height);
-    border-radius: 1.58rem;
-    background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.9), var(--selected-surface) 44%, rgba(225, 231, 239, 0.52)),
-      var(--selected-surface);
-    -webkit-backdrop-filter: blur(18px) saturate(1.35) brightness(1.08);
-    backdrop-filter: blur(18px) saturate(1.35) brightness(1.08);
-    box-shadow:
-      0 0.34rem 0.92rem rgba(0, 0, 0, 0.18),
-      inset 0 1px 0 rgba(255, 255, 255, 0.72),
-      inset 0 -0.38rem 0.8rem rgba(0, 0, 0, 0.08);
-    pointer-events: none;
-    transform: translate3d(var(--indicator-x), var(--indicator-y), 0);
-    transition:
-      width 360ms cubic-bezier(0.22, 1, 0.36, 1),
-      height 360ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .liquid-glass-layer {
@@ -606,8 +402,6 @@ const backgroundOptions = [
     border-radius: inherit;
     pointer-events: none;
   }
-
-  html[data-liquid-glass="active"] .background-switcher,
   html[data-liquid-glass="active"] .socials {
     border-color: transparent;
     background: transparent;
@@ -619,87 +413,6 @@ const backgroundOptions = [
 
   html[data-liquid-glass="active"] .liquid-glass-layer {
     opacity: 1;
-  }
-
-  html[data-liquid-glass="active"] .background-selected-indicator {
-    z-index: 1;
-    background: transparent;
-    box-shadow: none;
-  }
-
-  .background-button {
-    position: relative;
-    z-index: 1;
-    display: inline-grid;
-    place-items: center;
-    min-width: 2.8rem;
-    min-height: 2.8rem;
-    padding: 0;
-    border: 0;
-    border-radius: 1.55rem;
-    background: transparent;
-    color: var(--control-ink-muted);
-    box-shadow: none;
-    cursor: pointer;
-    transition:
-      color 180ms ease,
-      transform 180ms ease;
-  }
-
-  .background-button:hover {
-    color: var(--control-ink);
-    transform: scale(1.04);
-  }
-
-  .background-button:focus-visible {
-    outline: 2px solid var(--focus-ring);
-    outline-offset: 3px;
-  }
-
-  .background-button[aria-pressed="true"] {
-    color: var(--selected-ink);
-  }
-
-  .background-swatch {
-    position: relative;
-    z-index: 1;
-    width: 1.18rem;
-    height: 1.18rem;
-    border-radius: 0.28rem;
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.42),
-      0 0.06rem 0.16rem rgba(0, 0, 0, 0.18);
-    overflow: hidden;
-    transition:
-      box-shadow 180ms ease,
-      transform 180ms ease;
-  }
-
-  .background-button[aria-pressed="true"] .background-swatch {
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.7),
-      0 0.08rem 0.2rem rgba(0, 0, 0, 0.2);
-    transform: scale(1.05);
-  }
-
-  .background-button-paper .background-swatch {
-    background:
-      radial-gradient(circle, rgba(39, 39, 37, 0.26) 0 1.3px, transparent 1.5px) 1px 1px / 7px 7px,
-      #ffffff;
-  }
-
-  .background-button-cutting .background-swatch {
-    background:
-      linear-gradient(rgba(88, 242, 191, 0.32) 1px, transparent 1px) 0 0 / 7px 7px,
-      linear-gradient(90deg, rgba(88, 242, 191, 0.32) 1px, transparent 1px) 0 0 / 7px 7px,
-      linear-gradient(135deg, #073824, #087254);
-  }
-
-  .background-button-blueprint .background-swatch {
-    background:
-      linear-gradient(rgba(232, 251, 255, 0.46) 1px, transparent 1px) 0 0 / 7px 7px,
-      linear-gradient(90deg, rgba(232, 251, 255, 0.46) 1px, transparent 1px) 0 0 / 7px 7px,
-      linear-gradient(135deg, #0b3459, #1681b8);
   }
 
   .socials {
@@ -750,14 +463,9 @@ const backgroundOptions = [
       opacity 150ms ease,
       transform 150ms ease;
   }
-
-  html[data-liquid-glass="active"] .background-button,
   html[data-liquid-glass="active"] .social-link {
     z-index: 2;
   }
-
-  html[data-liquid-glass="active"] .background-switcher::before,
-  html[data-liquid-glass="active"] .background-switcher::after,
   html[data-liquid-glass="active"] .socials::before,
   html[data-liquid-glass="active"] .socials::after {
     content: none;
@@ -832,12 +540,6 @@ const backgroundOptions = [
       padding: 0.32rem;
     }
 
-    .background-switcher {
-      left: calc(env(safe-area-inset-left) + 0.82rem);
-      bottom: calc(env(safe-area-inset-bottom) + 0.82rem);
-      padding: 0.32rem;
-    }
-
     .social-link {
       padding: 0.72rem;
     }
@@ -858,22 +560,6 @@ const backgroundOptions = [
       padding: 0.64rem 0.68rem;
     }
 
-  }
-
-  @media (max-width: 480px) {
-    .background-switcher {
-      flex-direction: column;
-    }
-
-    .background-button {
-      min-width: 2.75rem;
-      min-height: 2.75rem;
-    }
-
-    .background-swatch {
-      width: 1.16rem;
-      height: 1.16rem;
-    }
   }
 
   @media (max-height: 650px) {
