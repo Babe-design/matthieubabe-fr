@@ -8,9 +8,18 @@ const { home = false, title = site.name, description = "The personal space of Ma
 const canonical = new URL(Astro.url.pathname, site.url);
 ---
 <!doctype html>
-<html lang="en" data-background="paper">
+<html lang="en" data-background="paper" data-home={home ? "" : undefined}>
   <head>
     <meta charset="UTF-8" />
+    <script is:inline>
+      if (document.documentElement.hasAttribute("data-home") && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.dataset.entrance = "pending";
+        // Reveal even if the module, image or font fails to load.
+        setTimeout(() => {
+          if (document.documentElement.dataset.entrance === "pending") document.documentElement.dataset.entrance = "ready";
+        }, 1600);
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#ffffff" />
@@ -32,6 +41,7 @@ const canonical = new URL(Astro.url.pathname, site.url);
     <meta name="twitter:image:alt" content="Handwritten Matthieu Babe label on dotted paper" />
     <link rel="preload" as="image" href="/images/name-tape.png" />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin-400-normal.woff2" crossorigin />
+    {home && <link rel="preload" as="font" type="font/woff2" href="/fonts/ibm-plex-mono-latin-400-normal.woff2" crossorigin />}
     <Analytics />
   </head>
   <body class:list={{ "is-home": home }}>
@@ -45,6 +55,9 @@ const canonical = new URL(Astro.url.pathname, site.url);
       </header>
       <slot />
     </div>
+    <script>
+      import "../scripts/home-entrance";
+    </script>
     <SpeedInsights />
   </body>
 </html>

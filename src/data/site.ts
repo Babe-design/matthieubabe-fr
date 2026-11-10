@@ -15,6 +15,16 @@ export const site = {
 // Newest first. Use an ISO timestamp with a timezone for every published update.
 export const changelog = [
   {
+    date: "2026-11-10T01:57:40Z",
+    title: "A quieter arrival.",
+    changes: [
+      "The name tape appears first, followed by a gentle staggered introduction.",
+      "Still caramelising becomes a small monospace code comment.",
+      "Datadog links to the Security platform and turns purple on hover or keyboard focus.",
+      "The entrance respects reduced motion and keeps content readable if JavaScript fails."
+    ]
+  },
+  {
     date: "2026-11-10T01:32:04Z",
     title: "A softer edge.",
     changes: [

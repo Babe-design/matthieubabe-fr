@@ -1,6 +1,6 @@
 @font-face {
-  font-family: "La Belle Aurore";
-  src: url("/fonts/la-belle-aurore-latin-400-normal.woff2") format("woff2");
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -15,6 +15,7 @@
 :root {
   color-scheme: light;
   --surface: #fff;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ink: #383838;
   --muted: #737373;
   --underline: #aaa;
@@ -56,12 +57,15 @@ p { margin: 0; }
 }
 .site-header { display: flex; align-items: center; gap: 20px; }
 .name-tape { display: block; flex: 0 0 var(--tape-width); width: var(--tape-width); transform: rotate(-2.8deg); transform-origin: 17.5% 50%; }
-.handwritten-note { display: inline-block; margin-top: 22px; color: #777; font: 400 24px/1.6 "La Belle Aurore", cursive; letter-spacing: 0; white-space: nowrap; transform: rotate(-3deg); transform-origin: left center; }
+.status-note { margin-top: 22px; color: #777; font: 400 15px/1.6 "IBM Plex Mono", monospace; letter-spacing: 0; white-space: nowrap; }
+.status-note code { font: inherit; }
 .name-tape img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; filter: drop-shadow(0 3px 3px rgba(0,0,0,.1)); }
 .home-content { min-height: max(240px, calc(100svh - var(--top-space) - 48px)); padding-top: 24px; }
 .intro { padding-left: var(--name-inset); font-size: 18px; line-height: 1.4; letter-spacing: -.02em; }
 .intro-line { color: var(--ink); }
 .intro-role { margin-top: 8px; color: var(--muted); }
+.datadog-link { text-decoration: none; transition: color 160ms ease; }
+.datadog-link:hover, .datadog-link:focus-visible { color: #632ca6; }
 .signature { padding-left: var(--name-inset); padding-top: 96px; font-size: 18px; line-height: 1.4; letter-spacing: -.02em; }
 .signature-links { text-wrap: pretty; }
 .last-updated { margin-top: 16px; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -121,7 +125,6 @@ h2 { margin: 0 0 12px; font-size: 18px; font-weight: 400; letter-spacing: -.02em
   :root { --top-space: 120px; --tape-width: clamp(174px, 56vw, 220px); }
   .site-shell { padding-bottom: max(64px, env(safe-area-inset-bottom)); }
   .site-header { gap: 10px; }
-  .handwritten-note { font-size: 22px; }
   .signature { padding-top: 72px; }
 }
 @media (max-height: 500px) and (orientation: landscape) { :root { --top-space: 80px; } }
@@ -165,4 +168,25 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
 }
 @media (prefers-reduced-motion: reduce) {
   .changelog-sheet[open], .changelog-sheet.is-closing, .changelog-sheet::backdrop { animation: none; }
+}
+
+/* One-shot home entrance; the tape itself is always visible and stationary. */
+html[data-entrance="pending"] .is-home :is(.intro-line, .intro-role, .status-note, .signature, .scroll-light) { opacity: 0; }
+html[data-entrance="ready"] .is-home :is(.intro-line, .intro-role, .status-note, .signature) {
+  animation: home-enter 500ms var(--ease-out) both;
+}
+html[data-entrance="ready"] .is-home .intro-line { --rise: 10px; }
+html[data-entrance="ready"] .is-home .intro-role { --rise: 6px; animation-delay: 80ms; animation-duration: 450ms; }
+html[data-entrance="ready"] .is-home .status-note { --rise: 4px; animation-delay: 140ms; animation-duration: 400ms; }
+html[data-entrance="ready"] .is-home .signature { --rise: 6px; animation-delay: 180ms; animation-duration: 450ms; }
+html[data-entrance="ready"] .is-home .scroll-light { animation: home-fade 600ms var(--ease-out) 180ms both; }
+html[data-entrance] .is-home :is(.intro-role, .signature):focus-within { opacity: 1; transform: none; animation: none; }
+@keyframes home-enter { from { opacity: 0; transform: translateY(var(--rise, 6px)); } to { opacity: 1; transform: translateY(0); } }
+@keyframes home-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  html[data-entrance="pending"] .is-home :is(.intro-line, .intro-role, .status-note, .signature, .scroll-light) { opacity: 1; }
+  html[data-entrance="ready"] .is-home :is(.intro-line, .intro-role, .status-note, .signature, .scroll-light) {
+    animation: home-fade 150ms ease both;
+    transform: none;
+  }
 }
