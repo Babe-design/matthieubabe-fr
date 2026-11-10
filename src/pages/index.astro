@@ -1,6 +1,7 @@
 ---
 import SiteLayout from "../layouts/SiteLayout.astro";
 import Signature from "../components/Signature.astro";
+import ConstructionGuide from "../components/ConstructionGuide.astro";
 import { site } from "../data/site";
 ---
 <SiteLayout home description={`${site.intro} ${site.currentRole}`}>
@@ -16,6 +17,7 @@ import { site } from "../data/site";
           <span class="typewriter-line"><span class="typewriter-text">// Still caramelising</span><span class="typing-cursor"></span></span>
         </code>
       </p>
+      <ConstructionGuide />
     </div>
   </main>
   <Signature />
