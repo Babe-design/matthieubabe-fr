@@ -42,7 +42,6 @@ const canonical = new URL(Astro.url.pathname, site.url);
         <a class="name-tape" href="/" aria-label="Matthieu Babe — home" aria-current={Astro.url.pathname === "/" ? "page" : undefined}>
           <img src="/images/name-tape.png" alt="Matthieu Babe" width="1500" height="339" fetchpriority="high" draggable="false" />
         </a>
-        {home && <p class="handwritten-note">Still<br />caramelising…</p>}
       </header>
       <slot />
     </div>

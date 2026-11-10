@@ -15,6 +15,15 @@ export const site = {
 // Newest first. Use an ISO timestamp with a timezone for every published update.
 export const changelog = [
   {
+    date: "2026-11-10T01:32:04Z",
+    title: "A softer edge.",
+    changes: [
+      "A finer grey handwritten note, on one line below the introduction.",
+      "Moving light now rises from the bottom edge of the screen, with a continuous fade.",
+      "The changelog opens in a card that slides up from the bottom. Close it with the button, Escape, or a click outside."
+    ]
+  },
+  {
     date: "2026-11-10T01:24:31Z",
     title: "Still caramelising…",
     changes: [

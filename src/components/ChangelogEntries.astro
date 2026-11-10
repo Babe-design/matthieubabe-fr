@@ -1,0 +1,13 @@
+---
+import { changelog } from "../data/site";
+const formatDate = (date: string) => new Intl.DateTimeFormat("en", { month: "long", day: "numeric", year: "numeric", timeZone: "America/Los_Angeles" }).format(new Date(date));
+---
+<ol class="changelog-list">
+  {changelog.map(entry => <li class="changelog-entry">
+    <time datetime={entry.date}>{formatDate(entry.date)}</time>
+    <div>
+      <h2>{entry.title}</h2>
+      <ul>{entry.changes.map(change => <li>{change}</li>)}</ul>
+    </div>
+  </li>)}
+</ol>
