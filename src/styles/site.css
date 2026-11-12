@@ -81,6 +81,7 @@ p { margin: 0; }
 .construction-guide {
   --construction-ink: rgb(56 56 56 / .16);
   --construction-width: 1px;
+  --construction-mark-scale: 1;
   --construction-cross: 28px;
   position: relative;
   block-size: 112px;
@@ -91,17 +92,20 @@ p { margin: 0; }
   position: absolute;
   inset-block-start: var(--construction-cross);
   inset-inline-start: calc(50% - var(--name-inset) / 2);
-  inline-size: min(1240px, calc(100vw - 48px));
+  inline-size: min(1240px, calc(100vw - 24px));
   transform: translateX(-50%);
 }
 .construction-stroke {
+  /* Keep both junctions solid; reserve the edge fades for the outer tails. */
+  --construction-fade: clamp(8px, calc((100% - var(--column-width)) / 2 - 12px), 16%);
   display: block;
   block-size: var(--construction-width);
-  background: linear-gradient(to right, transparent, var(--construction-ink) 16% 84%, transparent);
+  background: linear-gradient(to right, transparent, var(--construction-ink) var(--construction-fade), var(--construction-ink) calc(100% - var(--construction-fade)), transparent);
 }
-.construction-mark { position: absolute; inset-block-start: 0; inline-size: var(--construction-width); block-size: 100%; }
+/* Paint the masks at 1px before scaling, so fractional widths cannot disappear. */
+.construction-mark { position: absolute; inset-block-start: 0; inline-size: 1px; block-size: 100%; transform: scaleX(var(--construction-mark-scale)); transform-origin: left center; }
 .construction-mark-start { inset-inline-start: 0; }
-.construction-mark-end { inset-inline-end: 0; }
+.construction-mark-end { inset-inline-end: 0; transform-origin: right center; }
 .construction-mark::before, .construction-mark::after { content: ""; position: absolute; inset-inline-start: 0; inline-size: 100%; }
 /* Complementary masks fill the gaps gradually: dotted above, continuous below. */
 .construction-mark::before {
@@ -119,7 +123,7 @@ p { margin: 0; }
   mask-image: linear-gradient(to bottom, transparent 8px, #000 32px 62%, transparent);
 }
 @media (min-resolution: 2dppx) {
-  .construction-guide { --construction-width: .5px; }
+  .construction-guide { --construction-width: .5px; --construction-mark-scale: .5; }
 }
 @media (prefers-reduced-motion: no-preference) {
   html[data-entrance="pending"] .construction-guide { opacity: 0; }
