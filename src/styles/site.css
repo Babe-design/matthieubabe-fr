@@ -77,8 +77,11 @@ p { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   .status-note[data-typing] .typing-cursor { animation: none; opacity: .8; }
 }
-/* A single construction rule, aligned with the text column and drawn after typing. */
+/* Draw one stroke at a time; preserve the gradients while revealing each line. */
 .construction-guide {
+  --construction-ink: rgb(56 56 56 / .16);
+  --construction-width: 1px;
+  --construction-cross: 28px;
   position: relative;
   block-size: 112px;
   margin-block-start: 44px;
@@ -86,36 +89,48 @@ p { margin: 0; }
 }
 .construction-rule {
   position: absolute;
-  inset-block-start: 28px;
+  inset-block-start: var(--construction-cross);
   inset-inline-start: calc(50% - var(--name-inset) / 2);
   inline-size: min(1240px, calc(100vw - 48px));
   transform: translateX(-50%);
 }
 .construction-stroke {
   display: block;
-  block-size: 1px;
-  background: linear-gradient(to right, transparent, #d4d4d4 12% 88%, transparent);
-  transform-origin: left center;
+  block-size: var(--construction-width);
+  background: linear-gradient(to right, transparent, var(--construction-ink) 16% 84%, transparent);
 }
-.construction-mark { position: absolute; inset-block-start: 0; inline-size: 1px; block-size: 100%; }
+.construction-mark { position: absolute; inset-block-start: 0; inline-size: var(--construction-width); block-size: 100%; }
 .construction-mark-start { inset-inline-start: 0; }
 .construction-mark-end { inset-inline-end: 0; }
-.construction-mark::before, .construction-mark::after { content: ""; position: absolute; inset-inline-start: 0; inline-size: 1px; }
-.construction-mark::before { inset-block-start: 0; block-size: 23px; background: repeating-linear-gradient(to bottom, #d1d1d1 0 3px, transparent 3px 7px); }
-.construction-mark::after { inset-block-start: 28px; block-size: 72px; background: #d4d4d4; transform-origin: center top; }
+.construction-mark::before, .construction-mark::after { content: ""; position: absolute; inset-inline-start: 0; inline-size: 100%; }
+/* Complementary masks fill the gaps gradually: dotted above, continuous below. */
+.construction-mark::before {
+  inset-block-start: 0;
+  block-size: 32px;
+  background: repeating-linear-gradient(to bottom, var(--construction-ink) 0 3px, transparent 3px 7px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 6px 8px, transparent 32px);
+  mask-image: linear-gradient(to bottom, transparent, #000 6px 8px, transparent 32px);
+}
+.construction-mark::after {
+  inset-block-start: 0;
+  block-size: 100%;
+  background: var(--construction-ink);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 8px, #000 32px 62%, transparent);
+  mask-image: linear-gradient(to bottom, transparent 8px, #000 32px 62%, transparent);
+}
+@media (min-resolution: 2dppx) {
+  .construction-guide { --construction-width: .5px; }
+}
 @media (prefers-reduced-motion: no-preference) {
   html[data-entrance="pending"] .construction-guide { opacity: 0; }
-  .status-note:is([data-typing="waiting"], [data-typing="typing"]) ~ .construction-guide .construction-stroke { transform: scaleX(0); }
-  .status-note:is([data-typing="waiting"], [data-typing="typing"]) ~ .construction-guide .construction-mark::before { opacity: 0; }
-  .status-note:is([data-typing="waiting"], [data-typing="typing"]) ~ .construction-guide .construction-mark::after { transform: scaleY(0); }
+  .status-note:is([data-typing="waiting"], [data-typing="typing"]) ~ .construction-guide .construction-stroke { clip-path: inset(0 100% 0 0); }
+  .status-note:is([data-typing="waiting"], [data-typing="typing"]) ~ .construction-guide .construction-mark { clip-path: inset(var(--construction-cross) 0 calc(100% - var(--construction-cross)) 0); }
   .status-note[data-typing="done"] ~ .construction-guide .construction-stroke { animation: construction-rule-draw 700ms linear 120ms both; }
-  .status-note[data-typing="done"] ~ .construction-guide .construction-mark::before { animation: home-fade 180ms ease 380ms both; }
-  .status-note[data-typing="done"] ~ .construction-guide .construction-mark::after { animation: construction-mark-draw 380ms var(--ease-out) 380ms both; }
-  .status-note[data-typing="done"] ~ .construction-guide .construction-mark-end::before,
-  .status-note[data-typing="done"] ~ .construction-guide .construction-mark-end::after { animation-delay: 620ms; }
+  .status-note[data-typing="done"] ~ .construction-guide .construction-mark { animation: construction-mark-draw 380ms var(--ease-out) 820ms both; }
+  .status-note[data-typing="done"] ~ .construction-guide .construction-mark-end { animation-delay: 1200ms; animation-duration: 320ms; }
 }
-@keyframes construction-rule-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes construction-mark-draw { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes construction-rule-draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); } }
+@keyframes construction-mark-draw { from { clip-path: inset(var(--construction-cross) 0 calc(100% - var(--construction-cross)) 0); } to { clip-path: inset(0); } }
 .name-tape img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; filter: drop-shadow(0 3px 3px rgba(0,0,0,.1)); }
 .home-content { min-height: max(240px, calc(100svh - var(--top-space) - 48px)); padding-top: 24px; }
 .intro { padding-left: var(--name-inset); font-size: 18px; line-height: 1.4; letter-spacing: -.02em; }

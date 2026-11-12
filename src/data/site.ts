@@ -15,6 +15,15 @@ export const site = {
 // Newest first. Use an ISO timestamp with a timezone for every published update.
 export const changelog = [
   {
+    date: "2026-11-12T20:04:55Z",
+    title: "Lighter, line by line.",
+    changes: [
+      "The horizontal rule finishes first, followed by the left guide and then the right.",
+      "Lighter hairlines blend gradually from solid strokes into dotted extensions.",
+      "Soft ends and a crisp Retina stroke keep the wireframe quiet."
+    ]
+  },
+  {
     date: "2026-11-10T21:08:32Z",
     title: "Drawing the next lines.",
     changes: [
