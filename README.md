@@ -14,6 +14,7 @@ npm run build
 
 - Accueil : `src/pages/index.astro` (vide pour accueillir les futurs contenus).
 - Liens, présentation (`site.intro` et `site.currentRole`) et historique : `src/data/site.ts`. Ajouter les nouvelles entrées en tête de `changelog`, avec une date ISO et son fuseau horaire.
+- Chaque entrée du changelog contient un titre descriptif court et trois puces brèves maximum.
 - Le compteur de la signature utilise la date de la première entrée ; il ne se réinitialise pas au rechargement.
 - Changelog : carte modale depuis la signature, avec fermeture par bouton, Échap ou clic extérieur. La route `/changelog/` reste disponible en accès direct et sans JavaScript.
 - Mise en page et papier blanc : `src/layouts/SiteLayout.astro` et `src/styles/site.css`.

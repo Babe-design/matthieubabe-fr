@@ -13,84 +13,96 @@ export const site = {
 };
 
 // Newest first. Use an ISO timestamp with a timezone for every published update.
-export const changelog = [
+// One descriptive title, then up to three short bullets.
+type ChangelogEntry = {
+  date: string;
+  title: string;
+  changes: [string] | [string, string] | [string, string, string];
+};
+
+export const changelog: ChangelogEntry[] = [
+  {
+    date: "2026-11-13T01:26:14Z",
+    title: "Simpler changelog",
+    changes: [
+      "Shorter entries.",
+      "No subtitles or separators."
+    ]
+  },
   {
     date: "2026-11-12T22:28:37Z",
-    title: "Closing the gap.",
+    title: "Mobile wireframe fix",
     changes: [
-      "The horizontal line fades beyond the vertical guides, keeping the mobile junctions connected.",
-      "Thin vertical guides stay visible on high-density screens."
+      "Connected line junctions.",
+      "Sharper Retina lines."
     ]
   },
   {
     date: "2026-11-12T20:04:55Z",
-    title: "Lighter, line by line.",
+    title: "Lighter wireframe",
     changes: [
-      "The horizontal rule finishes first, followed by the left guide and then the right.",
-      "Lighter hairlines blend gradually from solid strokes into dotted extensions.",
-      "Soft ends and a crisp Retina stroke keep the wireframe quiet."
+      "Finer strokes.",
+      "Sequential drawing.",
+      "Softer dotted ends."
     ]
   },
   {
     date: "2026-11-10T21:08:32Z",
-    title: "Drawing the next lines.",
+    title: "Wireframe guides",
     changes: [
-      "A thin wireframe rule draws itself below the status once typing finishes.",
-      "Two vertical guides and dotted extensions hint at the layout still taking shape.",
-      "The guides stay still with reduced motion and remain visible without JavaScript."
+      "Drawn after the status.",
+      "Aligned with the text."
     ]
   },
   {
     date: "2026-11-10T02:06:50Z",
-    title: "A thought, typed out.",
+    title: "Typing status",
     changes: [
-      "The status types itself once, then waits with a blinking block cursor.",
-      "Removed the trailing dots and kept the layout steady while typing.",
-      "Reduced motion shows the full text with a still cursor."
+      "Blinking block cursor.",
+      "No trailing dots."
     ]
   },
   {
     date: "2026-11-10T01:57:40Z",
-    title: "A quieter arrival.",
+    title: "Smoother loading",
     changes: [
-      "The name tape appears first, followed by a gentle staggered introduction.",
-      "Still caramelising becomes a small monospace code comment.",
-      "Datadog links to the Security platform and turns purple on hover or keyboard focus.",
-      "The entrance respects reduced motion and keeps content readable if JavaScript fails."
+      "Staggered text entrance.",
+      "Monospace status.",
+      "Datadog Security link."
     ]
   },
   {
     date: "2026-11-10T01:32:04Z",
-    title: "A softer edge.",
+    title: "Changelog modal",
     changes: [
-      "A finer grey handwritten note, on one line below the introduction.",
-      "Moving light now rises from the bottom edge of the screen, with a continuous fade.",
-      "The changelog opens in a card that slides up from the bottom. Close it with the button, Escape, or a click outside."
+      "Slide-up changelog.",
+      "Grey handwritten status.",
+      "Light from the screen edge."
     ]
   },
   {
     date: "2026-11-10T01:24:31Z",
-    title: "Still caramelising…",
+    title: "Layout refinements",
     changes: [
-      "Aligned the introduction and signature with the handwritten name.",
-      "Added a small handwritten note beside the name tape.",
-      "Two moving pools of light invite you to scroll, with reduced-motion support."
+      "Aligned name and text.",
+      "Handwritten status note.",
+      "Moving light below."
     ]
   },
   {
     date: "2026-11-10T01:15:23Z",
-    title: "A little more room.",
+    title: "New home layout",
     changes: [
-      "A quieter home, with room for things to come.",
-      "The name tape stays, with a personal introduction underneath. A simple signature replaces the social dock.",
-      "White paper with a clear center replaces the random backgrounds.",
-      "Added a live last-updated counter and this changelog.",
-      "A centered column, quieter typography and a soft light cue leading to the signature below the fold."
+      "A centered text column.",
+      "Personal intro and links.",
+      "Changelog and timer."
     ]
   },
   {
     date: "2026-11-10T00:45:16Z",
-    title: "A different backdrop.",
-    changes: ["A random background on every visit: dotted paper, cutting mat or blueprint.", "Removed the background selector."]
+    title: "Random backgrounds",
+    changes: [
+      "Paper, mat or blueprint."
+    ]
   }
 ];
