@@ -144,8 +144,18 @@ p { margin: 0; }
 .datadog-link:hover, .datadog-link:focus-visible { color: #632ca6; }
 .signature { padding-left: var(--name-inset); padding-top: 96px; font-size: 18px; line-height: 1.4; letter-spacing: -.02em; }
 .signature-links { text-wrap: pretty; }
-.last-updated { margin-top: 16px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.changelog-link { margin-top: 12px; color: var(--muted); }
+.last-updated {
+  margin-top: 16px;
+  margin-inline-end: -16px;
+  color: #8a8a8a;
+  font-size: clamp(11.5px, 3.5vw, 16px);
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.last-updated a { display: inline-block; padding-block: 8px; margin-block: -8px; text-decoration-color: currentColor; }
+.last-updated a:hover { color: var(--muted); }
+.last-updated a:focus-visible { color: var(--ink); }
 .scroll-light {
   position: fixed;
   bottom: 0;

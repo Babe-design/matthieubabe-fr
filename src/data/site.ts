@@ -22,6 +22,14 @@ type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "2026-11-15T01:47:12Z",
+    title: "Compact update line",
+    changes: [
+      "Minute-only counter.",
+      "Inline changelog link."
+    ]
+  },
+  {
     date: "2026-11-13T01:26:14Z",
     title: "Simpler changelog",
     changes: [

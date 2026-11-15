@@ -2,6 +2,7 @@
 import ChangelogEntries from "./ChangelogEntries.astro";
 import { site, changelog } from "../data/site";
 const latest = changelog[0].date;
+const dateLabel = latest.slice(0, 10);
 const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"short", timeZone:"UTC"}).format(new Date(latest));
 ---
 <footer class="signature">
@@ -11,9 +12,8 @@ const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"sh
     {site.email && <> or <a href={`mailto:${site.email}`}>email</a></>}
   </p>
   <p class="last-updated">
-    Last updated <time datetime={latest} data-updated-at={latest} title={`${formatted} UTC`}>{formatted} UTC</time><span data-ago hidden> ago</span>
+    Last updated <time datetime={latest} data-updated-at={latest} title={`${formatted} UTC`}>{dateLabel}</time><span data-ago hidden> ago</span>, <a href="/changelog/" data-open-changelog>see changelog</a>
   </p>
-  <p class="changelog-link">Visit the <a href="/changelog/" data-open-changelog>changelog</a>.</p>
 </footer>
 <dialog class="changelog-sheet" aria-labelledby="changelog-heading">
   <div class="sheet-heading">
@@ -55,17 +55,21 @@ const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"sh
   const timer = document.querySelector<HTMLTimeElement>("[data-updated-at]");
   if (timer) {
     const updatedAt = Date.parse(timer.dataset.updatedAt!);
+    let updateTimeout: number;
     const tick = () => {
-      const elapsed = Math.max(0, Math.floor((Date.now() - updatedAt) / 1000));
-      const days = Math.floor(elapsed / 86400);
-      const hours = Math.floor((elapsed % 86400) / 3600);
-      const minutes = Math.floor((elapsed % 3600) / 60);
-      const seconds = elapsed % 60;
-      timer.textContent = `${days ? `${days}d ` : ""}${hours}h ${minutes}m ${seconds}s`;
+      window.clearTimeout(updateTimeout);
+      const elapsed = Math.max(0, Date.now() - updatedAt);
+      const totalMinutes = Math.floor(elapsed / 60_000);
+      const days = Math.floor(totalMinutes / 1440);
+      const hours = Math.floor((totalMinutes % 1440) / 60);
+      const minutes = totalMinutes % 60;
+      timer.textContent = `${days ? `${days}d ` : ""}${hours}h ${minutes}m`;
       document.querySelector<HTMLElement>("[data-ago]")?.removeAttribute("hidden");
+      updateTimeout = window.setTimeout(tick, 60_000 - (elapsed % 60_000));
     };
     tick();
-    const interval = window.setInterval(tick, 1000);
-    window.addEventListener("pagehide", () => window.clearInterval(interval), { once: true });
+    window.addEventListener("pagehide", () => window.clearTimeout(updateTimeout));
+    window.addEventListener("pageshow", event => { if (event.persisted) tick(); });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) tick(); });
   }
 </script>
