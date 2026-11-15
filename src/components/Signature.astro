@@ -1,6 +1,5 @@
 ---
 import ChangelogEntries from "./ChangelogEntries.astro";
-import ExternalArrow from "./ExternalArrow.astro";
 import { site, changelog } from "../data/site";
 interface Props { variant?: "default" | "about"; }
 const { variant = "default" } = Astro.props;
@@ -12,7 +11,7 @@ const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"sh
   {variant === "about" ? <div class="connect">
     <h2 class="section-label">Connect</h2>
     <ul class="connect-links">
-      {site.links.map(link => <li><a href={link.href} target="_blank" rel="noopener noreferrer">{link.name}<ExternalArrow /></a></li>)}
+      {site.links.map(link => <li><a href={link.href} target="_blank" rel="noopener noreferrer">{link.name}</a></li>)}
       {site.email && <li><a href={`mailto:${site.email}`}>Email</a></li>}
     </ul>
   </div> : <p class="signature-links">
@@ -21,9 +20,11 @@ const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"sh
     {site.email && <> or <a href={`mailto:${site.email}`}>email</a></>}
   </p>}
   {variant === "about" && <h2 class="section-label colophon-label">Colophon</h2>}
+  {variant === "about" && <p class="colophon-note">{site.colophon}</p>}
   <p class="last-updated">
-    Last updated <time datetime={latest} data-updated-at={latest} title={`${formatted} UTC`}>{dateLabel}</time><span data-ago hidden> ago</span>, <a href="/changelog/" data-open-changelog>see changelog</a>
+    <a href="/changelog/" data-open-changelog aria-describedby="changelog-link-help">Last updated <time datetime={latest} data-updated-at={latest} title={`${formatted} UTC`}>{dateLabel}</time><span data-ago hidden> ago</span></a>
   </p>
+  <span id="changelog-link-help" class="sr-only">View changelog</span>
 </footer>
 <dialog class="changelog-sheet" aria-labelledby="changelog-heading">
   <div class="sheet-heading">
@@ -41,6 +42,7 @@ const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"sh
     const sheet = document.querySelector<HTMLDialogElement>(".changelog-sheet");
     const trigger = document.querySelector<HTMLAnchorElement>("[data-open-changelog]");
     if (sheet && trigger) {
+      trigger.setAttribute("aria-haspopup", "dialog");
       let closing = false;
       const close = async () => {
         if (closing || !sheet.open) return;

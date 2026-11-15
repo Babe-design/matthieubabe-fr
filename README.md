@@ -13,11 +13,11 @@ npm run build
 ## Contenu et mises à jour
 
 - Work : `src/pages/index.astro`. About : `src/pages/about.astro`. Les deux routes restent accessibles sans JavaScript.
-- Introduction (`site.intro`, `site.company`), bio (`site.about`), liens, projets (`work`) et historique : `src/data/site.ts`. Ajouter les nouvelles entrées en tête de `changelog`, avec une date ISO et son fuseau horaire.
+- Introduction (`site.intro`, `site.company`), bio (`site.about`), note (`site.colophon`), liens, projets (`work`) et historique : `src/data/site.ts`. Ajouter les nouvelles entrées en tête de `changelog`, avec une date ISO et son fuseau horaire.
 - Chaque entrée du changelog contient un titre descriptif court et trois puces brèves maximum.
 - Le compteur de la signature utilise la date de la première entrée ; il ne se réinitialise pas au rechargement.
-- Changelog et liens sociaux : dans About. Carte modale avec fermeture par bouton, Échap ou clic extérieur. La route `/changelog/` reste disponible en accès direct et sans JavaScript.
-- Les aperçus de Work apparaissent au survol ou au focus sur ordinateur. Le visuel AI Guard provient de sa [page produit officielle](https://www.datadoghq.com/products/security/ai-guard/) ; l’aperçu de The care era cite l’article de Matthieu.
+- Changelog et liens sociaux : dans About. La ligne « Last updated » ouvre une carte modale avec fermeture par bouton, Échap ou clic extérieur. La route `/changelog/` reste disponible en accès direct et sans JavaScript.
+- Les aperçus de Work apparaissent au survol ou au focus sur ordinateur. Le visuel AI Guard provient de sa [page produit officielle](https://www.datadoghq.com/products/security/ai-guard/) ; celui de [The care era](https://medium.com/@MatthieuBabe/the-care-era-7342fbb5f832) reprend l’image de l’article, identifiée dans le flux RSS public de Matthieu.
 - Les transitions Astro conservent le scotch entre les pages ; les animations respectent la préférence de mouvement réduit.
 - Mise en page, fond blanc et lumière au bord de l’écran : `src/layouts/SiteLayout.astro` et `src/styles/site.css`.
 

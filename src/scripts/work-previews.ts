@@ -6,15 +6,23 @@ function initWorkPreviews() {
   const { signal } = controller;
   const desktop = matchMedia("(min-width: 1024px) and (any-hover: hover)");
   const cards = [...previews.querySelectorAll<HTMLElement>("[data-preview-card]")];
+  let imagesWarmed = false;
   let hovered: string | undefined;
   let focused: string | undefined;
   const update = () => {
     previews.hidden = !desktop.matches;
+    if (desktop.matches && !imagesWarmed) {
+      imagesWarmed = true;
+      previews.querySelectorAll<HTMLImageElement>("img").forEach(image => {
+        image.loading = "eager";
+        void image.decode().catch(() => {});
+      });
+    }
     const active = desktop.matches ? hovered || focused : undefined;
     cards.forEach(card => card.toggleAttribute("data-visible", card.dataset.previewCard === active));
     if (active) {
       const top = list.getBoundingClientRect().top;
-      const height = previews.getBoundingClientRect().height;
+      const height = cards.find(card => card.dataset.previewCard === active)?.getBoundingClientRect().height || 0;
       previews.style.top = `${Math.max(24, Math.min(top, innerHeight - height - 24))}px`;
     }
   };
