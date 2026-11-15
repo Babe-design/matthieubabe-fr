@@ -1,0 +1,34 @@
+---
+import SiteLayout from "./SiteLayout.astro";
+import { site } from "../data/site";
+interface Props { section: "work" | "about"; }
+const { section } = Astro.props;
+const title = section === "about" ? `About — ${site.name}` : site.name;
+const panelAnimation = {
+  old: { name: "portfolio-out", duration: "100ms", easing: "ease-in", fillMode: "both" },
+  new: { name: "portfolio-in", duration: "260ms", easing: "cubic-bezier(0.23, 1, 0.32, 1)", fillMode: "both" }
+};
+---
+<SiteLayout home title={title} description={`${site.intro} at ${site.company.name}. ${site.about[0]}`}>
+  <div class="portfolio-head" transition:name="portfolio-heading" transition:animate="none">
+    <p class="intro-line">{site.intro} at <a class="datadog-link" href={site.company.href}>{site.company.name}</a>.</p>
+    <nav class="portfolio-nav" aria-label="Portfolio sections">
+      <a href="/" data-section-link aria-current={section === "work" ? "page" : undefined}>Work</a>
+      <a href="/about/" data-section-link aria-current={section === "about" ? "page" : undefined}>About</a>
+    </nav>
+  </div>
+  <main id="content" class="portfolio-content" transition:name="portfolio-panel" transition:animate={{ forwards: panelAnimation, backwards: panelAnimation }}>
+    <h1 class="sr-only">{section === "work" ? "Matthieu Babe — Work" : "About Matthieu Babe"}</h1>
+    <slot />
+  </main>
+<script>
+  let restoreSectionFocus = false;
+  document.addEventListener("astro:before-preparation", event => {
+    restoreSectionFocus = !!event.sourceElement?.matches("[data-section-link]") && event.sourceElement === document.activeElement;
+  });
+  document.addEventListener("astro:page-load", () => {
+    if (restoreSectionFocus) document.querySelector<HTMLElement>(".portfolio-nav [aria-current=page]")?.focus({ preventScroll: true });
+    restoreSectionFocus = false;
+  });
+</script>
+</SiteLayout>

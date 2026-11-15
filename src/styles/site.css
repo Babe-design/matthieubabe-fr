@@ -1,11 +1,4 @@
 @font-face {
-  font-family: "IBM Plex Mono";
-  src: url("/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
   font-family: Inter;
   src: url("/fonts/inter-latin-400-normal.woff2") format("woff2");
   font-style: normal;
@@ -35,15 +28,6 @@ html {
   scroll-behavior: smooth;
 }
 body { position: relative; margin: 0; isolation: isolate; }
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-  background-image: radial-gradient(ellipse 62% 85% at 50% 45%, #fff 35%, rgba(255,255,255,.98) 60%, transparent 100%), radial-gradient(circle, rgba(39,39,37,.11) 0 1px, transparent 1.2px);
-  background-size: 100% 100%, 42px 42px;
-}
 a { color: inherit; text-decoration-color: var(--underline); text-decoration-thickness: 1px; text-underline-offset: .15em; }
 a:hover { text-decoration-color: currentColor; }
 a:focus-visible { outline: 2px solid currentColor; outline-offset: 6px; border-radius: 1px; }
@@ -51,98 +35,55 @@ p { margin: 0; }
 .site-shell {
   position: relative;
   width: min(var(--column-width), calc(100% - 48px));
+  min-height: 100svh;
   margin-inline: auto;
   padding-top: max(var(--top-space), env(safe-area-inset-top));
   padding-bottom: max(96px, env(safe-area-inset-bottom));
 }
 .site-header { display: flex; align-items: center; gap: 20px; }
 .name-tape { display: block; flex: 0 0 var(--tape-width); width: var(--tape-width); transform: rotate(-2.8deg); transform-origin: 17.5% 50%; }
-.status-note { margin-top: 22px; color: #777; font: 400 15px/1.6 "IBM Plex Mono", monospace; letter-spacing: 0; white-space: nowrap; }
-.status-note code { font: inherit; }
-.typewriter { display: inline-grid; vertical-align: baseline; }
-.typewriter-measure, .typewriter-line { grid-area: 1 / 1; }
-.typewriter-measure { visibility: hidden; padding-inline-end: 1.25ch; }
-.typewriter-line { white-space: pre; }
-.typing-cursor {
-  display: inline-block;
-  inline-size: 1ch;
-  block-size: 1.1em;
-  margin-inline-start: .2ch;
-  vertical-align: -.18em;
-  background: #737373;
-}
-.status-note[data-typing="done"] .typing-cursor { animation: cursor-blink 1100ms step-end 450ms infinite; }
-.status-note[data-typing-paused] .typing-cursor { animation-play-state: paused; }
-@keyframes cursor-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) {
-  .status-note[data-typing] .typing-cursor { animation: none; opacity: .8; }
-}
-/* Draw one stroke at a time; preserve the gradients while revealing each line. */
-.construction-guide {
-  --construction-ink: rgb(56 56 56 / .16);
-  --construction-width: 1px;
-  --construction-mark-scale: 1;
-  --construction-cross: 28px;
-  position: relative;
-  block-size: 112px;
-  margin-block-start: 44px;
-  pointer-events: none;
-}
-.construction-rule {
-  position: absolute;
-  inset-block-start: var(--construction-cross);
-  inset-inline-start: calc(50% - var(--name-inset) / 2);
-  inline-size: min(1240px, calc(100vw - 24px));
-  transform: translateX(-50%);
-}
-.construction-stroke {
-  /* Keep both junctions solid; reserve the edge fades for the outer tails. */
-  --construction-fade: clamp(8px, calc((100% - var(--column-width)) / 2 - 12px), 16%);
-  display: block;
-  block-size: var(--construction-width);
-  background: linear-gradient(to right, transparent, var(--construction-ink) var(--construction-fade), var(--construction-ink) calc(100% - var(--construction-fade)), transparent);
-}
-/* Paint the masks at 1px before scaling, so fractional widths cannot disappear. */
-.construction-mark { position: absolute; inset-block-start: 0; inline-size: 1px; block-size: 100%; transform: scaleX(var(--construction-mark-scale)); transform-origin: left center; }
-.construction-mark-start { inset-inline-start: 0; }
-.construction-mark-end { inset-inline-end: 0; transform-origin: right center; }
-.construction-mark::before, .construction-mark::after { content: ""; position: absolute; inset-inline-start: 0; inline-size: 100%; }
-/* Complementary masks fill the gaps gradually: dotted above, continuous below. */
-.construction-mark::before {
-  inset-block-start: 0;
-  block-size: 32px;
-  background: repeating-linear-gradient(to bottom, var(--construction-ink) 0 3px, transparent 3px 7px);
-  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 6px 8px, transparent 32px);
-  mask-image: linear-gradient(to bottom, transparent, #000 6px 8px, transparent 32px);
-}
-.construction-mark::after {
-  inset-block-start: 0;
-  block-size: 100%;
-  background: var(--construction-ink);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 8px, #000 32px 62%, transparent);
-  mask-image: linear-gradient(to bottom, transparent 8px, #000 32px 62%, transparent);
-}
-@media (min-resolution: 2dppx) {
-  .construction-guide { --construction-width: .5px; --construction-mark-scale: .5; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  html[data-entrance="pending"] .construction-guide { opacity: 0; }
-  .status-note:is([data-typing="waiting"], [data-typing="typing"]) ~ .construction-guide .construction-stroke { clip-path: inset(0 100% 0 0); }
-  .status-note:is([data-typing="waiting"], [data-typing="typing"]) ~ .construction-guide .construction-mark { clip-path: inset(var(--construction-cross) 0 calc(100% - var(--construction-cross)) 0); }
-  .status-note[data-typing="done"] ~ .construction-guide .construction-stroke { animation: construction-rule-draw 700ms linear 120ms both; }
-  .status-note[data-typing="done"] ~ .construction-guide .construction-mark { animation: construction-mark-draw 380ms var(--ease-out) 820ms both; }
-  .status-note[data-typing="done"] ~ .construction-guide .construction-mark-end { animation-delay: 1200ms; animation-duration: 320ms; }
-}
-@keyframes construction-rule-draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); } }
-@keyframes construction-mark-draw { from { clip-path: inset(var(--construction-cross) 0 calc(100% - var(--construction-cross)) 0); } to { clip-path: inset(0); } }
 .name-tape img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; filter: drop-shadow(0 3px 3px rgba(0,0,0,.1)); }
-.home-content { min-height: max(240px, calc(100svh - var(--top-space) - 48px)); padding-top: 24px; }
-.intro { padding-left: var(--name-inset); font-size: 18px; line-height: 1.4; letter-spacing: -.02em; }
+.portfolio-head { padding-top: 24px; padding-left: var(--name-inset); font-size: 16px; line-height: 1.5; letter-spacing: -.015em; }
 .intro-line { color: var(--ink); }
-.intro-role { margin-top: 8px; color: var(--muted); }
 .datadog-link { text-decoration: none; transition: color 160ms ease; }
 .datadog-link:hover, .datadog-link:focus-visible { color: #632ca6; }
+.portfolio-nav { display: flex; gap: 28px; margin-top: 24px; }
+.portfolio-nav a { position: relative; min-height: 44px; padding-block: 10px; color: var(--muted); text-decoration: none; transition: color 160ms ease; }
+.portfolio-nav a:hover, .portfolio-nav a:focus-visible, .portfolio-nav a[aria-current="page"] { color: var(--ink); }
+.portfolio-nav a::after { content: ""; position: absolute; inset-inline: 0; bottom: 4px; height: 1px; background: currentColor; opacity: 0; transform: scaleX(.65); transition: opacity 160ms ease, transform 240ms var(--ease-out); }
+.portfolio-nav a[aria-current="page"]::after { opacity: .28; transform: scaleX(1); }
+.portfolio-content { padding-left: var(--name-inset); padding-top: 32px; font-size: 16px; line-height: 1.6; letter-spacing: -.015em; }
+.work-list { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.work-link { display: grid; position: relative; isolation: isolate; gap: 4px; padding: 12px 16px; margin-inline: -16px; border-radius: 14px; text-decoration: none; }
+.work-link::before { content: ""; position: absolute; z-index: -1; inset: 0; border: 1px solid rgb(56 56 56 / .025); border-radius: inherit; background: rgb(255 255 255 / .9); box-shadow: 0 6px 14px rgb(56 56 56 / .045), 0 2px 4px rgb(56 56 56 / .025); opacity: 0; transform: translateY(2px) scale(.98); transition: opacity 160ms ease, transform 260ms var(--ease-out); }
+.work-link:focus-visible::before { opacity: 1; transform: none; }
+.work-title { display: flex; align-items: baseline; gap: 8px; }
+.external-arrow { display: inline-block; flex-shrink: 0; width: .75em; height: .75em; margin-inline-start: 5px; color: #999; vertical-align: -.02em; }
+.work-title .external-arrow { margin: 0; }
+.work-detail { color: #8a8a8a; font-size: 14px; }
+.about-copy { display: grid; gap: 20px; }
+.section-label { margin: 0 0 12px; color: #8a8a8a; font-size: 14px; font-weight: 400; letter-spacing: 0; }
+.connect-links { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0; padding: 0; list-style: none; }
+.connect-links a { display: inline-block; min-height: 44px; padding-block: 10px; }
+.colophon-label { margin-top: 32px; }
+.signature-about .last-updated { margin-top: 0; }
+.work-previews { display: none; }
+@media (min-width: 1024px) and (any-hover: hover) {
+  .work-link:hover::before { opacity: 1; transform: none; }
+  .work-previews { display: grid; position: fixed; top: 360px; left: calc(50% + 96px); width: min(420px, calc(50vw - 128px)); z-index: 2; pointer-events: none; }
+  .work-previews[hidden] { display: none; }
+  .work-preview { grid-area: 1 / 1; align-self: center; margin: 0; opacity: 0; visibility: hidden; transform: translateY(8px) scale(.985); transition: opacity 160ms ease, transform 300ms var(--ease-out), visibility 0s 160ms; }
+  .work-preview[data-visible] { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+  .work-preview > img { display: block; width: 100%; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgb(0 0 0 / .05); }
+  .work-preview figcaption { margin: 12px 8px 0; color: #8a8a8a; font-size: 13px; letter-spacing: 0; }
+  .article-preview { padding: 30px; background: #faf9f6; border: 1px solid #f0eeea; border-radius: 12px; }
+  .article-preview-byline, .article-preview-source { color: #8a8a8a; font-size: 12px; letter-spacing: 0; }
+  .article-preview h2 { margin: 32px 0 16px; font-size: 32px; line-height: 1.15; letter-spacing: -.035em; }
+  .article-preview blockquote { margin: 0; font-size: 18px; line-height: 1.55; }
+  .article-preview-source { margin-top: 32px; }
+}
 .signature { padding-left: var(--name-inset); padding-top: 96px; font-size: 18px; line-height: 1.4; letter-spacing: -.02em; }
+.signature.signature-about { padding-left: 0; padding-top: 40px; font-size: 16px; line-height: 1.6; letter-spacing: -.015em; }
 .signature-links { text-wrap: pretty; }
 .last-updated {
   margin-top: 16px;
@@ -212,6 +153,7 @@ h2 { margin: 0 0 12px; font-size: 18px; font-weight: 400; letter-spacing: -.02em
   .site-shell { padding-bottom: max(64px, env(safe-area-inset-bottom)); }
   .site-header { gap: 10px; }
   .signature { padding-top: 72px; }
+  .signature.signature-about { padding-top: 32px; }
 }
 @media (max-height: 500px) and (orientation: landscape) { :root { --top-space: 80px; } }
 @media (prefers-reduced-motion: reduce) {
@@ -256,22 +198,25 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
 }
 
 /* One-shot home entrance; the tape itself is always visible and stationary. */
-html[data-entrance="pending"] .is-home :is(.intro-line, .intro-role, .status-note, .signature, .scroll-light) { opacity: 0; }
-html[data-entrance="ready"] .is-home :is(.intro-line, .intro-role, .status-note, .signature) {
+html[data-entrance="pending"] .is-home :is(.intro-line, .portfolio-nav, .work-list, .about-copy, .signature, .scroll-light) { opacity: 0; }
+html[data-entrance="ready"] .is-home :is(.intro-line, .portfolio-nav, .work-list, .about-copy, .signature) {
   animation: home-enter 500ms var(--ease-out) both;
 }
 html[data-entrance="ready"] .is-home .intro-line { --rise: 10px; }
-html[data-entrance="ready"] .is-home .intro-role { --rise: 6px; animation-delay: 80ms; animation-duration: 450ms; }
-html[data-entrance="ready"] .is-home .status-note { --rise: 4px; animation-delay: 140ms; animation-duration: 400ms; }
+html[data-entrance="ready"] .is-home .portfolio-nav { --rise: 6px; animation-delay: 80ms; animation-duration: 450ms; }
+html[data-entrance="ready"] .is-home :is(.work-list, .about-copy) { --rise: 6px; animation-delay: 140ms; animation-duration: 450ms; }
 html[data-entrance="ready"] .is-home .signature { --rise: 6px; animation-delay: 180ms; animation-duration: 450ms; }
 html[data-entrance="ready"] .is-home .scroll-light { animation: home-fade 600ms var(--ease-out) 180ms both; }
-html[data-entrance] .is-home :is(.intro-role, .signature):focus-within { opacity: 1; transform: none; animation: none; }
+html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list, .signature):focus-within { opacity: 1; transform: none; animation: none; }
 @keyframes home-enter { from { opacity: 0; transform: translateY(var(--rise, 6px)); } to { opacity: 1; transform: translateY(0); } }
 @keyframes home-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes portfolio-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes portfolio-out { from { opacity: 1; } to { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  html[data-entrance="pending"] .is-home :is(.intro-line, .intro-role, .status-note, .signature, .scroll-light) { opacity: 1; }
-  html[data-entrance="ready"] .is-home :is(.intro-line, .intro-role, .status-note, .signature, .scroll-light) {
+  html[data-entrance="pending"] .is-home :is(.intro-line, .portfolio-nav, .work-list, .about-copy, .signature, .scroll-light) { opacity: 1; }
+  html[data-entrance="ready"] .is-home :is(.intro-line, .portfolio-nav, .work-list, .about-copy, .signature, .scroll-light) {
     animation: home-fade 150ms ease both;
     transform: none;
   }
+  .work-link::before, .work-preview { transition: none; transform: none; }
 }

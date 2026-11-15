@@ -1,6 +1,7 @@
 ---
 import Analytics from "@vercel/analytics/astro";
 import SpeedInsights from "@vercel/speed-insights/astro";
+import { ClientRouter } from "astro:transitions";
 import { site } from "../data/site";
 import "../styles/site.css";
 interface Props { title?: string; description?: string; home?: boolean; }
@@ -8,7 +9,7 @@ const { home = false, title = site.name, description = "The personal space of Ma
 const canonical = new URL(Astro.url.pathname, site.url);
 ---
 <!doctype html>
-<html lang="en" data-background="paper" data-home={home ? "" : undefined}>
+<html lang="en" data-home={home ? "" : undefined} transition:animate="none">
   <head>
     <meta charset="UTF-8" />
     <script is:inline>
@@ -21,6 +22,7 @@ const canonical = new URL(Astro.url.pathname, site.url);
       }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <ClientRouter />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#ffffff" />
     <link rel="canonical" href={canonical} />
@@ -41,15 +43,14 @@ const canonical = new URL(Astro.url.pathname, site.url);
     <meta name="twitter:image:alt" content="Handwritten Matthieu Babe label on dotted paper" />
     <link rel="preload" as="image" href="/images/name-tape.png" />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin-400-normal.woff2" crossorigin />
-    {home && <link rel="preload" as="font" type="font/woff2" href="/fonts/ibm-plex-mono-latin-400-normal.woff2" crossorigin />}
     <Analytics />
   </head>
   <body class:list={{ "is-home": home }}>
     <a class="skip-link" href="#content">Skip to content</a>
-    {home && <div class="scroll-light" aria-hidden="true"></div>}
+    {home && <div class="scroll-light" aria-hidden="true" transition:persist="edge-light"></div>}
     <div class="site-shell">
       <header class="site-header">
-        <a class="name-tape" href="/" aria-label="Matthieu Babe — home" aria-current={Astro.url.pathname === "/" ? "page" : undefined}>
+        <a class="name-tape" href="/" aria-label="Matthieu Babe — home" transition:name="name-tape" transition:persist="name-tape" transition:animate="none">
           <img src="/images/name-tape.png" alt="Matthieu Babe" width="1500" height="339" fetchpriority="high" draggable="false" />
         </a>
       </header>

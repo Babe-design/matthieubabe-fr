@@ -2,15 +2,37 @@ export const site = {
   name: "Matthieu Babe",
   url: "https://matthieubabe.fr",
   email: null as string | null,
-  intro: "I bring creativity to products and the people who shape them.",
-  currentRole: "Currently leading design for Security at Datadog.",
+  intro: "Design leader",
+  company: { name: "Datadog", href: "https://www.datadoghq.com/product/security-platform/" },
+  about: [
+    "I lead design for Security at Datadog.",
+    "I care about making complex things feel clear, and helping people do their best work.",
+    "Lately, I’ve been thinking about what it means to design with care in the age of AI."
+  ],
   links: [
+    { name: "LinkedIn", href: "https://www.linkedin.com/in/matthieubabe" },
     { name: "X", href: "https://x.com/BabeMatthieu" },
     { name: "Threads", href: "https://www.threads.com/@matthieubabe" },
-    { name: "Dribbble", href: "https://dribbble.com/matthieubabe" },
-    { name: "LinkedIn", href: "https://www.linkedin.com/in/matthieubabe" }
+    { name: "Dribbble", href: "https://dribbble.com/matthieubabe" }
   ]
 };
+
+export const work = [
+  {
+    id: "ai-guard",
+    title: "AI Guard",
+    detail: "Datadog · 2026",
+    href: "https://www.datadoghq.com/products/security/ai-guard/",
+    preview: { image: "/images/work/ai-guard.webp", width: 1200, height: 675 }
+  },
+  {
+    id: "the-care-era",
+    title: "The care era",
+    detail: "Writing · 2026",
+    href: "https://medium.com/@MatthieuBabe/the-care-era-7342fbb5f832",
+    preview: { quote: "When everyone can execute, the only thing left to compete on is care." }
+  }
+] as const;
 
 // Newest first. Use an ISO timestamp with a timezone for every published update.
 // One descriptive title, then up to three short bullets.
@@ -21,6 +43,15 @@ type ChangelogEntry = {
 };
 
 export const changelog: ChangelogEntry[] = [
+  {
+    date: "2026-11-15T02:09:00Z",
+    title: "Work and About",
+    changes: [
+      "AI Guard and The care era.",
+      "Bio, links and changelog.",
+      "A simpler white canvas."
+    ]
+  },
   {
     date: "2026-11-15T01:47:12Z",
     title: "Compact update line",

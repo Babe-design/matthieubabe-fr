@@ -1,0 +1,11 @@
+---
+import PortfolioLayout from "../layouts/PortfolioLayout.astro";
+import Signature from "../components/Signature.astro";
+import { site } from "../data/site";
+---
+<PortfolioLayout section="about">
+  <div class="about-copy">
+    {site.about.map(paragraph => <p>{paragraph}</p>)}
+  </div>
+  <Signature variant="about" />
+</PortfolioLayout>
