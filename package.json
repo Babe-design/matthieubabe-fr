@@ -9,6 +9,7 @@
     "generate:postit": "node scripts/generate-post-it-image.mjs",
     "generate:tape": "node scripts/generate-name-tape-image.mjs",
     "generate:social": "node scripts/generate-social-image.mjs",
+    "generate:favicon": "node scripts/generate-favicon.mjs",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview"
   },
   "dependencies": {

@@ -5,7 +5,7 @@ import { site } from "../data/site";
 ---
 <PortfolioLayout section="about">
   <div class="about-copy">
-    {site.about.map(paragraph => <p>{paragraph}</p>)}
+    {site.about.map((paragraph, index) => <p>{paragraph}{index === 0 && <><br />{site.aboutNickname}</>}</p>)}
   </div>
   <Signature variant="about" />
 </PortfolioLayout>

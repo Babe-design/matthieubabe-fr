@@ -9,6 +9,7 @@ export const site = {
     "I take optimism quite seriously. I like curious people, good ideas, and the energy of making things together. Good ideas tend to start with a “what if?”",
     "I care about the details, the people, and making room for joy along the way."
   ],
+  aboutNickname: "But usually people call me Babe",
   colophon: "I try to update this space regularly with new experiments and things I’m working on.",
   links: [
     { name: "LinkedIn", href: "https://www.linkedin.com/in/matthieubabe" },
@@ -44,6 +45,14 @@ type ChangelogEntry = {
 };
 
 export const changelog: ChangelogEntry[] = [
+  {
+    date: "2026-11-15T03:43:59Z",
+    title: "B for Babe",
+    changes: [
+      "A book-inspired B favicon.",
+      "A personal note in About."
+    ]
+  },
   {
     date: "2026-11-15T03:15:32Z",
     title: "More personality",
