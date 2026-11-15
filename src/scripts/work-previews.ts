@@ -21,9 +21,9 @@ function initWorkPreviews() {
     const active = desktop.matches ? hovered || focused : undefined;
     cards.forEach(card => card.toggleAttribute("data-visible", card.dataset.previewCard === active));
     if (active) {
-      const top = list.getBoundingClientRect().top;
-      const height = cards.find(card => card.dataset.previewCard === active)?.getBoundingClientRect().height || 0;
-      previews.style.top = `${Math.max(24, Math.min(top, innerHeight - height - 24))}px`;
+      const height = cards.find(card => card.dataset.previewCard === active)?.offsetHeight || 0;
+      const top = (innerHeight - height) / 2;
+      previews.style.top = `${Math.max(32, Math.min(top, innerHeight - height - 32))}px`;
     }
   };
   list.querySelectorAll<HTMLAnchorElement>("[data-preview]").forEach(link => {

@@ -64,10 +64,32 @@ p { margin: 0; }
   .work-link:hover::before { opacity: 1; transform: none; }
   .work-previews { display: block; position: fixed; top: 336px; left: calc(50% + 32px); width: min(484px, calc(50vw - 64px)); z-index: 2; pointer-events: none; }
   .work-previews[hidden] { display: none; }
-  .work-preview { position: absolute; inset-inline: 0; top: 0; margin: 0; opacity: 0; visibility: hidden; transform: translateY(8px) scale(.985); transition: opacity 160ms ease, transform 300ms var(--ease-out), visibility 0s 160ms; }
-  .work-preview[data-visible] { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
-  .work-preview > img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: center; border-radius: 12px; box-shadow: 0 10px 30px rgb(0 0 0 / .05); }
-  .work-preview figcaption { margin: 12px 8px 0; color: #8a8a8a; font-size: 14px; }
+  .work-preview {
+    --card-angle: -1.2deg;
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    margin: 0;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    box-shadow: 0 12px 36px rgb(0 0 0 / .055), 0 3px 10px rgb(0 0 0 / .025);
+    opacity: 0;
+    visibility: hidden;
+    transform-origin: 50% 60%;
+    transform: translateY(10px) rotate(calc(var(--card-angle) - .5deg)) scale(.985);
+    transition: opacity 180ms ease-out, transform 420ms var(--ease-out), visibility 0s 180ms;
+  }
+  .work-preview:nth-child(even) { --card-angle: 1.2deg; }
+  .work-preview[data-visible] {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) rotate(var(--card-angle)) scale(1);
+    transition: opacity 280ms ease-out, transform 600ms var(--ease-out), visibility 0s;
+  }
+  .work-preview > img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: center; border-radius: 9px; }
+  .work-preview figcaption { margin: 10px 4px 3px; color: #8a8a8a; font-size: 13px; }
 }
 .signature { padding-top: 96px; font-size: 15px; line-height: 1.65; }
 .signature.signature-about { padding-top: 48px; }
@@ -82,44 +104,6 @@ p { margin: 0; }
 .last-updated a { display: inline-block; padding-block: 8px; margin-block: -8px; text-decoration-color: #c7c7c7; }
 .last-updated a:hover { color: var(--muted); }
 .last-updated a:focus-visible { color: var(--ink); }
-.scroll-light {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  z-index: -1;
-  width: 100%;
-  height: min(30svh, 250px);
-  pointer-events: none;
-  /* Keep the light at the viewport edge; fade its top before either layer ends. */
-  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 85%);
-  mask-image: linear-gradient(to bottom, transparent, #000 85%);
-}
-.scroll-light::before,
-.scroll-light::after {
-  content: "";
-  position: absolute;
-  inset: 0 -15%;
-  background-repeat: no-repeat;
-  will-change: background-position, opacity;
-}
-.scroll-light::before {
-  background-image: radial-gradient(ellipse 38% 110% at 50% 115%, rgba(138,175,255,.48), transparent 100%);
-  background-size: 130% 100%;
-  animation: light-drift-blue 6s ease-in-out infinite alternate;
-}
-.scroll-light::after {
-  background-image: radial-gradient(ellipse 35% 100% at 50% 120%, rgba(255,190,133,.42), transparent 100%);
-  background-size: 135% 100%;
-  animation: light-drift-warm 7s ease-in-out -2s infinite alternate;
-}
-@keyframes light-drift-blue {
-  from { opacity: .6; background-position: 90% 0; }
-  to { opacity: 1; background-position: 10% 0; }
-}
-@keyframes light-drift-warm {
-  from { opacity: 1; background-position: 5% 0; }
-  to { opacity: .65; background-position: 95% 0; }
-}
 .changelog-content { padding-top: 80px; }
 .back-link { display: inline-block; margin-bottom: 32px; color: var(--muted); font-size: 16px; }
 h1 { margin: 0; font-size: 32px; font-weight: 400; line-height: 1.15; letter-spacing: -.035em; }
@@ -143,7 +127,6 @@ h2 { margin: 0 0 12px; font-size: 18px; font-weight: 400; letter-spacing: -.02em
 @media (max-height: 500px) and (orientation: landscape) { :root { --top-space: 80px; } }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .scroll-light::before, .scroll-light::after { animation: none; opacity: .8; will-change: auto; }
 }
 
 html:has(.changelog-sheet[open]) { overflow: hidden; }
@@ -183,25 +166,31 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
 }
 
 /* One-shot home entrance; the tape itself is always visible and stationary. */
-html[data-entrance="pending"] .is-home :is(.intro-line, .portfolio-nav, .work-list, .about-copy, .signature, .scroll-light) { opacity: 0; }
-html[data-entrance="ready"] .is-home :is(.intro-line, .portfolio-nav, .work-list, .about-copy, .signature) {
-  animation: home-enter 1000ms var(--ease-out) both;
+html[data-entrance="pending"] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) { opacity: 0; }
+html[data-entrance="ready"] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) {
+  animation: home-fade 700ms ease-out both, home-rise 800ms var(--ease-out) both;
 }
-html[data-entrance="ready"] .is-home .intro-line { --rise: 6px; }
-html[data-entrance="ready"] .is-home .portfolio-nav { --rise: 4px; animation-delay: 120ms; animation-duration: 950ms; }
-html[data-entrance="ready"] .is-home :is(.work-list, .about-copy) { --rise: 4px; animation-delay: 230ms; animation-duration: 900ms; }
-html[data-entrance="ready"] .is-home .signature { --rise: 3px; animation-delay: 330ms; animation-duration: 850ms; }
-html[data-entrance="ready"] .is-home .scroll-light { animation: home-fade 1200ms var(--ease-out) 200ms both; }
-html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list, .signature):focus-within { opacity: 1; transform: none; animation: none; }
-@keyframes home-enter { from { opacity: 0; transform: translateY(var(--rise, 6px)); } to { opacity: 1; transform: translateY(0); } }
+html[data-entrance="ready"] .is-home .intro-line { --rise: 8px; }
+html[data-entrance="ready"] .is-home .portfolio-nav { --rise: 4px; animation-delay: 80ms; }
+html[data-entrance="ready"] .is-home :is(.work-list > li, .about-copy > p) { --rise: 8px; animation-delay: 140ms; }
+html[data-entrance="ready"] .is-home :is(.work-list > li, .about-copy > p):nth-child(2) { animation-delay: 220ms; }
+html[data-entrance="ready"] .is-home .about-copy > p:nth-child(3) { animation-delay: 280ms; }
+html[data-entrance="ready"] .is-home .about-copy > p:nth-child(n+4) { animation-delay: 330ms; }
+html[data-entrance="ready"] .is-home .signature { --rise: 4px; animation-delay: 380ms; }
+html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .signature):focus-within { opacity: 1; transform: none; animation: none; }
+@keyframes home-rise { from { transform: translateY(var(--rise, 8px)); } to { transform: translateY(0); } }
 @keyframes home-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes portfolio-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes portfolio-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes portfolio-out { from { opacity: 1; } to { opacity: 0; } }
+::view-transition { pointer-events: none; }
+::view-transition-group(portfolio-panel) { animation-duration: 0s; }
 @media (prefers-reduced-motion: reduce) {
-  html[data-entrance="pending"] .is-home :is(.intro-line, .portfolio-nav, .work-list, .about-copy, .signature, .scroll-light) { opacity: 1; }
-  html[data-entrance="ready"] .is-home :is(.intro-line, .portfolio-nav, .work-list, .about-copy, .signature, .scroll-light) {
+  html[data-entrance="pending"] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) { opacity: 1; }
+  html[data-entrance="ready"] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) {
     animation: home-fade 150ms ease both;
     transform: none;
   }
-  .work-link::before, .work-preview { transition: none; transform: none; }
+  .work-link::before { transition: none; transform: none; }
+  .work-preview, .work-preview[data-visible] { transform: rotate(var(--card-angle)); transition: opacity 140ms ease, visibility 0s 140ms; }
+  .work-preview[data-visible] { transition-delay: 0s; }
 }

@@ -5,8 +5,8 @@ interface Props { section: "work" | "about"; }
 const { section } = Astro.props;
 const title = section === "about" ? `About — ${site.name}` : site.name;
 const panelAnimation = {
-  old: { name: "portfolio-out", duration: "100ms", easing: "ease-in", fillMode: "both" },
-  new: { name: "portfolio-in", duration: "260ms", easing: "cubic-bezier(0.23, 1, 0.32, 1)", fillMode: "both" }
+  old: { name: "portfolio-out", duration: "180ms", easing: "var(--ease-out)", fillMode: "both" },
+  new: { name: "portfolio-in", duration: "640ms", easing: "var(--ease-out)", fillMode: "both" }
 };
 ---
 <SiteLayout home title={title} description={`${site.intro} at ${site.company.name}. ${site.about[0]}`}>
@@ -24,7 +24,7 @@ const panelAnimation = {
 <script>
   let restoreSectionFocus = false;
   document.addEventListener("astro:before-preparation", event => {
-    restoreSectionFocus = !!event.sourceElement?.matches("[data-section-link]") && event.sourceElement === document.activeElement;
+    restoreSectionFocus = !!event.sourceElement?.matches("[data-section-link]:focus-visible") && event.sourceElement === document.activeElement;
   });
   document.addEventListener("astro:page-load", () => {
     if (restoreSectionFocus) document.querySelector<HTMLElement>(".portfolio-nav [aria-current=page]")?.focus({ preventScroll: true });

@@ -19,7 +19,8 @@ npm run build
 - Changelog et liens sociaux : dans About. La ligne « Last updated » ouvre une carte modale avec fermeture par bouton, Échap ou clic extérieur. La route `/changelog/` reste disponible en accès direct et sans JavaScript.
 - Les aperçus de Work apparaissent au survol ou au focus sur ordinateur. Le visuel AI Guard provient de sa [page produit officielle](https://www.datadoghq.com/products/security/ai-guard/) ; celui de [The care era](https://medium.com/@MatthieuBabe/the-care-era-7342fbb5f832) reprend l’image de l’article, identifiée dans le flux RSS public de Matthieu.
 - Les transitions Astro conservent le scotch entre les pages ; les animations respectent la préférence de mouvement réduit.
-- Mise en page, fond blanc et lumière au bord de l’écran : `src/layouts/SiteLayout.astro` et `src/styles/site.css`.
+- Mise en page et fond blanc : `src/layouts/SiteLayout.astro` et `src/styles/site.css`.
+- Scotch : version originale à l’encre bleue, conservée dans `scripts/assets/name-tape-ai-source.png` et générée par `npm run generate:tape`.
 
 ## Déploiement Vercel
 

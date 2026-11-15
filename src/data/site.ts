@@ -5,10 +5,9 @@ export const site = {
   intro: "Design leader",
   company: { name: "Datadog", href: "https://www.datadoghq.com/product/security-platform/" },
   about: [
-    "I lead design for Security at Datadog, turning complex problems into clear products.",
-    "I care about thoughtful details and teams where people have the space to do their best work.",
-    "I think through making: sketches on paper, rough prototypes, and ideas you can actually try.",
-    "AI is changing how we build. I’m interested in the intention and care we bring to the work."
+    "I’m Matthieu, currently in Paris, leading design for Security at Datadog.",
+    "I take optimism quite seriously. I like curious people, good ideas, and the energy of making things together. Good ideas tend to start with a “what if?”",
+    "I care about the details, the people, and making room for joy along the way."
   ],
   colophon: "I try to update this space regularly with new experiments and things I’m working on.",
   links: [
@@ -25,7 +24,7 @@ export const work = [
     title: "AI Guard",
     detail: "Datadog · 2026",
     href: "https://www.datadoghq.com/products/security/ai-guard/",
-    preview: { image: "/images/work/ai-guard.webp", width: 1200, height: 675, caption: "AI Guard · Datadog" }
+    preview: { image: "/images/work/ai-guard-signals.webp", width: 1600, height: 900, caption: "AI Guard · Datadog" }
   },
   {
     id: "the-care-era",
@@ -45,6 +44,15 @@ type ChangelogEntry = {
 };
 
 export const changelog: ChangelogEntry[] = [
+  {
+    date: "2026-11-15T03:15:32Z",
+    title: "More personality",
+    changes: [
+      "Paris, optimism and joy.",
+      "Blue tape and new previews.",
+      "Soft motion, no footer glow."
+    ]
+  },
   {
     date: "2026-11-15T02:29:00Z",
     title: "A little more space",
