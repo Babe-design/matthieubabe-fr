@@ -1,32 +1,26 @@
 import fs from "node:fs/promises";
-import sharp from "sharp";
-import opentype from "opentype.js";
+import { chromium } from "playwright";
 
-const source = await fs.readFile("scripts/assets/identity/bona-nova-bold.ttf");
-const font = opentype.parse(source.buffer.slice(source.byteOffset, source.byteOffset + source.byteLength));
-// This plain Latin word needs no contextual substitutions. Build from the
-// actual glyph outlines and kerning to avoid unsupported CCMP tables in Node.
-const outline = new opentype.Path();
-const size = 264;
-const scale = size / font.unitsPerEm;
-let x = 152;
-let previous;
-for (const letter of "Babe") {
-  const glyph = font.charToGlyph(letter);
-  if (previous) x += font.getKerningValue(previous, glyph) * scale;
-  outline.extend(glyph.getPath(x, 426, size).commands);
-  x += glyph.advanceWidth * scale - size * .01;
-  previous = glyph;
+const font = await fs.readFile("public/fonts/allo-variable.woff2");
+const css = (await fs.readFile("src/styles/site.css", "utf8"))
+  .replace('url("/fonts/allo-variable.woff2")', `url("data:font/woff2;base64,${font.toString("base64")}")`);
+const executablePath = process.env.CHROMIUM_PATH || await fs.access("/usr/bin/chromium").then(() => "/usr/bin/chromium", () => undefined);
+const browser = await chromium.launch({ executablePath, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+try {
+  const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
+  await page.setContent(`<!doctype html><html lang="en"><head><meta charset="UTF-8"><style>
+    ${css}
+    .site-header { position: absolute; top: 130px; left: 152px; width: 608px; transform: scale(1.85); transform-origin: top left; }
+  </style></head><body>
+    <header class="site-header">
+      <p class="identity-eyebrow">I’m Matthieu</p>
+      <a class="identity-name"><span class="identity-letter">B</span><span class="identity-letter">a</span><span class="identity-letter">b</span><span class="identity-letter">e</span></a>
+      <p class="intro-line">Design leader at Datadog.</p>
+    </header>
+  </body></html>`);
+  await page.evaluate(() => document.fonts.ready);
+  await page.screenshot({ path: "public/social/og-image.png" });
+  console.log("Generated public/social/og-image.png with Allo and the current intro styles.");
+} finally {
+  await browser.close();
 }
-const word = outline.toPathData(3);
-const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#fff" />
-  <g fill="#242424" font-family="Arial, sans-serif" font-size="48" letter-spacing="-1.4">
-    <text x="156" y="136" font-size="36" font-weight="400">I’m Matthieu</text>
-    <path d="${word}" />
-    <text x="156" y="530" font-weight="600">Design leader at Datadog.</text>
-  </g>
-</svg>`;
-await sharp(Buffer.from(svg)).png().toFile("public/social/og-image.png");
-console.log("Generated public/social/og-image.png with the typographic identity.");

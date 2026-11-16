@@ -1,7 +1,7 @@
 function initEntrance() {
   const root = document.documentElement;
   if (root.dataset.entrance !== "pending") return;
-  const ready = document.fonts.load('700 132px "Bona Nova"', "Babe");
+  const ready = document.fonts.load('720 120px "Allo"', "Babe");
   const timeout = new Promise(resolve => setTimeout(resolve, 700));
   void Promise.race([ready.catch(() => {}), timeout]).then(() => {
     setTimeout(() => {
