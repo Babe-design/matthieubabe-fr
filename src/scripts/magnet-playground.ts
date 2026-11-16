@@ -37,16 +37,13 @@ function initExperiment() {
   const applyLayers = () => {
     const current = view;
     if (!current) return;
-    // Minute depth offsets keep overlapping letters free of z-fighting.
-    // They are far too small to lift their contact shadows from the surface.
+    current.setStackingOrder(layerOrder);
     layerOrder.forEach((index, layer) => {
-      current.letters[index].mesh.position.z = current.letters[index].position.z + layer * .0003;
       handles[index].style.zIndex = String(layer + 1);
     });
   };
   const promote = (index: number) => {
     layerOrder = layerOrder.filter(item => item !== index).concat(index);
-    applyLayers();
   };
   const dirty = () => view?.letters.some(({ mesh, position }) => Math.abs(mesh.position.x - position.x) + Math.abs(mesh.position.y - position.y) > .001) ?? false;
   const updateHandles = () => {
@@ -66,6 +63,7 @@ function initExperiment() {
   };
   const paint = () => {
     if (!view || signal.aborted || !root.dataset.rendered) return;
+    applyLayers();
     view.render();
     updateHandles();
   };
@@ -98,9 +96,8 @@ function initExperiment() {
       const progress = duration ? Math.min(1, (time - began) / duration) : 1;
       const eased = easeOut(progress);
       indices.forEach((index, i) => {
-        const { mesh, position } = current.letters[index];
+        const { position } = current.letters[index];
         current.moveLetter(index, starts[i].x + (position.x - starts[i].x) * eased, starts[i].y + (position.y - starts[i].y) * eased, padding());
-        mesh.position.z = position.z + layerOrder.indexOf(index) * .0003;
       });
       paint();
       animationFrame = progress < 1 ? requestAnimationFrame(tick) : 0;

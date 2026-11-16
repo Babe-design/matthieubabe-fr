@@ -10,9 +10,11 @@
         <button class="magnet-handle" type="button" data-letter="3" aria-label="Move e" aria-describedby="magnet-instructions"></button>
       </div>
     </div>
-  </div>
-  <div class="experiment-tools" data-magnet-controls hidden>
-    <button class="experiment-reset" type="button" data-magnet-reset>Reset</button>
+    <div class="experiment-tools" data-magnet-controls hidden>
+      <button class="experiment-reset" type="button" data-magnet-reset aria-label="Reset magnet positions" title="Reset">
+        <img src="/icons/rotate-ccw.svg" alt="" aria-hidden="true" width="18" height="18" />
+      </button>
+    </div>
   </div>
   <p id="magnet-instructions" class="sr-only">Drag a letter to move it. With a letter focused, use the arrow keys to move, Shift and an arrow for a larger step, or Home to put it back. Reset puts all four letters back.</p>
   <p class="sr-only" role="status" aria-live="polite" data-magnet-status></p>

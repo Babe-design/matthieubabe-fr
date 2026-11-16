@@ -14,13 +14,19 @@ const canonical = new URL(Astro.url.pathname, site.url);
   <head>
     <meta charset="UTF-8" />
     <script is:inline>
-      if (document.documentElement.hasAttribute("data-home") && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        document.documentElement.dataset.entrance = "pending";
-        // Reveal even if the module, image or font fails to load.
-        setTimeout(() => {
-          if (document.documentElement.dataset.entrance === "pending") document.documentElement.dataset.entrance = "ready";
-        }, 1600);
-      }
+      (() => {
+        // Client-side navigation keeps the identity in place. Play only once.
+        const entrance = Symbol.for("matthieubabe:entrance");
+        if (Reflect.get(window, entrance)) return;
+        Reflect.set(window, entrance, true);
+        if (document.documentElement.hasAttribute("data-home") && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          document.documentElement.dataset.entrance = "pending";
+          // Reveal even if the module or font fails to load.
+          setTimeout(() => {
+            if (document.documentElement.dataset.entrance === "pending") document.documentElement.dataset.entrance = "ready";
+          }, 1600);
+        }
+      })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <ClientRouter />

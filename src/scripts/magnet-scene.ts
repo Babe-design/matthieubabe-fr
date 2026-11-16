@@ -6,6 +6,7 @@ import {
 } from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import outlines from "../assets/magnet-outlines.json";
+import { footprintsTouch, makeFootprint, type FilledPolygon, type Footprint, type Point2 } from "./magnet-overlap";
 
 type Letter = keyof typeof outlines;
 type OutlineCommand = { type: string; x?: number; y?: number; x1?: number; y1?: number; x2?: number; y2?: number };
@@ -77,7 +78,7 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
   const light = new DirectionalLight(0xfffaf1, .9);
   light.position.set(-3, 4, 18);
   light.castShadow = true;
-  light.shadow.mapSize.set(1024, 1024);
+  light.shadow.mapSize.set(2048, 2048);
   light.shadow.camera.left = -4;
   light.shadow.camera.right = 4;
   light.shadow.camera.top = 2.5;
@@ -86,10 +87,11 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
   light.shadow.camera.far = 20;
   light.shadow.bias = -.00015;
   light.shadow.normalBias = .0005;
-  light.shadow.radius = 2;
+  light.shadow.radius = 3;
+  light.shadow.intensity = .65;
   scene.add(light);
 
-  const surface = new Mesh(new PlaneGeometry(30, 20), new ShadowMaterial({ color: 0x38342f, opacity: .1 }));
+  const surface = new Mesh(new PlaneGeometry(30, 20), new ShadowMaterial({ color: 0x38342f, opacity: .15 }));
   surface.position.z = 0;
   surface.receiveShadow = true;
   scene.add(surface);
@@ -106,6 +108,8 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
   const materials: MeshPhysicalMaterial[] = [];
   const grain = makePlasticGrain();
   const letters: { mesh: Mesh; position: Vector3; rotation: Vector3 }[] = [];
+  const footprints: FilledPolygon[][] = [];
+  const halfDepths: number[] = [];
   for (const spec of options.icon ? specs.slice(0, 1) : specs) {
     const path = new ShapePath();
     for (const command of outlines[spec.letter] as OutlineCommand[]) {
@@ -115,7 +119,8 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
       else if (command.type === "Q") path.quadraticCurveTo(command.x1!, command.y1!, command.x!, command.y!);
       else if (command.type === "Z") path.currentPath?.closePath();
     }
-    const geometry = new ExtrudeGeometry(path.toShapes(), {
+    const shapes = path.toShapes();
+    const geometry = new ExtrudeGeometry(shapes, {
       depth: .045,
       bevelEnabled: true,
       bevelThickness: .012,
@@ -126,7 +131,14 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
     });
     geometry.computeBoundingBox();
     const size = geometry.boundingBox!.getSize(new Vector3());
+    const outlineCenter = geometry.boundingBox!.getCenter(new Vector3());
     const scale = spec.height / size.y;
+    const localPoint = (point: Point2) => ({ x: (point.x - outlineCenter.x) * scale, y: (point.y - outlineCenter.y) * scale });
+    footprints.push(shapes.map(shape => {
+      const points = shape.extractPoints(16);
+      return { outer: points.shape.map(localPoint), holes: points.holes.map(hole => hole.map(localPoint)) };
+    }));
+    halfDepths.push(size.z / 2);
     geometry.scale(scale, scale, 1);
     geometry.center();
     const width = size.x * scale;
@@ -170,6 +182,32 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
     });
   };
   const render = () => renderer.render(scene, camera);
+  const footprintCache: { x: number; y: number; angle: number; footprint: Footprint }[] = [];
+  const footprintAt = (index: number) => {
+    const { position, rotation } = letters[index].mesh;
+    const cached = footprintCache[index];
+    if (cached && cached.x === position.x && cached.y === position.y && cached.angle === rotation.z) return cached.footprint;
+    const cos = Math.cos(rotation.z), sin = Math.sin(rotation.z);
+    const transform = (point: Point2) => ({ x: point.x * cos - point.y * sin + position.x, y: point.x * sin + point.y * cos + position.y });
+    const footprint = makeFootprint(footprints[index].map(polygon => ({ outer: polygon.outer.map(transform), holes: polygon.holes.map(hole => hole.map(transform)) })));
+    footprintCache[index] = { x: position.x, y: position.y, angle: rotation.z, footprint };
+    return footprint;
+  };
+  const setStackingOrder = (order: number[]) => {
+    order.forEach((index, rank) => {
+      const letter = letters[index];
+      let height = letter.position.z;
+      for (let lowerRank = 0; lowerRank < rank; lowerRank++) {
+        const lower = order[lowerRank];
+        if (footprintsTouch(footprintAt(index), footprintAt(lower))) {
+          // One real plastic thickness above the letter underneath. The tiny
+          // clearance prevents coincident faces; separated magnets stay flush.
+          height = Math.max(height, letters[lower].mesh.position.z + halfDepths[lower] + halfDepths[index] + .0004);
+        }
+      }
+      letter.mesh.position.z = height;
+    });
+  };
   const raycaster = new Raycaster();
   const pickLetter = (x: number, y: number) => {
     raycaster.setFromCamera(new Vector2(x * 2 - 1, 1 - y * 2), camera);
@@ -219,5 +257,5 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
     grain.dispose();
     renderer.dispose();
   };
-  return { renderer, scene, camera, word, letters, poseEntrance, pickLetter, pointerPosition, letterRect, moveLetter, resize, render, dispose };
+  return { renderer, scene, camera, word, letters, poseEntrance, setStackingOrder, pickLetter, pointerPosition, letterRect, moveLetter, resize, render, dispose };
 }

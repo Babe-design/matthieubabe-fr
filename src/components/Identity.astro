@@ -2,7 +2,7 @@
 import { site } from "../data/site";
 ---
 <header class="site-header" transition:name="identity" transition:persist="identity" transition:animate="none">
-  <p class="identity-eyebrow">I’m Matthieu</p>
-  <a class="identity-name" href="/" aria-label="Babe — home">Babe</a>
-  <p class="intro-line">{site.intro} at <a class="datadog-link" href={site.company.href}>{site.company.name}</a>.</p>
+  <div class="identity-copy-window"><p class="identity-eyebrow">I’m Matthieu</p></div>
+  <a class="identity-name" href="/" aria-label="Babe — home"><span class="identity-letter">B</span><span class="identity-letter">a</span><span class="identity-letter">b</span><span class="identity-letter">e</span></a>
+  <div class="identity-copy-window"><p class="intro-line">{site.intro} at <a class="datadog-link" href={site.company.href}>{site.company.name}</a>.</p></div>
 </header>
