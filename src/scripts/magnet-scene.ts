@@ -1,8 +1,8 @@
 import {
   NeutralToneMapping, Box3, Color, DataTexture, DirectionalLight, ExtrudeGeometry,
   Group, HemisphereLight, Mesh, MeshPhysicalMaterial, OrthographicCamera,
-  VSMShadowMap, PlaneGeometry, PMREMGenerator, Scene, ShadowMaterial,
-  ShapePath, SRGBColorSpace, Vector3, WebGLRenderer, RGBAFormat, RepeatWrapping, LinearMipmapLinearFilter, LinearFilter
+  PCFShadowMap, PlaneGeometry, PMREMGenerator, Scene, ShadowMaterial,
+  ShapePath, SRGBColorSpace, Vector2, Vector3, Raycaster, WebGLRenderer, RGBAFormat, RepeatWrapping, LinearMipmapLinearFilter, LinearFilter
 } from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import outlines from "../assets/magnet-outlines.json";
@@ -47,15 +47,21 @@ function makePlasticGrain() {
   return texture;
 }
 
-export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.min(devicePixelRatio, 3), options: { icon?: boolean } = {}) {
-  const renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "low-power" });
+export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.min(devicePixelRatio, 3), options: { icon?: boolean; opaque?: boolean } = {}) {
+  // Request the context explicitly: Three creates an alpha-capable drawing
+  // buffer internally even when its renderer-level `alpha` option is false.
+  const context = canvas.getContext("webgl2", { alpha: !options.opaque, antialias: true, powerPreference: "low-power" });
+  if (!context) throw new Error("WebGL is unavailable; use the rendered magnet image.");
+  const renderer = new WebGLRenderer({ canvas, context, antialias: true, alpha: !options.opaque, powerPreference: "low-power" });
   renderer.setPixelRatio(pixelRatio);
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.toneMapping = NeutralToneMapping;
   renderer.toneMappingExposure = .85;
-  renderer.setClearColor(0xffffff, 0);
+  renderer.setClearColor(0xffffff, options.opaque ? 1 : 0);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = VSMShadowMap;
+  // PCF excludes the receiving plane from the shadow pass. VSM can make that
+  // plane shadow itself, producing a hatched rectangle on some graphics drivers.
+  renderer.shadowMap.type = PCFShadowMap;
   const scene = new Scene();
   const camera = new OrthographicCamera(-3, 3, 1.2, -1.2, .1, 30);
   camera.position.set(0, 0, 10);
@@ -81,7 +87,6 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
   light.shadow.bias = -.00015;
   light.shadow.normalBias = .0005;
   light.shadow.radius = 2;
-  light.shadow.blurSamples = 12;
   scene.add(light);
 
   const surface = new Mesh(new PlaneGeometry(30, 20), new ShadowMaterial({ color: 0x38342f, opacity: .1 }));
@@ -165,6 +170,35 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
     });
   };
   const render = () => renderer.render(scene, camera);
+  const raycaster = new Raycaster();
+  const pickLetter = (x: number, y: number) => {
+    raycaster.setFromCamera(new Vector2(x * 2 - 1, 1 - y * 2), camera);
+    word.updateWorldMatrix(true, true);
+    const hit = raycaster.intersectObjects(letters.map(letter => letter.mesh), false)[0];
+    return hit ? letters.findIndex(letter => letter.mesh === hit.object) : undefined;
+  };
+  const pointerPosition = (x: number, y: number) => {
+    const point = new Vector3(camera.left + x * (camera.right - camera.left), camera.top - y * (camera.top - camera.bottom), 0);
+    word.updateWorldMatrix(true, false);
+    return word.worldToLocal(point);
+  };
+  const letterRect = (index: number) => {
+    const mesh = letters[index].mesh;
+    mesh.updateWorldMatrix(true, false);
+    const box = new Box3().setFromObject(mesh);
+    const min = box.min.clone().project(camera);
+    const max = box.max.clone().project(camera);
+    return { x: (min.x + 1) / 2, y: (1 - max.y) / 2, width: (max.x - min.x) / 2, height: (max.y - min.y) / 2 };
+  };
+  const moveLetter = (index: number, x: number, y: number, padding: number) => {
+    const mesh = letters[index].mesh;
+    mesh.position.x = x;
+    mesh.position.y = y;
+    mesh.updateWorldMatrix(true, false);
+    const box = new Box3().setFromObject(mesh);
+    mesh.position.x += Math.max(0, camera.left + padding - box.min.x) + Math.min(0, camera.right - padding - box.max.x);
+    mesh.position.y += Math.max(0, camera.bottom + padding - box.min.y) + Math.min(0, camera.top - padding - box.max.y);
+  };
   const resize = (cssWidth: number, cssHeight: number) => {
     renderer.setSize(cssWidth, cssHeight, false);
     const height = width / (cssWidth / cssHeight);
@@ -185,5 +219,5 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
     grain.dispose();
     renderer.dispose();
   };
-  return { renderer, scene, camera, word, letters, poseEntrance, resize, render, dispose };
+  return { renderer, scene, camera, word, letters, poseEntrance, pickLetter, pointerPosition, letterRect, moveLetter, resize, render, dispose };
 }

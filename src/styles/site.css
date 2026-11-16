@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "Bona Nova";
+  src: url("/fonts/bona-nova-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 :root {
   color-scheme: light;
   --surface: #fff;
@@ -35,14 +42,7 @@ p { margin: 0; }
 .site-header { display: block; }
 .identity-eyebrow { font-size: clamp(20px, 3vw, 24px); font-weight: 400; line-height: 1.25; letter-spacing: -.025em; }
 .intro-line { font-size: clamp(21px, calc(6vw + 1.8px), 32px); font-weight: 600; line-height: 1.2; letter-spacing: -.035em; }
-.magnet-word { position: relative; display: block; width: min(360px, calc(100% + 48px)); aspect-ratio: 9 / 4; margin: 8px 0 8px -24px; -webkit-tap-highlight-color: transparent; }
-.magnet-fallback, .magnet-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
-.magnet-canvas { opacity: 0; }
-.magnet-fallback-scattered { visibility: hidden; }
-html[data-entrance="pending"] .magnet-fallback-rest, html[data-entrance="magnets"] .magnet-fallback-rest { visibility: hidden; }
-html[data-entrance="pending"] .magnet-fallback-scattered, html[data-entrance="magnets"] .magnet-fallback-scattered { visibility: visible; }
-.magnet-word[data-rendered] .magnet-canvas { opacity: 1; }
-.magnet-word[data-rendered] .magnet-fallback { visibility: hidden; }
+.identity-name { display: block; width: max-content; max-width: 100%; margin: 8px 0; margin-inline-start: -.04em; font-family: "Bona Nova", Georgia, serif; font-weight: 700; font-size: clamp(96px, 18vw, 132px); font-synthesis: none; line-height: .94; letter-spacing: -.01em; text-decoration: none; }
 .portfolio-head { padding-top: 40px; font-size: 15px; line-height: 1.5; }
 .intro-line { color: var(--ink); }
 .datadog-link { text-decoration: none; transition: color 160ms ease; }
@@ -60,6 +60,25 @@ html[data-entrance="pending"] .magnet-fallback-scattered, html[data-entrance="ma
 .work-title { text-decoration: underline; text-decoration-color: #e6e6e6; text-underline-offset: .18em; }
 .work-detail { color: #8a8a8a; font-size: 15px; }
 .about-copy { display: grid; gap: 32px; }
+.experiment-feed { display: grid; grid-template-columns: minmax(0, 1fr); gap: 56px; margin: 0; padding: 0; list-style: none; }
+.experiment-feed > li { min-width: 0; }
+.experiment-frame { padding: 8px; background: #fff; border: 1px solid #eee; border-radius: 20px; box-shadow: 0 8px 28px rgb(0 0 0 / .025), 0 2px 6px rgb(0 0 0 / .015); }
+.magnet-stage { position: relative; width: 100%; min-height: 300px; aspect-ratio: 3 / 2; overflow: hidden; border-radius: 12px; background: #fff; touch-action: pan-y pinch-zoom; }
+.magnet-still, .magnet-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; pointer-events: none; }
+.magnet-canvas { opacity: 0; }
+.magnet-experiment[data-rendered] .magnet-canvas { opacity: 1; }
+.magnet-experiment[data-rendered] .magnet-still { visibility: hidden; }
+.magnet-handles { position: absolute; inset: 0; pointer-events: none; }
+.magnet-handle { position: absolute; top: 0; left: 0; min-width: 44px; min-height: 44px; margin: 0; padding: 0; border: 0; border-radius: 12px; background: transparent; cursor: grab; touch-action: none; pointer-events: auto; -webkit-tap-highlight-color: transparent; }
+.magnet-handle:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.magnet-stage[data-dragging], .magnet-stage[data-dragging] .magnet-handle { cursor: grabbing; }
+.experiment-tools { display: flex; align-items: baseline; justify-content: flex-end; gap: 16px; margin-top: 10px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.experiment-tools[hidden], .magnet-handles[hidden] { display: none; }
+.experiment-tools:has(.experiment-reset:disabled) { visibility: hidden; }
+.experiment-reset { min-height: 40px; margin-block: -10px; padding: 10px 0 10px 12px; border: 0; background: none; font: inherit; color: var(--muted); text-decoration: underline; text-decoration-color: var(--underline); text-underline-offset: .15em; cursor: pointer; }
+.experiment-reset:hover { color: var(--ink); text-decoration-color: currentColor; }
+.experiment-reset:disabled { opacity: .4; cursor: default; }
+.experiment-reset:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 2px; }
 .section-label { margin: 0 0 16px; color: #8a8a8a; font-size: 15px; font-weight: 400; line-height: 1.5; letter-spacing: 0; }
 .connect-links { display: grid; justify-items: start; gap: 16px; margin: 0; padding: 0; list-style: none; }
 .connect-links a { display: inline-block; padding-block: 8px; margin-block: -8px; line-height: 1.5; }
@@ -170,20 +189,20 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
   .changelog-sheet[open], .changelog-sheet.is-closing, .changelog-sheet::backdrop { animation: none; }
 }
 
-/* One-shot entrance; the identity stays in place while the content follows. */
-html:is([data-entrance="pending"], [data-entrance="magnets"]) .is-home :is(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) { opacity: 0; }
-html[data-entrance="ready"] .is-home :where(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) {
+/* The typographic name leads; the rest of the page follows in reading order. */
+html[data-entrance="pending"] .is-home :is(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) { opacity: 0; }
+html[data-entrance="ready"] .is-home :where(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) {
   animation: home-fade 700ms ease-out both, home-rise 800ms var(--ease-out) both;
 }
 html[data-entrance="ready"] .is-home .identity-eyebrow { --rise: 4px; }
 html[data-entrance="ready"] .is-home .intro-line { --rise: 6px; animation-delay: 120ms; }
 html[data-entrance="ready"] .is-home .portfolio-nav { --rise: 4px; animation-delay: 220ms; }
-html[data-entrance="ready"] .is-home :is(.work-list > li, .about-copy > p) { --rise: 6px; animation-delay: 320ms; }
-html[data-entrance="ready"] .is-home :is(.work-list > li, .about-copy > p):nth-child(2) { animation-delay: 410ms; }
+html[data-entrance="ready"] .is-home :is(.work-list > li, .experiment-feed > li, .about-copy > p) { --rise: 6px; animation-delay: 320ms; }
+html[data-entrance="ready"] .is-home :is(.work-list > li, .experiment-feed > li, .about-copy > p):nth-child(2) { animation-delay: 410ms; }
 html[data-entrance="ready"] .is-home .about-copy > p:nth-child(3) { animation-delay: 490ms; }
 html[data-entrance="ready"] .is-home .about-copy > p:nth-child(n+4) { animation-delay: 540ms; }
 html[data-entrance="ready"] .is-home .signature { --rise: 4px; animation-delay: 580ms; }
-html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .signature):focus-within { opacity: 1; transform: none; animation: none; }
+html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .signature):focus-within { opacity: 1; transform: none; animation: none; }
 @keyframes home-rise { from { transform: translateY(var(--rise, 8px)); } to { transform: translateY(0); } }
 @keyframes home-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes portfolio-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -191,8 +210,8 @@ html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .
 ::view-transition { pointer-events: none; }
 ::view-transition-group(portfolio-panel) { animation-duration: 0s; }
 @media (prefers-reduced-motion: reduce) {
-  html:is([data-entrance="pending"], [data-entrance="magnets"]) .is-home :is(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) { opacity: 1; }
-  html[data-entrance="ready"] .is-home :is(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) {
+  html[data-entrance="pending"] .is-home :is(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) { opacity: 1; }
+  html[data-entrance="ready"] .is-home :is(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) {
     animation: home-fade 150ms ease both;
     animation-delay: 0ms;
     transform: none;

@@ -1,9 +1,9 @@
 ---
 import SiteLayout from "./SiteLayout.astro";
 import { site } from "../data/site";
-interface Props { section: "work" | "about"; }
+interface Props { section: "work" | "experiment" | "about"; }
 const { section } = Astro.props;
-const title = section === "about" ? `About — ${site.name}` : site.name;
+const title = section === "work" ? site.name : `${section === "experiment" ? "Experiment" : "About"} — ${site.name}`;
 const panelAnimation = {
   old: { name: "portfolio-out", duration: "180ms", easing: "var(--ease-out)", fillMode: "both" },
   new: { name: "portfolio-in", duration: "640ms", easing: "var(--ease-out)", fillMode: "both" }
@@ -13,11 +13,12 @@ const panelAnimation = {
   <div class="portfolio-head" transition:name="portfolio-heading" transition:animate="none">
     <nav class="portfolio-nav" aria-label="Portfolio sections">
       <a href="/" data-section-link aria-current={section === "work" ? "page" : undefined}>Work</a>
+      <a href="/experiment/" data-section-link aria-current={section === "experiment" ? "page" : undefined}>Experiment</a>
       <a href="/about/" data-section-link aria-current={section === "about" ? "page" : undefined}>About</a>
     </nav>
   </div>
   <main id="content" class="portfolio-content" transition:name="portfolio-panel" transition:animate={{ forwards: panelAnimation, backwards: panelAnimation }}>
-    <h1 class="sr-only">{section === "work" ? "Matthieu Babe — Work" : "About Matthieu Babe"}</h1>
+    <h1 class="sr-only">{section === "about" ? "About Matthieu Babe" : `Matthieu Babe — ${section === "experiment" ? "Experiment" : "Work"}`}</h1>
     <slot />
   </main>
 <script>

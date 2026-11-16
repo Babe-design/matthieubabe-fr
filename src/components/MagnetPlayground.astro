@@ -1,0 +1,22 @@
+<div class="magnet-experiment" data-magnet-experiment>
+  <div class="experiment-frame">
+    <div class="magnet-stage" data-magnet-stage>
+      <img class="magnet-still" src="/images/babe-magnets.webp" alt="Babe, spelled with red, yellow, blue and green fridge magnets." width="1440" height="640" loading="lazy" draggable="false" />
+      <canvas class="magnet-canvas" aria-hidden="true"></canvas>
+      <div class="magnet-handles" data-magnet-controls hidden>
+        <button class="magnet-handle" type="button" data-letter="0" aria-label="Move capital B" aria-describedby="magnet-instructions"></button>
+        <button class="magnet-handle" type="button" data-letter="1" aria-label="Move a" aria-describedby="magnet-instructions"></button>
+        <button class="magnet-handle" type="button" data-letter="2" aria-label="Move lowercase b" aria-describedby="magnet-instructions"></button>
+        <button class="magnet-handle" type="button" data-letter="3" aria-label="Move e" aria-describedby="magnet-instructions"></button>
+      </div>
+    </div>
+  </div>
+  <div class="experiment-tools" data-magnet-controls hidden>
+    <button class="experiment-reset" type="button" data-magnet-reset>Reset</button>
+  </div>
+  <p id="magnet-instructions" class="sr-only">Drag a letter to move it. With a letter focused, use the arrow keys to move, Shift and an arrow for a larger step, or Home to put it back. Reset puts all four letters back.</p>
+  <p class="sr-only" role="status" aria-live="polite" data-magnet-status></p>
+</div>
+<script>
+  import "../scripts/magnet-playground";
+</script>

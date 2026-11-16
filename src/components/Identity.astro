@@ -3,14 +3,6 @@ import { site } from "../data/site";
 ---
 <header class="site-header" transition:name="identity" transition:persist="identity" transition:animate="none">
   <p class="identity-eyebrow">I’m Matthieu</p>
-  <a class="magnet-word" href="/" aria-label="Babe — home" data-magnets>
-    <img class="magnet-fallback magnet-fallback-rest" src="/images/babe-magnets.webp" alt="" width="1440" height="640" fetchpriority="high" draggable="false" />
-    <img class="magnet-fallback magnet-fallback-scattered" src="/images/babe-magnets-scattered.webp" alt="" width="1440" height="640" fetchpriority="high" draggable="false" />
-    <canvas class="magnet-canvas" aria-hidden="true"></canvas>
-    <span class="sr-only">Babe</span>
-  </a>
+  <a class="identity-name" href="/" aria-label="Babe — home">Babe</a>
   <p class="intro-line">{site.intro} at <a class="datadog-link" href={site.company.href}>{site.company.name}</a>.</p>
 </header>
-<script>
-  import "../scripts/magnets";
-</script>
