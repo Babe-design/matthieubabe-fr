@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import sharp from "sharp";
 
-const source = "scripts/assets/babe-favicon-source.png";
+const source = "scripts/assets/magnets/magnet-b.png";
 const metadata = await sharp(source).metadata();
 if (metadata.width !== metadata.height) throw new Error("The favicon source must be square.");
 
@@ -9,8 +9,8 @@ const icons = new Map();
 for (const size of [16, 32, 48, 180]) {
   const png = await sharp(source).resize(size, size).ensureAlpha().png({ compressionLevel: 9 }).toBuffer();
   icons.set(size, png);
-  if (size === 16 || size === 32) await fs.writeFile(`public/favicon-${size}.png`, png);
-  if (size === 180) await fs.writeFile("public/apple-touch-icon.png", png);
+  if (size === 16 || size === 32) await fs.writeFile(`public/favicon-magnet-${size}.png`, png);
+  if (size === 180) await sharp(png).flatten({ background: "#fff" }).png().toFile("public/apple-touch-icon-magnet.png");
 }
 
 // ICO supports embedded PNGs; include native sizes for browsers and desktop shortcuts.

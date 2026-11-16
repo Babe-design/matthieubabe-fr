@@ -18,10 +18,12 @@ npm run build
 - Le compteur de la signature utilise la date de la première entrée ; il ne se réinitialise pas au rechargement.
 - Changelog et liens sociaux : dans About. La ligne « Last updated » ouvre une carte modale avec fermeture par bouton, Échap ou clic extérieur. La route `/changelog/` reste disponible en accès direct et sans JavaScript.
 - Les aperçus de Work apparaissent au survol ou au focus sur ordinateur. Le visuel AI Guard provient de sa [page produit officielle](https://www.datadoghq.com/products/security/ai-guard/) ; celui de [The care era](https://medium.com/@MatthieuBabe/the-care-era-7342fbb5f832) reprend l’image de l’article, identifiée dans le flux RSS public de Matthieu.
-- Les transitions Astro conservent le scotch entre les pages ; les animations respectent la préférence de mouvement réduit.
+- Les transitions Astro conservent l’en-tête et sa scène 3D entre les pages ; les animations respectent la préférence de mouvement réduit.
 - Mise en page et fond blanc : `src/layouts/SiteLayout.astro` et `src/styles/site.css`.
-- Scotch : version originale à l’encre bleue, conservée dans `scripts/assets/name-tape-ai-source.png` et générée par `npm run generate:tape`.
-- Favicon : monogramme B, vert sombre sur jaune citron, inspiré d’une couverture de livre. `npm run generate:favicon` produit les PNG 16/32 px, l’ICO et l’icône Apple depuis `scripts/assets/babe-favicon-source.png`.
+- Identité : « I’m Matthieu », quatre magnets « Babe », puis l’introduction. `src/scripts/magnet-scene.ts` définit la géométrie, le grain du plastique, les couleurs et l’éclairage Three.js. Les lettres initialement éparpillées se rangent avant l’apparition des textes de haut en bas. La scène reste au repos après l’entrée et se redessine au redimensionnement ; l’image fixe fonctionne sans JavaScript ou WebGL, et la préférence de mouvement réduit supprime la séquence.
+- `npm run generate:magnets` régénère les contours depuis Quicksand Bold et Lilita One (le B), les deux arrangements transparents à 4× et le B du favicon. Il utilise Chromium (`CHROMIUM_PATH` si nécessaire), ou le navigateur installé par `npx playwright install chromium`, et un serveur local temporaire sur le port 4327. Les fontes et leurs licences SIL OFL sont conservées dans `scripts/assets/magnets/`.
+- Ancien scotch à l’encre bleue : source conservée dans `scripts/assets/name-tape-ai-source.png` et générée par `npm run generate:tape`.
+- Favicon : le même B rouge en magnet. `npm run generate:favicon` produit les PNG 16/32 px, l’ICO et l’icône Apple depuis `scripts/assets/magnets/magnet-b.png`.
 
 ## Déploiement Vercel
 

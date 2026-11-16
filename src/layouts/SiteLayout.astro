@@ -3,6 +3,7 @@ import Analytics from "@vercel/analytics/astro";
 import SpeedInsights from "@vercel/speed-insights/astro";
 import { ClientRouter } from "astro:transitions";
 import { site } from "../data/site";
+import Identity from "../components/Identity.astro";
 import "../styles/site.css";
 interface Props { title?: string; description?: string; home?: boolean; }
 const { home = false, title = site.name, description = "The personal space of Matthieu Babe. A few things, over time." } = Astro.props;
@@ -18,7 +19,7 @@ const canonical = new URL(Astro.url.pathname, site.url);
         // Reveal even if the module, image or font fails to load.
         setTimeout(() => {
           if (document.documentElement.dataset.entrance === "pending") document.documentElement.dataset.entrance = "ready";
-        }, 1600);
+        }, 2800);
       }
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -26,40 +27,33 @@ const canonical = new URL(Astro.url.pathname, site.url);
     <meta name="description" content={description} />
     <meta name="theme-color" content="#ffffff" />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
-    <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="icon" href="/favicon-magnet-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-magnet-16.png" type="image/png" sizes="16x16" />
+    <link rel="shortcut icon" href="/favicon.ico?v=magnet" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-magnet.png" sizes="180x180" />
     <title>{title}</title>
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={`${site.url}/social/og-image.png`} />
-    <meta property="og:image:alt" content="Handwritten Matthieu Babe label on dotted paper" />
+    <meta property="og:image:alt" content="I’m Matthieu — Babe in colorful fridge magnets. Design leader at Datadog." />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={`${site.url}/social/og-image.png`} />
-    <meta name="twitter:image:alt" content="Handwritten Matthieu Babe label on dotted paper" />
-    <link rel="preload" as="image" href="/images/name-tape.png" />
+    <meta name="twitter:image:alt" content="I’m Matthieu — Babe in colorful fridge magnets. Design leader at Datadog." />
+    <link rel="preload" as="image" href="/images/babe-magnets-scattered.webp" />
     <Analytics />
   </head>
   <body class:list={{ "is-home": home }}>
     <a class="skip-link" href="#content">Skip to content</a>
     <div class="site-shell">
-      <header class="site-header">
-        <a class="name-tape" href="/" aria-label="Matthieu Babe — home" transition:name="name-tape" transition:persist="name-tape" transition:animate="none">
-          <img src="/images/name-tape.png" alt="Matthieu Babe" width="1500" height="339" fetchpriority="high" draggable="false" />
-        </a>
-      </header>
+      <Identity />
       <slot />
     </div>
-    <script>
-      import "../scripts/home-entrance";
-    </script>
     <SpeedInsights />
   </body>
 </html>

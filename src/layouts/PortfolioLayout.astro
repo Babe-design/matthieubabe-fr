@@ -11,7 +11,6 @@ const panelAnimation = {
 ---
 <SiteLayout home title={title} description={`${site.intro} at ${site.company.name}. ${site.about[0]}`}>
   <div class="portfolio-head" transition:name="portfolio-heading" transition:animate="none">
-    <p class="intro-line">{site.intro} at <a class="datadog-link" href={site.company.href}>{site.company.name}</a>.</p>
     <nav class="portfolio-nav" aria-label="Portfolio sections">
       <a href="/" data-section-link aria-current={section === "work" ? "page" : undefined}>Work</a>
       <a href="/about/" data-section-link aria-current={section === "about" ? "page" : undefined}>About</a>
