@@ -102,6 +102,7 @@ p { margin: 0; }
 .connect-links a { display: inline-block; padding-block: 8px; margin-block: -8px; line-height: 1.5; }
 .colophon-label { margin-top: 48px; }
 .colophon-note { line-height: 1.65; }
+.colophon-credit { margin-top: 8px; }
 .work-previews { display: none; }
 @media (min-width: 1024px) and (any-hover: hover) {
   .work-link:hover::before { opacity: 1; transform: none; }

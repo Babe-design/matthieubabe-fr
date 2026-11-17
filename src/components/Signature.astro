@@ -21,6 +21,7 @@ const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"sh
   </p>}
   {variant === "about" && <h2 class="section-label colophon-label">Colophon</h2>}
   {variant === "about" && <p class="colophon-note">{site.colophon}</p>}
+  {variant === "about" && <p class="colophon-note colophon-credit">Set in <a href="https://allo.joshpuckett.me/" target="_blank" rel="noopener noreferrer">Allo</a>, designed by <a href="https://x.com/joshpuckett" target="_blank" rel="noopener noreferrer">Josh Puckett</a>.</p>}
   <p class="last-updated">
     <a href="/changelog/" data-open-changelog aria-describedby="changelog-link-help">Last updated <time datetime={latest} data-updated-at={latest} title={`${formatted} UTC`}>{dateLabel}</time><span data-ago hidden> ago</span></a>
   </p>
