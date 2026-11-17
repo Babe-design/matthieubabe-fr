@@ -208,24 +208,24 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
   .changelog-sheet[open], .changelog-sheet.is-closing, .changelog-sheet::backdrop { animation: none; }
 }
 
-/* The name arrives first. Copy unfolds away from it, above and below. */
+/* Reading order: a quiet hello, the name letter by letter, then the page. */
 html:is([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-copy-window:not(:focus-within) { overflow: clip; overflow-clip-margin: 2px; }
 html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) { opacity: 0; }
-html[data-entrance="ready"] .is-home .identity-letter { animation: identity-letter-in 600ms var(--ease-out) both; }
-html[data-entrance="ready"] .is-home .identity-letter:nth-child(2) { animation-delay: 85ms; }
-html[data-entrance="ready"] .is-home .identity-letter:nth-child(3) { animation-delay: 160ms; }
-html[data-entrance="ready"] .is-home .identity-letter:nth-child(4) { animation-delay: 220ms; }
+html[data-entrance="ready"] .is-home .identity-letter { animation: identity-letter-in 600ms var(--ease-out) 280ms both; }
+html[data-entrance="ready"] .is-home .identity-letter:nth-child(2) { animation-delay: 365ms; }
+html[data-entrance="ready"] .is-home .identity-letter:nth-child(3) { animation-delay: 440ms; }
+html[data-entrance="ready"] .is-home .identity-letter:nth-child(4) { animation-delay: 500ms; }
 html[data-entrance="ready"] .is-home :where(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) {
   animation: identity-copy-in 720ms var(--ease-out) both;
 }
-html[data-entrance="ready"] .is-home .identity-eyebrow { --from-y: calc(100% + 8px); animation-delay: 700ms; }
-html[data-entrance="ready"] .is-home .intro-line { --from-y: calc(-100% - 8px); animation-delay: 760ms; }
-html[data-entrance="ready"] .is-home .portfolio-nav { --from-y: -18px; animation-delay: 860ms; }
-html[data-entrance="ready"] .is-home :is(.work-list > li, .experiment-feed > li, .about-copy > p) { --from-y: -12px; animation-delay: 940ms; }
-html[data-entrance="ready"] .is-home :is(.work-list > li, .experiment-feed > li, .about-copy > p):nth-child(2) { --from-y: -10px; animation-delay: 1020ms; }
-html[data-entrance="ready"] .is-home .about-copy > p:nth-child(3) { --from-y: -8px; animation-delay: 1090ms; }
-html[data-entrance="ready"] .is-home .about-copy > p:nth-child(n+4) { --from-y: -6px; animation-delay: 1140ms; }
-html[data-entrance="ready"] .is-home .signature { --from-y: -6px; animation-delay: 1160ms; }
+html[data-entrance="ready"] .is-home .identity-eyebrow { --from-y: 8px; animation-duration: 600ms; }
+html[data-entrance="ready"] .is-home .intro-line { --from-y: calc(-100% - 8px); animation-delay: 940ms; }
+html[data-entrance="ready"] .is-home .portfolio-nav { --from-y: -18px; animation-delay: 1040ms; }
+html[data-entrance="ready"] .is-home :is(.work-list > li, .experiment-feed > li, .about-copy > p) { --from-y: -12px; animation-delay: 1120ms; }
+html[data-entrance="ready"] .is-home :is(.work-list > li, .experiment-feed > li, .about-copy > p):nth-child(2) { --from-y: -10px; animation-delay: 1200ms; }
+html[data-entrance="ready"] .is-home .about-copy > p:nth-child(3) { --from-y: -8px; animation-delay: 1270ms; }
+html[data-entrance="ready"] .is-home .about-copy > p:nth-child(n+4) { --from-y: -6px; animation-delay: 1320ms; }
+html[data-entrance="ready"] .is-home .signature { --from-y: -6px; animation-delay: 1340ms; }
 html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .signature):focus-within,
 html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opacity: 1; transform: none; animation: none; }
 @keyframes identity-letter-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
