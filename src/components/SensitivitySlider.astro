@@ -3,7 +3,7 @@
     <sensitivity-slider class="sensitivity-control">
       <div class="sensitivity-rail" aria-hidden="true"></div>
       <div class="sensitivity-marks" aria-hidden="true">
-        {Array.from({ length: 5 }, () => <span class="sensitivity-mark" data-sensitivity-mark></span>)}
+        {[0, 50, 100].map(value => <span class="sensitivity-mark" data-sensitivity-mark={value}></span>)}
       </div>
       <input
         class="sensitivity-range"
@@ -25,10 +25,11 @@
     padding-inline: clamp(18px, 6vw, 42px);
     border-radius: 12px;
     background:
-      repeating-linear-gradient(0deg, rgb(42 65 108 / .022) 0 1px, transparent 1px 4px),
-      radial-gradient(ellipse at 4% 8%, #daeef8, transparent 66%),
-      radial-gradient(ellipse at 100% 100%, #eae2f8, transparent 65%),
-      #f5f7fc;
+      linear-gradient(90deg, rgb(48 67 103 / .045) 1px, transparent 1px) center / 16px 16px,
+      linear-gradient(rgb(48 67 103 / .045) 1px, transparent 1px) center / 16px 16px,
+      radial-gradient(ellipse at 4% 8%, #e7f4f9, transparent 68%),
+      radial-gradient(ellipse at 100% 100%, #eeeafa, transparent 65%),
+      #f8f9fd;
     box-shadow: inset 0 0 0 1px rgb(57 76 120 / .065);
   }
 
@@ -36,11 +37,12 @@
     display: block;
     position: relative;
     width: min(100%, 360px);
-    --rail-height: 20px;
-    --thumb-size: 26px;
+    --rail-height: 24px;
+    --thumb-size: 30px;
     --mark-size: 4px;
-    --thumb-shadow: 0 1px 4px rgb(41 44 66 / .26), 0 0 0 1px rgb(41 44 66 / .15);
+    --thumb-shadow: 0 1px 4px rgb(41 44 66 / .24), 0 0 0 1px rgb(41 44 66 / .12);
     --thumb-motion: 150ms cubic-bezier(.2,.75,.3,1.2);
+    --thumb-scale: 1;
   }
 
   .sensitivity-rail, .sensitivity-marks {
@@ -55,12 +57,12 @@
     height: var(--rail-height);
     border-radius: 999px;
     background:
-      linear-gradient(180deg, rgb(255 255 255 / .22), transparent 70%),
-      linear-gradient(90deg, #25ac79, #86cc64 26%, #edca58 51%, #f3995b 74%, #e5595e);
+      linear-gradient(180deg, rgb(255 255 255 / .13), transparent 68%),
+      linear-gradient(90deg, #04bd71, #67d642 26%, #ffdb22 50%, #ff8a21 74%, #f22d49);
     box-shadow:
-      inset 0 1px 1px rgb(255 255 255 / .4),
-      inset 0 -1px 2px rgb(74 43 49 / .2),
-      0 4px 14px rgb(63 67 102 / .13);
+      inset 0 1px 1px rgb(255 255 255 / .32),
+      inset 0 -1px 2px rgb(74 43 49 / .16),
+      0 4px 14px rgb(63 67 102 / .12);
   }
 
   .sensitivity-marks {
@@ -74,6 +76,7 @@
     height: var(--mark-size);
     border-radius: 50%;
     background: #fff;
+    box-shadow: 0 0 0 1px rgb(37 40 54 / .12);
     opacity: .78;
     transition: transform var(--thumb-motion), opacity var(--thumb-motion);
   }
@@ -90,16 +93,19 @@
     width: 100%;
     height: 44px;
     margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
     background: transparent;
     cursor: grab;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .sensitivity-range:active { cursor: grabbing; }
-
-  .sensitivity-range:focus-visible {
-    outline: 2px solid #335d4b;
-    border-radius: 8px;
-    outline-offset: 2px;
+  .sensitivity-range[data-hovered-mark] { cursor: pointer; }
+  .sensitivity-range:active, .sensitivity-range[data-dragging] { cursor: grabbing; }
+  .sensitivity-range[data-enhanced] { touch-action: none; }
+  .sensitivity-range:focus-visible:not([data-pointer-focus]) {
+    --thumb-shadow: 0 0 0 2px #fff, 0 0 0 4px #315de0;
   }
 
   .sensitivity-range::-webkit-slider-runnable-track {
@@ -121,6 +127,7 @@
     border: 0;
     background: #fff;
     box-shadow: var(--thumb-shadow);
+    transform: scale(var(--thumb-scale));
     transition: transform var(--thumb-motion);
   }
 
@@ -131,17 +138,14 @@
     border: 0;
     background: #fff;
     box-shadow: var(--thumb-shadow);
+    transform: scale(var(--thumb-scale));
     transition: transform var(--thumb-motion);
   }
 
-  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-    .sensitivity-range:hover::-webkit-slider-thumb { transform: scale(1.09); }
-    .sensitivity-range:hover::-moz-range-thumb { transform: scale(1.09); }
-  }
-
   @media (prefers-reduced-motion: no-preference) {
-    .sensitivity-range:active::-webkit-slider-thumb { transform: scale(1.18); }
-    .sensitivity-range:active::-moz-range-thumb { transform: scale(1.18); }
+    .sensitivity-range[data-thumb-hovered] { --thumb-scale: 1.045; }
+    .sensitivity-range[data-dragging] { --thumb-scale: 1.1; }
+    .sensitivity-range[data-snapped] { --thumb-scale: 1.04; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -149,7 +153,8 @@
   }
 
   @media (forced-colors: active) {
-    .sensitivity-range { appearance: auto; }
+    .sensitivity-range, .sensitivity-range[data-enhanced] { appearance: auto; touch-action: auto; }
+    .sensitivity-range:focus-visible:not([data-pointer-focus]) { outline: 2px solid Highlight; outline-offset: 2px; }
     .sensitivity-rail, .sensitivity-marks { visibility: hidden; }
   }
 </style>
@@ -174,28 +179,134 @@
       input.oninput = update;
       update();
 
-      // The decorations sit below the native control, which owns the whole drag target.
-      const marks = [...this.querySelectorAll<HTMLElement>("[data-sensitivity-mark]")];
+      const marks = Array.from(this.querySelectorAll<HTMLElement>("[data-sensitivity-mark]"), element => ({
+        element,
+        value: Number(element.dataset.sensitivityMark),
+      }));
+      if (marks.length < 2) return;
+
+      const forcedColors = matchMedia("(forced-colors: active)");
+      const magnetRadius = 19;
+      const snapRadius = 5;
+      const releaseRadius = 11;
+      let drag: { id: number; offset: number; startValue: number; snapped?: number } | undefined;
       let hovered: HTMLElement | undefined;
+
+      const measure = () => {
+        const first = marks[0].element.getBoundingClientRect();
+        const last = marks[marks.length - 1].element.getBoundingClientRect();
+        const left = first.left + first.width / 2;
+        const width = last.left + last.width / 2 - left;
+        const centerY = first.top + first.height / 2;
+        const xAt = (value: number) => left + width * value / 100;
+        return {
+          left,
+          width,
+          centerY,
+          radius: left - input.getBoundingClientRect().left,
+          xAt,
+          markAt: (x: number, y: number) => marks.find(({ value }) => Math.hypot(x - xAt(value), y - centerY) <= 12),
+        };
+      };
+
       const highlight = (mark?: HTMLElement) => {
         if (mark === hovered) return;
         hovered?.removeAttribute("data-hovered");
         mark?.setAttribute("data-hovered", "");
         hovered = mark;
+        input.toggleAttribute("data-hovered-mark", !!mark);
+      };
+
+      const updateHover = (event: PointerEvent) => {
+        const canHover = event.pointerType !== "touch" && !forcedColors.matches && event.buttons === 0;
+        const { xAt, centerY, radius, markAt } = measure();
+        const y = event.clientY - centerY;
+        const onThumb = canHover && Math.hypot(event.clientX - xAt(input.valueAsNumber), y) <= radius + 1;
+        input.toggleAttribute("data-thumb-hovered", onThumb);
+        const mark = canHover && !onThumb ? markAt(event.clientX, event.clientY) : undefined;
+        highlight(mark?.element);
+      };
+
+      const setValue = (value: number) => {
+        const next = Math.round(Math.max(0, Math.min(100, value)));
+        if (next === input.valueAsNumber) return;
+        input.valueAsNumber = next;
+        input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+      };
+
+      input.dataset.enhanced = "";
+      input.onkeydown = input.onblur = () => { delete input.dataset.pointerFocus; };
+      input.ontouchstart = input.ontouchmove = event => {
+        // The native touch handler can otherwise overwrite the snapped value after pointermove.
+        if (!forcedColors.matches && event.cancelable) event.preventDefault();
+      };
+
+      input.onpointerdown = event => {
+        if (drag || !event.isPrimary || event.button !== 0) return;
+        input.dataset.pointerFocus = "";
+        if (forcedColors.matches) return;
+
+        event.preventDefault();
+        input.focus({ preventScroll: true });
+        input.setPointerCapture(event.pointerId);
+        const { xAt, centerY, radius, left, width, markAt } = measure();
+        const startValue = input.valueAsNumber;
+        const onThumb = Math.hypot(event.clientX - xAt(startValue), event.clientY - centerY) <= radius + 2;
+        const mark = onThumb ? undefined : markAt(event.clientX, event.clientY);
+        const anchor = onThumb ? startValue : mark?.value;
+        drag = {
+          id: event.pointerId,
+          offset: anchor === undefined ? 0 : event.clientX - xAt(anchor),
+          startValue,
+          snapped: mark?.value,
+        };
+        input.dataset.dragging = "";
+        input.toggleAttribute("data-snapped", !!mark);
+        delete input.dataset.thumbHovered;
+        highlight();
+        if (!onThumb) setValue(mark?.value ?? (event.clientX - left) / width * 100);
       };
 
       input.onpointermove = event => {
-        if (event.pointerType === "touch" || event.buttons !== 0) {
-          highlight();
+        if (!drag) {
+          updateHover(event);
           return;
         }
-        highlight(marks.find(mark => {
-          const rect = mark.getBoundingClientRect();
-          return Math.hypot(event.clientX - rect.left - rect.width / 2, event.clientY - rect.top - rect.height / 2) <= 11;
-        }));
+        if (event.pointerId !== drag.id) return;
+
+        const { xAt, left, width } = measure();
+        let x = event.clientX - drag.offset;
+        if (drag.snapped !== undefined && Math.abs(x - xAt(drag.snapped)) >= releaseRadius) {
+          drag.snapped = undefined;
+        }
+
+        const nearby = marks.find(({ value }) => Math.abs(x - xAt(value)) < magnetRadius);
+        if (nearby) {
+          const anchor = xAt(nearby.value);
+          const distance = x - anchor;
+          if (Math.abs(distance) <= snapRadius) drag.snapped = nearby.value;
+          // Ease into the stop, then hold it through a slightly wider band on the way out.
+          const pull = Math.max(0, (Math.abs(distance) - snapRadius) / (magnetRadius - snapRadius));
+          x = anchor + distance * pull * pull * (3 - 2 * pull);
+        }
+        input.toggleAttribute("data-snapped", drag.snapped !== undefined);
+        setValue(drag.snapped ?? (x - left) / width * 100);
       };
-      input.onpointerleave = () => highlight();
-      input.onpointerdown = () => highlight();
+
+      input.onpointerup = input.onpointercancel = input.onlostpointercapture = event => {
+        if (drag?.id !== event.pointerId) return;
+        const changed = drag.startValue !== input.valueAsNumber;
+        drag = undefined;
+        delete input.dataset.dragging;
+        delete input.dataset.snapped;
+        if (event.type === "pointerup") updateHover(event);
+        if (changed) input.dispatchEvent(new Event("change", { bubbles: true }));
+      };
+
+      input.onpointerleave = () => {
+        delete input.dataset.thumbHovered;
+        highlight();
+      };
     }
   }
 

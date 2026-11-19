@@ -80,6 +80,11 @@ type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "2026-11-19T17:50:05Z",
+    title: "Magnetic stops and softer hovers",
+    changes: ["A thicker gradient rail with three magnetic stops.", "A hint of grey on Work rows when hovered."]
+  },
+  {
     date: "2026-11-19T17:41:44Z",
     title: "A richer sensitivity gauge",
     changes: ["A full-size card, a brighter rail and marks that grow on hover."]
