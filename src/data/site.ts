@@ -78,6 +78,11 @@ type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "2026-11-19T19:28:22Z",
+    title: "A synchronized entrance",
+    changes: ["Portfolio content appears after the header settles on reload."]
+  },
+  {
     date: "2026-11-19T19:16:14Z",
     title: "A cleaner reset and changelog",
     changes: ["Magnets follow clear paths on reset.", "Work previews close when the pointer leaves a project.", "The standalone changelog loads only the content it uses."]

@@ -17,7 +17,7 @@ const panelAnimation = {
       <a href="/about/" data-section-link aria-current={section === "about" ? "page" : undefined}>About</a>
     </nav>
   </div>
-  <main id="content" class="portfolio-content" data-intro-reveal={section !== "experiment" ? "" : undefined} transition:name="portfolio-panel" transition:animate={{ forwards: panelAnimation, backwards: panelAnimation }}>
+  <main id="content" class="portfolio-content" data-intro-reveal transition:name="portfolio-panel" transition:animate={{ forwards: panelAnimation, backwards: panelAnimation }}>
     <h1 class="sr-only">{section === "about" ? "About Matthieu Babe" : `Matthieu Babe — ${section === "experiment" ? "Experiment" : "Work"}`}</h1>
     <slot />
   </main>

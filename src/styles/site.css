@@ -320,6 +320,8 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
   --spacing-start: calc(var(--letter-start) + 3 * var(--letter-step) + var(--letter-span) - 120ms);
   --spacing-settle: 190ms;
   --name-end: calc(var(--spacing-start) + var(--spacing-settle));
+  --intro-copy-span: 580ms;
+  --nav-start: calc(var(--name-end) + 85ms);
 }
 html:is([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-copy-window:not(:focus-within) { overflow: clip; overflow-clip-margin: 2px; }
 html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .signature:not(.portfolio-reveal)) { opacity: 0; }
@@ -402,11 +404,11 @@ html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, 
   }
 }
 html[data-entrance="ready"] .is-home :where(.identity-eyebrow, .intro-line, .portfolio-nav, .signature:not(.portfolio-reveal)) {
-  animation: identity-copy-in 580ms var(--ease-out) both;
+  animation: identity-copy-in var(--intro-copy-span) var(--ease-out) both;
 }
 html[data-entrance="ready"] .is-home .identity-eyebrow { --from-y: 8px; animation-duration: 520ms; }
 html[data-entrance="ready"] .is-home .intro-line { --from-y: calc(-100% - 8px); animation-delay: var(--name-end); }
-html[data-entrance="ready"] .is-home .portfolio-nav { --from-y: -14px; animation-delay: calc(var(--name-end) + 85ms); }
+html[data-entrance="ready"] .is-home .portfolio-nav { --from-y: -14px; animation-delay: var(--nav-start); }
 html[data-entrance="ready"] .is-home .signature:not(.portfolio-reveal) { --from-y: -6px; animation-delay: calc(var(--name-end) + 355ms); }
 html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .signature:not(.portfolio-reveal)):focus-within,
 html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opacity: 1; transform: none; animation: none; }
@@ -455,7 +457,7 @@ html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opa
     opacity: 0;
     animation: none;
   }
-  html[data-entrance="ready"] [data-intro-reveal] { --reveal-start: calc(var(--name-end) + 160ms); }
+  html[data-entrance="ready"] [data-intro-reveal] { --reveal-start: calc(var(--nav-start) + var(--intro-copy-span)); }
   .portfolio-reveal:focus-within { animation-delay: 0ms; animation-duration: 1ms; }
 }
 @keyframes portfolio-entry-in {
