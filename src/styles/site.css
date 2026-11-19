@@ -83,11 +83,56 @@ p { margin: 0; }
 .intro-line { color: var(--ink); }
 .datadog-link { text-decoration: none; transition: color 160ms ease; }
 .datadog-link:hover, .datadog-link:focus-visible { color: #632ca6; }
-.portfolio-nav { display: flex; gap: 24px; }
-.portfolio-nav a { position: relative; min-height: 44px; padding-block: 10px; margin-block: -10px; color: var(--muted); text-decoration: none; transition: color 160ms ease; }
-.portfolio-nav a:hover, .portfolio-nav a:focus-visible, .portfolio-nav a[aria-current="page"] { color: var(--ink); }
-.portfolio-nav a::after { content: ""; position: absolute; inset-inline: 0; bottom: 8px; height: 1px; background: currentColor; opacity: 0; transform: scaleX(.65); transition: opacity 160ms ease, transform 240ms var(--ease-out); }
-.portfolio-nav a[aria-current="page"]::after { opacity: .28; transform: scaleX(1); }
+.portfolio-nav {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  width: max-content;
+  gap: 4px;
+  margin-inline-start: -10px;
+  --nav-highlight-color: #f5f5f5;
+  --nav-highlight-radius: 10px;
+}
+.portfolio-nav a { position: relative; isolation: isolate; min-height: 44px; padding: 10px; margin-block: -10px; color: var(--muted); text-decoration: none; transition: color 160ms ease; }
+.portfolio-nav a:focus-visible { outline-offset: 2px; border-radius: var(--nav-highlight-radius); }
+.portfolio-nav a:focus-visible, .portfolio-nav a[aria-current="page"] { color: var(--ink); }
+.portfolio-nav a::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 4px 0;
+  border-radius: var(--nav-highlight-radius);
+  background: var(--nav-highlight-color);
+  opacity: 0;
+  transition: opacity 90ms ease;
+}
+.portfolio-nav a:focus-visible::before { opacity: 1; transition-duration: 130ms; }
+@media (any-hover: hover) {
+  .portfolio-nav a:hover { color: var(--ink); }
+  .portfolio-nav a:hover::before { opacity: 1; transition-duration: 130ms; }
+}
+.portfolio-nav[data-nav-highlight-ready] a::before { content: none; }
+.portfolio-nav[data-nav-highlight-ready]::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-block: -6px;
+  left: 0;
+  width: var(--nav-highlight-width, 0px);
+  border-radius: var(--nav-highlight-radius);
+  background: var(--nav-highlight-color);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(var(--nav-highlight-x, 0px));
+  transition:
+    opacity var(--nav-highlight-fade, 90ms) ease,
+    transform var(--nav-highlight-travel, 0ms) var(--ease-out),
+    width var(--nav-highlight-travel, 0ms) var(--ease-out);
+}
+.portfolio-nav[data-nav-highlight-visible]::before { opacity: 1; --nav-highlight-fade: 130ms; }
+@media (prefers-reduced-motion: no-preference) {
+  .portfolio-nav[data-nav-highlight-moving]::before { --nav-highlight-travel: 190ms; }
+}
 .portfolio-content { padding-top: 48px; font-size: 15px; line-height: 1.65; }
 .work-list { position: relative; isolation: isolate; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin: 0; padding: 0; list-style: none; --work-highlight-color: #f8f8f8; }
 .work-row { display: grid; gap: 4px; padding: 8px 16px; margin-inline: -16px; line-height: 1.5; }
@@ -276,7 +321,7 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
   --name-end: calc(var(--spacing-start) + var(--spacing-settle));
 }
 html:is([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-copy-window:not(:focus-within) { overflow: clip; overflow-clip-margin: 2px; }
-html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) { opacity: 0; }
+html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .signature:not(.portfolio-reveal)) { opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
   .identity-art { --entry-angle: -16deg; }
   .identity-art[data-variant="2"] { --entry-angle: 13deg; }
@@ -355,19 +400,14 @@ html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, 
     .identity-art[data-popping] { animation: identity-art-pop 430ms linear both; }
   }
 }
-html[data-entrance="ready"] .is-home :where(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) {
+html[data-entrance="ready"] .is-home :where(.identity-eyebrow, .intro-line, .portfolio-nav, .signature:not(.portfolio-reveal)) {
   animation: identity-copy-in 580ms var(--ease-out) both;
 }
 html[data-entrance="ready"] .is-home .identity-eyebrow { --from-y: 8px; animation-duration: 520ms; }
 html[data-entrance="ready"] .is-home .intro-line { --from-y: calc(-100% - 8px); animation-delay: var(--name-end); }
 html[data-entrance="ready"] .is-home .portfolio-nav { --from-y: -14px; animation-delay: calc(var(--name-end) + 85ms); }
-html[data-entrance="ready"] .is-home .work-list > li { --from-y: -10px; animation-delay: calc(var(--name-end) + 160ms + 70ms * var(--work-index)); }
-html[data-entrance="ready"] .is-home .about-copy > p { --from-y: -10px; animation-delay: calc(var(--name-end) + 160ms); }
-html[data-entrance="ready"] .is-home .about-copy > p:nth-child(2) { --from-y: -8px; animation-delay: calc(var(--name-end) + 230ms); }
-html[data-entrance="ready"] .is-home .about-copy > p:nth-child(3) { --from-y: -7px; animation-delay: calc(var(--name-end) + 290ms); }
-html[data-entrance="ready"] .is-home .about-copy > p:nth-child(n+4) { --from-y: -6px; animation-delay: calc(var(--name-end) + 335ms); }
-html[data-entrance="ready"] .is-home .signature { --from-y: -6px; animation-delay: calc(var(--name-end) + 355ms); }
-html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .signature):focus-within,
+html[data-entrance="ready"] .is-home .signature:not(.portfolio-reveal) { --from-y: -6px; animation-delay: calc(var(--name-end) + 355ms); }
+html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .signature:not(.portfolio-reveal)):focus-within,
 html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opacity: 1; transform: none; animation: none; }
 /* Each letter keeps a single path as its three faces dissolve into one another. */
 @keyframes identity-letter-in {
@@ -405,12 +445,28 @@ html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opa
   100% { transform: translateY(0) rotate(0) scale(1); }
 }
 @keyframes identity-copy-in { from { opacity: 0; transform: translateY(var(--from-y, -8px)); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: no-preference) {
+  .portfolio-reveal {
+    animation: portfolio-entry-in 490ms cubic-bezier(.22,.75,.28,1)
+      calc(var(--reveal-start, 90ms) + var(--reveal-index) * 105ms) backwards;
+  }
+  html[data-entrance="pending"] [data-intro-reveal] .portfolio-reveal:not(:focus-within) {
+    opacity: 0;
+    animation: none;
+  }
+  html[data-entrance="ready"] [data-intro-reveal] { --reveal-start: calc(var(--name-end) + 160ms); }
+  .portfolio-reveal:focus-within { animation-delay: 0ms; animation-duration: 1ms; }
+}
+@keyframes portfolio-entry-in {
+  from { opacity: 0; filter: blur(7px); transform: translateY(8px); }
+  to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
 @keyframes portfolio-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes portfolio-out { from { opacity: 1; } to { opacity: 0; } }
 ::view-transition { pointer-events: none; }
 ::view-transition-group(portfolio-panel) { animation-duration: 0s; }
 @media (prefers-reduced-motion: reduce) {
-  html[data-entrance] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) {
+  html[data-entrance] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .signature:not(.portfolio-reveal)) {
     opacity: 1;
     animation: none;
     transform: none;

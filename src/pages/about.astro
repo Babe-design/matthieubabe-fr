@@ -5,7 +5,7 @@ import { site } from "../data/site";
 ---
 <PortfolioLayout section="about">
   <div class="about-copy">
-    {site.about.map((paragraph, index) => <p>{paragraph}{index === 0 && <><br />{site.aboutNickname}</>}</p>)}
+    {site.about.map((paragraph, index) => <p class="portfolio-reveal" style={`--reveal-index:${index}`}>{paragraph}{index === 0 && <><br />{site.aboutNickname}</>}</p>)}
   </div>
-  <Signature variant="about" />
+  <Signature variant="about" revealIndex={site.about.length} />
 </PortfolioLayout>

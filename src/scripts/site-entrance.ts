@@ -37,7 +37,7 @@ async function playEntrance(root: HTMLElement, word: HTMLElement, images: Return
   const fallback = setTimeout(complete, 4100);
   requestAnimationFrame(() => {
     const animations = document.getAnimations().filter(animation =>
-      animation instanceof CSSAnimation && animation.animationName.startsWith("identity-")
+      animation instanceof CSSAnimation && (animation.animationName.startsWith("identity-") || animation.animationName === "portfolio-entry-in")
     );
     void Promise.allSettled(animations.map(animation => animation.finished)).then(complete);
   });

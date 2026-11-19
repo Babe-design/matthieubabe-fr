@@ -11,7 +11,7 @@ import { work } from "../data/site";
       "data-preview": entry.preview ? entry.id : undefined,
     } : {};
 
-    return <li style={`--work-index:${index}`}>
+    return <li class="portfolio-reveal" style={`--reveal-index:${index}`}>
       <Row class:list={["work-row", { "work-link": entry.href }]} {...link}>
         <span class="work-title">{entry.title}</span>
         <span class="work-detail">{entry.detail}</span>

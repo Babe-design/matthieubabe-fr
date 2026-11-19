@@ -78,6 +78,11 @@ type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "2026-11-19T18:36:56Z",
+    title: "A shared entrance and lighter tabs",
+    changes: ["Work and About come into focus in sequence.", "A soft gray highlight glides between the navigation tabs."]
+  },
+  {
     date: "2026-11-19T18:25:55Z",
     title: "Magnets slide back into place",
     changes: ["Reset animates the letters back to their starting positions."]

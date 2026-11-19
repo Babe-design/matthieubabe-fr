@@ -1,13 +1,13 @@
 ---
 import ChangelogEntries from "./ChangelogEntries.astro";
 import { site, changelog } from "../data/site";
-interface Props { variant?: "default" | "about"; }
-const { variant = "default" } = Astro.props;
+interface Props { variant?: "default" | "about"; revealIndex?: number; }
+const { variant = "default", revealIndex } = Astro.props;
 const latest = changelog[0].date;
 const dateLabel = latest.slice(0, 10);
 const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"short", timeZone:"UTC"}).format(new Date(latest));
 ---
-<footer class:list={["signature", { "signature-about": variant === "about" }]}>
+<footer class:list={["signature", { "signature-about": variant === "about", "portfolio-reveal": revealIndex !== undefined }]} style={revealIndex === undefined ? undefined : `--reveal-index:${revealIndex}`}>
   {variant === "about" ? <div class="connect">
     <h2 class="section-label">Connect</h2>
     <ul class="connect-links">
