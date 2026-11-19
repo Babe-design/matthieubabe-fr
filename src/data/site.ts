@@ -36,18 +36,25 @@ export const work: readonly WorkEntry[] = [
     preview: { image: "/images/work/ai-guard-signals.webp", width: 1600, height: 900, caption: "AI Guard · Datadog" }
   },
   {
+    id: "the-care-era",
+    title: "The care era",
+    detail: "Writing · 2026",
+    href: "https://medium.com/@MatthieuBabe/the-care-era-7342fbb5f832",
+    preview: { image: "/images/work/the-care-era.webp", width: 1024, height: 1024, caption: "“The surprise is that abundance is demanding.”" }
+  },
+  {
     id: "luko",
     title: "Luko",
-    detail: "Senior Product Designer · 2022",
+    detail: "Lead Design · 2022",
     href: "https://dribbble.com/shots/22707764-Staging-App-icon",
-    preview: { image: "/images/work/luko-staging-icon.webp", width: 1600, height: 1200, caption: "Staging app icon · Luko" }
+    preview: { image: "/images/work/luko-staging-icon.webp", width: 1600, height: 1200, caption: "Simplifying home insurance claims" }
   },
   {
     id: "weweb",
     title: "WeWeb",
     detail: "Design system · 2020",
     href: "https://dribbble.com/shots/14641587-WeWeb-Cube-Design-system",
-    preview: { image: "/images/work/weweb-cube.webp", width: 1600, height: 1200, caption: "Cube Design System · WeWeb" }
+    preview: { image: "/images/work/weweb-cube.webp", width: 1600, height: 1200, caption: "Cube Design System" }
   },
   {
     id: "cityscoot",
@@ -58,15 +65,8 @@ export const work: readonly WorkEntry[] = [
   {
     id: "pinpo",
     title: "Pinpo",
-    detail: "Co-founder & Head of Design · 2015",
+    detail: "Co-founder Design · 2015",
     href: "https://www.maddyness.com/2016/04/19/app-pinpo/"
-  },
-  {
-    id: "the-care-era",
-    title: "The care era",
-    detail: "Writing · 2026",
-    href: "https://medium.com/@MatthieuBabe/the-care-era-7342fbb5f832",
-    preview: { image: "/images/work/the-care-era.webp", width: 1024, height: 1024, caption: "The care era · Medium" }
   }
 ];
 
@@ -79,6 +79,11 @@ type ChangelogEntry = {
 };
 
 export const changelog: ChangelogEntry[] = [
+  {
+    date: "2026-11-19T17:35:10Z",
+    title: "New captions in Work",
+    changes: ["Updated project credits and added an excerpt from The care era."]
+  },
   {
     date: "2026-11-19T17:18:54Z",
     title: "A sensitivity slider",
