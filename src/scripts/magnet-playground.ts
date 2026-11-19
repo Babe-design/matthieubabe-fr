@@ -19,7 +19,10 @@ function initExperiment() {
   let animationFrame = 0;
   let previousFrame = 0;
   let drag: { index: number; pointerId: number; offsetX: number; offsetY: number } | undefined;
+  let returning: { elapsed: number; letters: { index: number; x: number; y: number }[] } | undefined;
   let layerOrder = [0, 1, 2, 3];
+  const returnDuration = 400;
+  const returnStagger = 24;
   const names = ["Capital B", "a", "Lowercase b", "e"];
   const pixelRatio = () => Math.min(devicePixelRatio, 3, Math.sqrt(1_200_000 / (stage.clientWidth * stage.clientHeight)));
   const padding = () => view ? (view.camera.right - view.camera.left) * 16 / stage.clientWidth : 0;
@@ -27,7 +30,8 @@ function initExperiment() {
     layerOrder = layerOrder.filter(item => item !== index).concat(index);
     layerOrder.forEach((letter, rank) => { handles[letter].style.zIndex = String(rank + 1); });
   };
-  const dirty = () => view?.letters.some(({ mesh, position }) => Math.abs(mesh.position.x - position.x) + Math.abs(mesh.position.y - position.y) > .001) ?? false;
+  const displaced = ({ mesh, position }: MagnetView["letters"][number]) =>
+    Math.abs(mesh.position.x - position.x) + Math.abs(mesh.position.y - position.y) > .001;
   const updateHandles = () => {
     const current = view;
     if (!current) return;
@@ -41,17 +45,43 @@ function initExperiment() {
       handle.style.height = `${height}px`;
       handle.style.transform = `translate3d(${x}px, ${y}px, 0)`;
     });
-    resetButton.disabled = !dirty();
+    resetButton.disabled = !returning && !current.letters.some(displaced);
+  };
+  const clearReturn = () => {
+    returning = undefined;
+    delete root.dataset.resetting;
+    resetButton.removeAttribute("aria-disabled");
+  };
+  const completeReturn = (current: MagnetView) => {
+    current.resetLetters();
+    clearReturn();
+    status.textContent = "All four letters are back in place.";
   };
   const paint = (time: number) => {
     animationFrame = 0;
     if (!view || signal.aborted || !root.dataset.rendered) return;
-    const elapsed = previousFrame ? Math.max(0, time - previousFrame) : 16;
-    const settling = view.updateLift(drag?.index, elapsed, motion.matches);
-    view.render();
+    const current = view;
+    const elapsed = previousFrame ? Math.max(0, time - previousFrame) : 0;
+    if (returning) {
+      // Keep the return visible when WebGL misses frames or the tab resumes.
+      const returnTime = returning.elapsed += Math.min(elapsed, 64);
+      if (motion.matches || returnTime >= returnDuration + returnStagger * (returning.letters.length - 1)) {
+        completeReturn(current);
+      } else {
+        returning.letters.forEach(({ index, x, y }, rank) => {
+          const { mesh, position } = current.letters[index];
+          const progress = Math.max(0, Math.min(1, (returnTime - rank * returnStagger) / returnDuration));
+          const remaining = (1 - progress) ** 3;
+          mesh.position.x = position.x + (x - position.x) * remaining;
+          mesh.position.y = position.y + (y - position.y) * remaining;
+        });
+      }
+    }
+    const settling = current.updateLift(drag?.index, elapsed || 16, motion.matches);
+    current.render();
     updateHandles();
-    previousFrame = settling ? time : 0;
-    if (settling) invalidate();
+    previousFrame = settling || returning ? time : 0;
+    if (settling || returning) invalidate();
   };
   function invalidate() {
     if (!animationFrame) animationFrame = requestAnimationFrame(paint);
@@ -75,16 +105,31 @@ function initExperiment() {
   };
   const reset = (index?: number) => {
     const current = view;
-    if (!current || !root.dataset.rendered) return;
+    if (!current || !root.dataset.rendered || returning) return;
     finishDrag();
-    const placed = current.resetLetters(index);
+    if (index !== undefined) {
+      const placed = current.resetLetters(index);
+      status.textContent = placed ? `${names[index]} is back in place.` : `${names[index]}’s starting spot is blocked. Use Reset to move all the letters back.`;
+    } else if (motion.matches) {
+      completeReturn(current);
+    } else {
+      const letters = current.letters.flatMap((letter, index) => {
+        if (!displaced(letter)) return [];
+        const { x, y } = letter.mesh.position;
+        return [{ index, x, y }];
+      });
+      if (!letters.length) return;
+      returning = { elapsed: 0, letters };
+      root.dataset.resetting = "";
+      resetButton.setAttribute("aria-disabled", "true");
+      status.textContent = "";
+    }
     invalidate();
-    if (index === undefined) status.textContent = "All four letters are back in place.";
-    else status.textContent = placed ? `${names[index]} is back in place.` : `${names[index]}’s starting spot is blocked. Use Reset to move all the letters back.`;
   };
   const resize = () => {
     const current = view;
     if (!current || !stage.clientWidth || !stage.clientHeight) return;
+    if (returning) completeReturn(current);
     current.renderer.setPixelRatio(pixelRatio());
     current.resize(stage.clientWidth, stage.clientHeight);
     current.fitLetters(padding());
@@ -116,7 +161,7 @@ function initExperiment() {
   stage.addEventListener("pointerdown", event => {
     const current = view;
     const targetHandle = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-letter]");
-    if (!current || event.button !== 0 || drag || !root.dataset.rendered) return;
+    if (!current || event.button !== 0 || drag || returning || !root.dataset.rendered) return;
     const rect = stage.getBoundingClientRect();
     const hit = current.pickLetter((event.clientX - rect.left) / rect.width, (event.clientY - rect.top) / rect.height);
     // Keep hollow letters easy to grab even when the pointer lands in a counter.
@@ -149,6 +194,10 @@ function initExperiment() {
     const current = view;
     const handle = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-letter]");
     if (!current || !handle) return;
+    if (returning && (event.key === "Home" || event.key.startsWith("Arrow"))) {
+      event.preventDefault();
+      return;
+    }
     const index = Number(handle.dataset.letter);
     delete handle.dataset.pointerFocus;
     if (event.key === "Home") { event.preventDefault(); reset(index); return; }
@@ -171,6 +220,7 @@ function initExperiment() {
   canvas.addEventListener("webglcontextlost", event => {
     event.preventDefault();
     conceal();
+    clearReturn();
     finishDrag();
     stopAnimation();
   }, { signal });

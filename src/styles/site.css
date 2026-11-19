@@ -122,6 +122,7 @@ p { margin: 0; }
   transform: translateX(-50%);
 }
 .magnet-stage[data-dragging], .magnet-stage[data-dragging] .magnet-handle { cursor: grabbing; }
+.magnet-experiment[data-resetting] :is(.magnet-handle, .experiment-reset) { cursor: default; }
 .experiment-tools { position: absolute; z-index: 1; top: 12px; right: 12px; }
 .experiment-tools[hidden], .magnet-handles[hidden] { display: none; }
 .experiment-tools:has(.experiment-reset:disabled) { visibility: hidden; }
