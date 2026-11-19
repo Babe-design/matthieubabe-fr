@@ -130,6 +130,7 @@ p { margin: 0; }
     width var(--nav-highlight-travel, 0ms) var(--ease-out);
 }
 .portfolio-nav[data-nav-highlight-visible]::before { opacity: 1; --nav-highlight-fade: 130ms; }
+.portfolio-nav[data-nav-highlight-visible]:has([data-section-link]:focus-visible)::before { --nav-highlight-fade: 0ms; }
 @media (prefers-reduced-motion: no-preference) {
   .portfolio-nav[data-nav-highlight-moving]::before { --nav-highlight-travel: 190ms; }
 }
