@@ -24,7 +24,7 @@
     place-items: center;
     padding-inline: clamp(18px, 6vw, 42px);
     border-radius: 12px;
-    background: #f5f5f5;
+    background: #f7f7f7;
   }
 
   .sensitivity-control {
@@ -80,6 +80,7 @@
   }
 
   .sensitivity-range {
+    --thumb-transform: scale(var(--thumb-scale)) var(--thumb-squash, scale(1, 1));
     display: block;
     position: relative;
     appearance: none;
@@ -120,7 +121,7 @@
     border: 0;
     background: #fff;
     box-shadow: var(--thumb-shadow);
-    transform: scale(var(--thumb-scale));
+    transform: var(--thumb-transform);
     transition: transform var(--thumb-motion);
     animation: var(--thumb-settle, none);
   }
@@ -132,14 +133,17 @@
     border: 0;
     background: #fff;
     box-shadow: var(--thumb-shadow);
-    transform: scale(var(--thumb-scale));
+    transform: var(--thumb-transform);
     transition: transform var(--thumb-motion);
     animation: var(--thumb-settle, none);
   }
 
   @media (prefers-reduced-motion: no-preference) {
     .sensitivity-range[data-thumb-hovered] { --thumb-scale: 1.045; }
-    .sensitivity-range[data-dragging] { --thumb-scale: 1.18; }
+    .sensitivity-range[data-dragging] {
+      --thumb-scale: 1.18;
+      --thumb-motion: 85ms cubic-bezier(.2,.65,.32,1);
+    }
     .sensitivity-range[data-snapped] { --thumb-scale: 1.12; }
     .sensitivity-range[data-settling] { --thumb-settle: sensitivity-settle 180ms cubic-bezier(.18,.8,.26,1); }
   }
@@ -188,10 +192,10 @@
 
       const forcedColors = matchMedia("(forced-colors: active)");
       const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-      const magnetRadius = 19;
+      const magnetRadius = 23;
       const snapRadius = 5;
       const releaseRadius = 11;
-      const settleRadius = 18;
+      const settleRadius = 24;
       let drag: { id: number; offset: number; startValue: number; snapped?: number } | undefined;
       let hovered: HTMLElement | undefined;
       let settleTimer: number | undefined;
@@ -306,18 +310,29 @@
 
         const { xAt, left, width } = measure();
         let x = event.clientX - drag.offset;
-        if (drag.snapped !== undefined && Math.abs(x - xAt(drag.snapped)) >= releaseRadius) {
-          drag.snapped = undefined;
-        }
+        const overflow = Math.max(left - x, x - (left + width));
+        if (overflow > 0) {
+          drag.snapped = x < left ? 0 : 100;
+          if (!reducedMotion.matches) {
+            // Additional pull deforms the pinned thumb with diminishing resistance.
+            const pressure = overflow / (overflow + 24);
+            input.style.setProperty("--thumb-squash", `scale(${1 - .215 * pressure}, ${1 + .09 * pressure})`);
+          }
+        } else {
+          input.style.removeProperty("--thumb-squash");
+          if (drag.snapped !== undefined && Math.abs(x - xAt(drag.snapped)) >= releaseRadius) {
+            drag.snapped = undefined;
+          }
 
-        const nearby = marks.find(({ value }) => Math.abs(x - xAt(value)) < magnetRadius);
-        if (nearby) {
-          const anchor = xAt(nearby.value);
-          const distance = x - anchor;
-          if (Math.abs(distance) <= snapRadius) drag.snapped = nearby.value;
-          // Ease into the stop, then hold it through a slightly wider band on the way out.
-          const pull = Math.max(0, (Math.abs(distance) - snapRadius) / (magnetRadius - snapRadius));
-          x = anchor + distance * pull * pull * (3 - 2 * pull);
+          const nearby = marks.find(({ value }) => Math.abs(x - xAt(value)) < magnetRadius);
+          if (nearby) {
+            const anchor = xAt(nearby.value);
+            const distance = x - anchor;
+            if (Math.abs(distance) <= snapRadius) drag.snapped = nearby.value;
+            // Ease into the stop, then hold it through a slightly wider band on the way out.
+            const pull = Math.max(0, (Math.abs(distance) - snapRadius) / (magnetRadius - snapRadius));
+            x = anchor + distance * pull * pull * (3 - 2 * pull);
+          }
         }
         input.toggleAttribute("data-snapped", drag.snapped !== undefined);
         setValue(drag.snapped ?? (x - left) / width * 100);
@@ -328,6 +343,7 @@
         if (event.type === "pointerup") settle();
         const changed = drag.startValue !== input.valueAsNumber;
         drag = undefined;
+        input.style.removeProperty("--thumb-squash");
         delete input.dataset.dragging;
         delete input.dataset.snapped;
         if (event.type === "pointerup") updateHover(event);
