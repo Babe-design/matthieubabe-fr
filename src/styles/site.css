@@ -55,11 +55,13 @@ p { margin: 0; }
   font-weight: 720;
   font-size: clamp(92px, calc(16vw + 32px), 120px);
   line-height: 1;
-  letter-spacing: -.025em;
+  letter-spacing: -.005em;
   text-decoration: none;
 }
 .intro-line { font-size: clamp(18px, calc(1vw + 15px), 22px); font-weight: 500; line-height: 1.3; letter-spacing: -.02em; }
 .identity-letter { position: relative; display: inline-block; }
+/* The a and b already have more space between their contours. */
+.identity-letter:nth-child(2) { letter-spacing: -.019em; }
 .identity-face { display: inline-block; }
 .identity-art {
   position: absolute;
@@ -240,45 +242,67 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
 /* Reading order: a quiet hello, the name letter by letter, then the page. */
 .is-home {
   --letter-start: 200ms;
-  --letter-span: 660ms;
+  --letter-span: 650ms;
   --name-end: calc(var(--letter-start) + 4 * var(--letter-span));
 }
 html:is([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-copy-window:not(:focus-within) { overflow: clip; overflow-clip-margin: 2px; }
 html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) { opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
-  .identity-art {
-    --entry-x: -.11em;
-    --entry-y: -.085em;
-    --entry-angle: -16deg;
-    --squash: .92;
-  }
-  .identity-art[data-variant="2"] { --entry-x: .08em; --entry-y: .075em; --entry-angle: 13deg; }
+  .identity-art { --entry-angle: -16deg; }
+  .identity-art[data-variant="2"] { --entry-angle: 13deg; }
   .identity-letter:nth-child(2) {
-    .identity-art[data-variant="1"] { --entry-x: -.13em; --entry-y: -.02em; --entry-angle: 8deg; --squash: .97; }
-    .identity-art[data-variant="2"] { --entry-x: .025em; --entry-y: .1em; --entry-angle: -13deg; }
+    .identity-art[data-variant="1"] { --entry-angle: 8deg; }
+    .identity-art[data-variant="2"] { --entry-angle: -13deg; }
   }
   .identity-letter:nth-child(3) {
-    .identity-art[data-variant="1"] { --entry-x: .016em; --entry-y: -.18em; --entry-angle: 11deg; --squash: .8; }
-    .identity-art[data-variant="2"] { --entry-x: -.032em; --entry-y: -.115em; --entry-angle: -9deg; --squash: .84; }
+    .identity-art[data-variant="1"] { --entry-angle: 11deg; }
+    .identity-art[data-variant="2"] { --entry-angle: -9deg; }
   }
   .identity-letter:nth-child(4) {
-    .identity-art[data-variant="1"] { --entry-x: .12em; --entry-y: .022em; --entry-angle: -8deg; --squash: .97; }
-    .identity-art[data-variant="2"] { --entry-x: .06em; --entry-y: .075em; --entry-angle: 20deg; --squash: .89; }
+    .identity-art[data-variant="1"] { --entry-angle: -8deg; }
+    .identity-art[data-variant="2"] { --entry-angle: 20deg; }
   }
   html[data-entrance="ready"] .is-home .identity-name:not(:focus-visible) {
-    .identity-letter { --letter-delay: calc(var(--letter-start) + var(--letter-index) * var(--letter-span)); }
+    .identity-letter {
+      --letter-delay: calc(var(--letter-start) + var(--letter-index) * var(--letter-span));
+      --face-fade: calc(.14 * var(--letter-span));
+      --intro-x: -.09em;
+      --intro-y: .065em;
+      --intro-angle: -8deg;
+      --intro-crest: -.03em;
+      --intro-squash: .975;
+      isolation: isolate;
+      transform-origin: 50% 78%;
+      animation: identity-letter-in var(--letter-span) linear var(--letter-delay) both;
+    }
+    .identity-letter:nth-child(2) { --intro-x: .055em; --intro-y: .04em; --intro-angle: 5deg; }
+    .identity-letter:nth-child(3) {
+      --intro-x: .012em;
+      --intro-y: -.11em;
+      --intro-angle: -6deg;
+      --intro-crest: .024em;
+      --intro-squash: .93;
+    }
+    .identity-letter:nth-child(4) { --intro-x: .09em; --intro-y: .03em; --intro-angle: 8deg; }
+    .identity-face, .identity-art { mix-blend-mode: plus-lighter; }
     .identity-face {
-      animation: identity-face-in calc(var(--letter-span) - var(--face-offset, 0ms)) linear calc(var(--letter-delay) + var(--face-offset, 0ms)) both;
+      animation: identity-face-in var(--face-fade) ease-in-out calc(var(--letter-delay) + var(--face-offset, 0ms)) both;
     }
     .identity-art {
       display: block;
       visibility: hidden;
-      animation: identity-art-first var(--letter-span) linear var(--letter-delay) both;
+      animation: identity-art-first var(--letter-span) ease-in-out var(--letter-delay) both;
     }
     .identity-art[data-variant="2"] { animation-name: identity-art-second; }
     .identity-art[data-entrance-art] { visibility: visible; }
-    .identity-letter:has([data-variant="1"][data-entrance-art]) { --face-offset: 248ms; }
-    .identity-letter:has([data-variant="2"][data-entrance-art]) { --face-offset: 511ms; }
+    .identity-letter:has([data-variant="1"][data-entrance-art]) {
+      --face-offset: calc(.34 * var(--letter-span));
+      --face-fade: calc(.17 * var(--letter-span));
+    }
+    .identity-letter:has([data-variant="2"][data-entrance-art]) {
+      --face-offset: calc(.66 * var(--letter-span));
+      --face-fade: calc(.19 * var(--letter-span));
+    }
   }
 }
 @media (any-hover: hover) and (any-pointer: fine) and (prefers-reduced-motion: no-preference) {
@@ -310,29 +334,25 @@ html[data-entrance="ready"] .is-home .about-copy > p:nth-child(n+4) { --from-y: 
 html[data-entrance="ready"] .is-home .signature { --from-y: -6px; animation-delay: calc(var(--name-end) + 355ms); }
 html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .signature):focus-within,
 html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opacity: 1; transform: none; animation: none; }
-/* Moving out of the first landing overlaps with the second material's arrival. */
+/* Each letter keeps a single path as its three faces dissolve into one another. */
+@keyframes identity-letter-in {
+  0% { transform: translate(var(--intro-x), var(--intro-y)) rotate(var(--intro-angle)) scale(.94, .97); animation-timing-function: cubic-bezier(.24,.64,.4,1); }
+  24% { transform: translate(0, var(--intro-crest)) rotate(calc(-.2 * var(--intro-angle))) scale(calc(2 - var(--intro-squash)), var(--intro-squash)); animation-timing-function: ease-in-out; }
+  52% { transform: translate(0, calc(-.46 * var(--intro-crest))) rotate(calc(.09 * var(--intro-angle))) scale(.991, 1.013); animation-timing-function: ease-in-out; }
+  76% { transform: translate(0, calc(.14 * var(--intro-crest))) rotate(calc(-.03 * var(--intro-angle))) scale(1.004, .996); animation-timing-function: ease-out; }
+  100% { transform: translate(0, 0) rotate(0) scale(1); }
+}
 @keyframes identity-art-first {
-  0% { opacity: 0; transform: translate(var(--entry-x), var(--entry-y)) rotate(var(--entry-angle)) scale(.72, 1.08); animation-timing-function: cubic-bezier(.21,.65,.38,1); }
-  14% { opacity: 1; transform: translate(0, .019em) rotate(calc(-.21 * var(--entry-angle))) scale(calc(2 - var(--squash)), var(--squash)); animation-timing-function: ease-out; }
-  24% { opacity: 1; transform: translateY(-.046em) rotate(calc(.16 * var(--entry-angle))) scale(.984, 1.035); animation-timing-function: ease-in-out; }
-  32% { opacity: 1; transform: translateY(.008em) rotate(calc(-.08 * var(--entry-angle))) scale(1.012, .988); animation-timing-function: ease-out; }
-  38% { opacity: 1; transform: translateY(0) rotate(0) scale(1); animation-timing-function: ease-in; }
-  51%, 100% { opacity: 0; transform: translateY(-.04em) rotate(calc(-.27 * var(--entry-angle))) scale(.88); }
+  0% { opacity: 0; }
+  14%, 34% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
 @keyframes identity-art-second {
-  0%, 36% { opacity: 0; transform: translate(var(--entry-x), var(--entry-y)) rotate(var(--entry-angle)) scale(.8, .88); animation-timing-function: cubic-bezier(.16,.61,.35,1); }
-  51% { opacity: 1; transform: translateY(.014em) rotate(calc(-.27 * var(--entry-angle))) scale(calc(2 - var(--squash)), var(--squash)); animation-timing-function: ease-out; }
-  61% { opacity: 1; transform: translateY(-.042em) rotate(calc(.16 * var(--entry-angle))) scale(.985, 1.045); animation-timing-function: ease-in-out; }
-  69% { opacity: 1; transform: translateY(.008em) rotate(calc(-.075 * var(--entry-angle))) scale(1.014, .985); animation-timing-function: ease-out; }
-  78% { opacity: 1; transform: translateY(0) rotate(0) scale(1); animation-timing-function: ease-in; }
-  93%, 100% { opacity: 0; transform: translateY(-.038em) rotate(calc(-.23 * var(--entry-angle))) scale(.9); }
+  0%, 34% { opacity: 0; }
+  51%, 66% { opacity: 1; }
+  85%, 100% { opacity: 0; }
 }
-@keyframes identity-face-in {
-  0% { opacity: 0; transform: translateY(.055em) scale(.91, .95); animation-timing-function: ease-out; }
-  35% { opacity: 1; transform: translateY(-.027em) scale(1.02, 1.035); animation-timing-function: ease-in-out; }
-  63% { opacity: 1; transform: translateY(.008em) scale(.997, .995); animation-timing-function: ease-out; }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
+@keyframes identity-face-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes identity-art-pop {
   0% { transform: translateY(.055em) rotate(calc(.72 * var(--entry-angle))) scale(.86, .9); animation-timing-function: cubic-bezier(.19,.72,.4,1); }
   28% { transform: translateY(-.073em) rotate(calc(-.32 * var(--entry-angle))) scale(1.04, 1.087); animation-timing-function: ease-in-out; }
