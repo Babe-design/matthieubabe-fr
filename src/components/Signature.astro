@@ -1,8 +1,8 @@
 ---
 import ChangelogEntries from "./ChangelogEntries.astro";
 import { site, changelog } from "../data/site";
-interface Props { variant?: "default" | "about"; revealIndex?: number; }
-const { variant = "default", revealIndex } = Astro.props;
+interface Props { variant?: "default" | "about"; revealIndex?: number; showChangelog?: boolean; }
+const { variant = "default", revealIndex, showChangelog = true } = Astro.props;
 const latest = changelog[0].date;
 const dateLabel = latest.slice(0, 10);
 const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"short", timeZone:"UTC"}).format(new Date(latest));
@@ -22,12 +22,14 @@ const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"sh
   {variant === "about" && <h2 class="section-label colophon-label">Colophon</h2>}
   {variant === "about" && <p class="colophon-note">{site.colophon}</p>}
   {variant === "about" && <p class="colophon-note colophon-credit">Set in <a href="https://allo.joshpuckett.me/" target="_blank" rel="noopener noreferrer">Allo</a>, designed by <a href="https://x.com/joshpuckett" target="_blank" rel="noopener noreferrer">Josh Puckett</a>.</p>}
-  <p class="last-updated">
-    <a href="/changelog/" data-open-changelog aria-describedby="changelog-link-help">Last updated <time datetime={latest} data-updated-at={latest} title={`${formatted} UTC`}>{dateLabel}</time><span data-ago hidden> ago</span></a>
-  </p>
-  <span id="changelog-link-help" class="sr-only">View changelog</span>
+  {showChangelog && <>
+    <p class="last-updated">
+      <a href="/changelog/" data-open-changelog aria-describedby="changelog-link-help">Last updated <time datetime={latest} data-updated-at={latest} title={`${formatted} UTC`}>{dateLabel}</time><span data-ago hidden> ago</span></a>
+    </p>
+    <span id="changelog-link-help" class="sr-only">View changelog</span>
+  </>}
 </footer>
-<dialog class="changelog-sheet" aria-labelledby="changelog-heading">
+{showChangelog && <dialog class="changelog-sheet" aria-labelledby="changelog-heading">
   <div class="sheet-heading">
     <h2 id="changelog-heading">Changelog</h2>
     <button class="sheet-close" type="button" autofocus>Close</button>
@@ -35,7 +37,7 @@ const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"sh
   <div class="sheet-content">
     <ChangelogEntries />
   </div>
-</dialog>
+</dialog>}
 <script>
   function initSignature() {
     const controller = new AbortController();

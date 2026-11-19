@@ -43,7 +43,7 @@ const canonical = new URL(Astro.url.pathname, site.url);
   <body class:list={{ "is-home": home }}>
     <a class="skip-link" href="#content">Skip to content</a>
     <div class="site-shell">
-      <Identity />
+      <Identity loadMaterials={home} />
       <slot />
     </div>
     <script>

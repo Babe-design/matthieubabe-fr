@@ -10,6 +10,7 @@ import { footprintsTouch, makeFootprint, type FilledPolygon, type Footprint, typ
 
 type Letter = keyof typeof outlines;
 type OutlineCommand = { type: string; x?: number; y?: number; x1?: number; y1?: number; x2?: number; y2?: number };
+export type MagnetMove = { index: number; fromX: number; fromY: number; toX: number; toY: number };
 
 function makePlasticGrain() {
   const size = 256;
@@ -196,12 +197,13 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
     footprintCache[index] = { x, y, angle: rotation.z, footprint };
     return footprint;
   };
-  const collides = (index: number, x: number, y: number) => {
+  const collides = (index: number, x: number, y: number, positions?: Point2[]) => {
     const moving = footprintAt(index, x, y);
-    return letters.some(({ mesh }, other) => other !== index && footprintsTouch(
-      moving, footprintAt(other, mesh.position.x, mesh.position.y),
-      bevelClearances[index] + bevelClearances[other] + .004
-    ));
+    return letters.some(({ mesh }, other) => {
+      if (other === index) return false;
+      const { x, y } = positions?.[other] ?? mesh.position;
+      return footprintsTouch(moving, footprintAt(other, x, y), bevelClearances[index] + bevelClearances[other] + .004);
+    });
   };
 
   const updateLift = (held: number | undefined, elapsed: number, reducedMotion: boolean) => {
@@ -252,61 +254,109 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
     return { x: Math.max(minX, Math.min(x, maxX)), y: Math.max(minY, Math.min(y, maxY)) };
   };
 
+  const history: MagnetMove[] = [];
+
+  function sweep(index: number, from: Point2, to: Point2, positions?: Point2[]) {
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const blockedAt = (progress: number) => collides(index, from.x + dx * progress, from.y + dy * progress, positions);
+    const steps = Math.ceil(Math.hypot(dx, dy) / .065);
+    for (let step = 1; step <= steps; step++) {
+      let end = step / steps;
+      if (!blockedAt(end)) continue;
+      let safe = (step - 1) / steps;
+      for (let j = 0; j < 7; j++) {
+        const mid = (safe + end) / 2;
+        if (blockedAt(mid)) end = mid;
+        else safe = mid;
+      }
+      return { reached: false, point: { x: from.x + dx * safe, y: from.y + dy * safe } };
+    }
+    return { reached: true, point: to };
+  }
+
+  const segment = (index: number, from: Point2, to: Point2): MagnetMove =>
+    ({ index, fromX: from.x, fromY: from.y, toX: to.x, toY: to.y });
+
+  function commit(move: MagnetMove) {
+    const { index, fromX, fromY, toX, toY } = move;
+    if (fromX === toX && fromY === toY) return;
+    const { position } = letters[index].mesh;
+    position.x = toX;
+    position.y = toY;
+
+    const previous = history.at(-1);
+    if (previous?.index === index && previous.toX === fromX && previous.toY === fromY) {
+      // Coalesce only exactly collinear segments. The shortcut covers ground
+      // already traversed with every other letter in the same position.
+      const collinear = (fromX - previous.fromX) * (toY - fromY) === (fromY - previous.fromY) * (toX - fromX);
+      if (collinear) {
+        if (previous.fromX === toX && previous.fromY === toY) history.pop();
+        else Object.assign(previous, { toX, toY });
+        return;
+      }
+    }
+    history.push(move);
+  }
+
   const moveLetter = (index: number, x: number, y: number, padding: number) => {
     const { position } = letters[index].mesh;
     const target = boundPosition(index, x, y, padding);
     const start = { x: position.x, y: position.y };
 
-    function sweep(to: Point2) {
-      const fromX = position.x, fromY = position.y;
-      const dx = to.x - fromX, dy = to.y - fromY;
-      if (Math.abs(dx) + Math.abs(dy) < .0001) return true;
-      const steps = Math.ceil(Math.hypot(dx, dy) / .065);
-      for (let step = 1; step <= steps; step++) {
-        let end = step / steps;
-        if (collides(index, fromX + dx * end, fromY + dy * end)) {
-          let safe = (step - 1) / steps;
-          for (let j = 0; j < 7; j++) {
-            const mid = (safe + end) / 2;
-            if (collides(index, fromX + dx * mid, fromY + dy * mid)) end = mid;
-            else safe = mid;
-          }
-          position.x = fromX + dx * safe;
-          position.y = fromY + dy * safe;
-          return false;
-        }
-      }
-      position.x = to.x;
-      position.y = to.y;
-      return true;
+    function moveToward(to: Point2) {
+      const from = { x: position.x, y: position.y };
+      if (Math.abs(to.x - from.x) + Math.abs(to.y - from.y) < .0001) return true;
+      const { reached, point } = sweep(index, from, to);
+      commit(segment(index, from, point));
+      return reached;
     }
 
     // Follow the pointer's path, then let the free axis slide along the edge.
-    if (!sweep(target)) {
-      sweep({ x: target.x, y: position.y });
-      sweep({ x: position.x, y: target.y });
+    if (!moveToward(target)) {
+      moveToward({ x: target.x, y: position.y });
+      moveToward({ x: position.x, y: target.y });
     }
     return Math.abs(position.x - start.x) + Math.abs(position.y - start.y) > .001;
   };
 
+  function straightPaths(destinations: Point2[]) {
+    const positions = letters.map(({ mesh }) => ({ x: mesh.position.x, y: mesh.position.y }));
+    const pending = positions.flatMap(({ x, y }, index) =>
+      x === destinations[index].x && y === destinations[index].y ? [] : [index]);
+    const path: MagnetMove[] = [];
+    while (pending.length) {
+      const next = pending.findIndex(index => sweep(index, positions[index], destinations[index], positions).reached);
+      if (next < 0) return undefined;
+      const [index] = pending.splice(next, 1);
+      path.push(segment(index, positions[index], destinations[index]));
+      positions[index] = destinations[index];
+    }
+    return path;
+  }
+
+  const returnPath = () => straightPaths(letters.map(({ position }) => position)) ?? history.slice().reverse().map(move => ({
+    index: move.index, fromX: move.toX, fromY: move.toY, toX: move.fromX, toY: move.fromY
+  }));
+
   const resetLetters = (index?: number) => {
     if (index === undefined) {
       letters.forEach(({ mesh, position }) => mesh.position.copy(position));
+      history.length = 0;
     } else {
       const { mesh, position } = letters[index];
-      if (collides(index, position.x, position.y)) return false;
-      mesh.position.copy(position);
+      const from = mesh.position;
+      if (!sweep(index, from, position).reached) return false;
+      commit(segment(index, from, position));
+      mesh.position.z = position.z;
     }
     return true;
   };
 
   const fitLetters = (padding: number) => {
-    letters.forEach(({ mesh }, index) => {
-      const bounded = boundPosition(index, mesh.position.x, mesh.position.y, padding);
-      mesh.position.x = bounded.x;
-      mesh.position.y = bounded.y;
-    });
-    if (letters.some(({ mesh }, index) => collides(index, mesh.position.x, mesh.position.y))) resetLetters();
+    const destinations = letters.map(({ mesh }, index) => boundPosition(index, mesh.position.x, mesh.position.y, padding));
+    const adjustment = straightPaths(destinations);
+    if (adjustment) adjustment.forEach(commit);
+    else resetLetters();
   };
   const resize = (cssWidth: number, cssHeight: number) => {
     renderer.setSize(cssWidth, cssHeight, false);
@@ -328,5 +378,5 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
     grain.dispose();
     renderer.dispose();
   };
-  return { renderer, scene, camera, word, letters, poseEntrance, updateLift, pickLetter, pointerPosition, letterRect, moveLetter, resetLetters, fitLetters, resize, render, dispose };
+  return { renderer, scene, camera, word, letters, poseEntrance, updateLift, pickLetter, pointerPosition, letterRect, moveLetter, returnPath, resetLetters, fitLetters, resize, render, dispose };
 }

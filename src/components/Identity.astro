@@ -1,6 +1,8 @@
 ---
 import { site } from "../data/site";
 
+interface Props { loadMaterials: boolean; }
+const { loadMaterials } = Astro.props;
 const letters = [
   { face: "B", art: ["cap-b-wireframe", "cap-b-pop-sticker"] },
   { face: "a", art: ["a-lemon", "a-green-enamel"] },
@@ -10,16 +12,18 @@ const letters = [
 ---
 <header class="site-header" transition:name="identity" transition:persist="identity" transition:animate="none">
   <div class="identity-copy-window"><p class="identity-eyebrow">I’m Matthieu</p></div>
-  <a class="identity-name" href="/" aria-label="Babe — home">{letters.map(({ face, art }, index) => <span class="identity-letter" style={`--letter-index:${index}`}><span class="identity-face">{face}</span>{art.map((material, variant) => (
-    <span class="identity-art" data-variant={variant + 1} hidden aria-hidden="true"><img
-      src={`/images/identity/${material}.webp`}
+  <a class="identity-name" href="/" aria-label="Babe — home">{letters.map(({ face, art }, index) => <span class="identity-letter" style={`--letter-index:${index}`}><span class="identity-face">{face}</span>{art.map((material, variant) => {
+    const src = `/images/identity/${material}.webp`;
+    return <span class="identity-art" data-variant={variant + 1} hidden aria-hidden="true"><img
+      src={loadMaterials ? src : undefined}
+      data-material-src={loadMaterials ? undefined : src}
       alt=""
       width="320"
       height="360"
       decoding="async"
-      fetchpriority={index === 0 ? "high" : undefined}
+      fetchpriority={loadMaterials && index === 0 ? "high" : undefined}
       draggable="false"
-    /></span>
-  ))}</span>)}</a>
+    /></span>;
+  })}</span>)}</a>
   <div class="identity-copy-window"><p class="intro-line">{site.intro} at <a class="datadog-link" href={site.company.href}>{site.company.name}</a>.</p></div>
 </header>

@@ -11,6 +11,7 @@ function initWorkPreviews() {
   let hovered: HTMLElement | undefined;
   let focused: HTMLElement | undefined;
   let highlightExit = 0;
+  const keyboardFocus = () => focused?.matches(":focus-visible") ? focused : undefined;
 
   const updatePreview = () => {
     previews.hidden = !desktop.matches;
@@ -21,7 +22,7 @@ function initWorkPreviews() {
         void image.decode().catch(() => {});
       });
     }
-    const active = desktop.matches ? (hovered ?? focused)?.dataset.preview : undefined;
+    const active = desktop.matches ? (hovered ?? keyboardFocus())?.dataset.preview : undefined;
     cards.forEach(card => card.toggleAttribute("data-visible", card.dataset.previewCard === active));
     if (active) {
       const height = cards.find(card => card.dataset.previewCard === active)?.offsetHeight || 0;
@@ -32,7 +33,7 @@ function initWorkPreviews() {
 
   const updateHighlight = () => {
     list.toggleAttribute("data-work-highlight-ready", desktop.matches);
-    const row = hovered?.matches(".work-link:hover") ? hovered : focused?.matches(":focus-visible") ? focused : undefined;
+    const row = hovered?.matches(".work-link:hover") ? hovered : keyboardFocus();
     if (!desktop.matches || !row) {
       list.removeAttribute("data-work-highlight-visible");
       return;
@@ -63,13 +64,20 @@ function initWorkPreviews() {
       update();
     }, { signal });
     row.addEventListener("pointerleave", event => {
-      if (event.pointerType === "touch") return;
+      if (event.pointerType === "touch" || hovered !== row) return;
       clearTimeout(highlightExit);
       // Let the pointer cross the small gap between rows before fading out.
-      highlightExit = window.setTimeout(updateHighlight, 40);
+      highlightExit = window.setTimeout(() => {
+        if (hovered !== row) return;
+        hovered = undefined;
+        update();
+      }, 40);
     }, { signal });
     row.addEventListener("focus", () => {
-      if (row.matches(":focus-visible")) hovered = undefined;
+      if (row.matches(":focus-visible")) {
+        clearTimeout(highlightExit);
+        hovered = undefined;
+      }
       focused = row;
       update();
     }, { signal });

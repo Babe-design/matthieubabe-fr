@@ -78,6 +78,11 @@ type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "2026-11-19T19:16:14Z",
+    title: "A cleaner reset and changelog",
+    changes: ["Magnets follow clear paths on reset.", "Work previews close when the pointer leaves a project.", "The standalone changelog loads only the content it uses."]
+  },
+  {
     date: "2026-11-19T19:12:41Z",
     title: "Security and privacy updates",
     changes: ["Updated the build dependencies and tightened browser protections.", "Removed URL parameters from site telemetry."]

@@ -1,4 +1,5 @@
 type MagnetView = ReturnType<typeof import("./magnet-scene")["createMagnetScene"]>;
+type ReturnLeg = import("./magnet-scene").MagnetMove & { distance: number };
 
 function initExperiment() {
   const root = document.querySelector<HTMLElement>("[data-magnet-experiment]");
@@ -19,10 +20,15 @@ function initExperiment() {
   let animationFrame = 0;
   let previousFrame = 0;
   let drag: { index: number; pointerId: number; offsetX: number; offsetY: number } | undefined;
-  let returning: { elapsed: number; letters: { index: number; x: number; y: number }[] } | undefined;
+  let returning: {
+    elapsed: number;
+    duration: number;
+    distance: number;
+    legs: ReturnLeg[];
+    nextLeg: number;
+    completedDistance: number;
+  } | undefined;
   let layerOrder = [0, 1, 2, 3];
-  const returnDuration = 400;
-  const returnStagger = 24;
   const names = ["Capital B", "a", "Lowercase b", "e"];
   const pixelRatio = () => Math.min(devicePixelRatio, 3, Math.sqrt(1_200_000 / (stage.clientWidth * stage.clientHeight)));
   const padding = () => view ? (view.camera.right - view.camera.left) * 16 / stage.clientWidth : 0;
@@ -57,24 +63,33 @@ function initExperiment() {
     clearReturn();
     status.textContent = "All four letters are back in place.";
   };
+  const placeOnLeg = (current: MagnetView, leg: ReturnLeg, progress: number) => {
+    const { position } = current.letters[leg.index].mesh;
+    position.x = leg.fromX + (leg.toX - leg.fromX) * progress;
+    position.y = leg.fromY + (leg.toY - leg.fromY) * progress;
+  };
   const paint = (time: number) => {
     animationFrame = 0;
     if (!view || signal.aborted || !root.dataset.rendered) return;
     const current = view;
     const elapsed = previousFrame ? Math.max(0, time - previousFrame) : 0;
     if (returning) {
-      // Keep the return visible when WebGL misses frames or the tab resumes.
-      const returnTime = returning.elapsed += Math.min(elapsed, 64);
-      if (motion.matches || returnTime >= returnDuration + returnStagger * (returning.letters.length - 1)) {
+      // Keep intermediate poses on slow renderers without prolonging long routes.
+      const maxStep = Math.max(64, returning.duration / 12);
+      returning.elapsed += Math.min(elapsed, maxStep);
+      const progress = returning.elapsed / returning.duration;
+      if (motion.matches || progress >= 1) {
         completeReturn(current);
       } else {
-        returning.letters.forEach(({ index, x, y }, rank) => {
-          const { mesh, position } = current.letters[index];
-          const progress = Math.max(0, Math.min(1, (returnTime - rank * returnStagger) / returnDuration));
-          const remaining = (1 - progress) ** 3;
-          mesh.position.x = position.x + (x - position.x) * remaining;
-          mesh.position.y = position.y + (y - position.y) * remaining;
-        });
+        const travelled = returning.distance * (1 - (1 - progress) ** 3);
+        let leg = returning.legs[returning.nextLeg];
+        // Each leg was checked against the positions left by the preceding legs.
+        while (leg && travelled >= returning.completedDistance + leg.distance) {
+          placeOnLeg(current, leg, 1);
+          returning.completedDistance += leg.distance;
+          leg = returning.legs[++returning.nextLeg];
+        }
+        if (leg) placeOnLeg(current, leg, (travelled - returning.completedDistance) / leg.distance);
       }
     }
     const settling = current.updateLift(drag?.index, elapsed || 16, motion.matches);
@@ -109,20 +124,23 @@ function initExperiment() {
     finishDrag();
     if (index !== undefined) {
       const placed = current.resetLetters(index);
-      status.textContent = placed ? `${names[index]} is back in place.` : `${names[index]}’s starting spot is blocked. Use Reset to move all the letters back.`;
+      status.textContent = placed ? `${names[index]} is back in place.` : `${names[index]} can’t reach its starting spot. Use Reset to move all the letters back.`;
     } else if (motion.matches) {
       completeReturn(current);
     } else {
-      const letters = current.letters.flatMap((letter, index) => {
-        if (!displaced(letter)) return [];
-        const { x, y } = letter.mesh.position;
-        return [{ index, x, y }];
-      });
-      if (!letters.length) return;
-      returning = { elapsed: 0, letters };
-      root.dataset.resetting = "";
-      resetButton.setAttribute("aria-disabled", "true");
-      status.textContent = "";
+      const legs = current.returnPath().map(leg => ({
+        ...leg,
+        distance: Math.hypot(leg.toX - leg.fromX, leg.toY - leg.fromY),
+      })).filter(leg => leg.distance > 0);
+      const distance = legs.reduce((sum, leg) => sum + leg.distance, 0);
+      if (distance === 0) {
+        completeReturn(current);
+      } else {
+        returning = { elapsed: 0, duration: Math.max(400, Math.min(1500, 300 + distance * 180)), distance, legs, nextLeg: 0, completedDistance: 0 };
+        root.dataset.resetting = "";
+        resetButton.setAttribute("aria-disabled", "true");
+        status.textContent = "";
+      }
     }
     invalidate();
   };

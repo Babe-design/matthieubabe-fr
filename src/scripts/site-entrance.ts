@@ -1,9 +1,12 @@
 const wait = (duration: number) => new Promise<void>(resolve => setTimeout(resolve, duration));
+const initializedWords = new WeakSet<HTMLElement>();
 
 function loadArt(root: HTMLElement, word: HTMLElement) {
   return Array.from(word.querySelectorAll<HTMLElement>(".identity-art"), art => {
     const image = art.querySelector("img");
-    return image?.decode().then(() => {
+    if (!image) return;
+    if (image.dataset.materialSrc) image.src = image.dataset.materialSrc;
+    return image.decode().then(() => {
       art.dataset.loaded = "";
       if (root.dataset.entrance !== "ready") return;
       const entrance = art.getAnimations().find(animation =>
@@ -107,8 +110,10 @@ function enableLetterPreviews(root: HTMLElement, word: HTMLElement) {
 }
 
 function initIdentity() {
+  if (!document.body.classList.contains("is-home")) return;
   const word = document.querySelector<HTMLElement>(".identity-name");
-  if (!word) return;
+  if (!word || initializedWords.has(word)) return;
+  initializedWords.add(word);
   const root = document.documentElement;
   const images = loadArt(root, word);
   enableLetterPreviews(root, word);
@@ -121,3 +126,4 @@ if (document.readyState === "loading") {
 } else {
   initIdentity();
 }
+document.addEventListener("astro:page-load", initIdentity);
