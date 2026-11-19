@@ -241,11 +241,12 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
 
 /* The letters overlap in reading order, then the page follows the final settle. */
 .is-home {
-  --letter-start: 120ms;
-  --letter-span: 440ms;
-  --letter-step: 360ms;
-  --name-end: calc(var(--letter-start) + 3 * var(--letter-step) + var(--letter-span));
-  --spacing-settle: calc(.4 * var(--letter-span));
+  --letter-start: 105ms;
+  --letter-span: 405ms;
+  --letter-step: 340ms;
+  --spacing-start: calc(var(--letter-start) + 3 * var(--letter-step) + var(--letter-span) - 120ms);
+  --spacing-settle: 190ms;
+  --name-end: calc(var(--spacing-start) + var(--spacing-settle));
 }
 html:is([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-copy-window:not(:focus-within) { overflow: clip; overflow-clip-margin: 2px; }
 html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) { opacity: 0; }
@@ -278,7 +279,7 @@ html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, 
       transform-origin: 50% 78%;
       animation:
         identity-letter-in var(--letter-span) linear var(--letter-delay) both,
-        identity-letter-spacing var(--spacing-settle) linear calc(var(--name-end) - var(--spacing-settle)) both;
+        identity-letter-spacing var(--spacing-settle) ease-in-out var(--spacing-start) both;
     }
     .identity-letter:nth-child(2) { --letter-spread: .042em; --intro-x: .055em; --intro-y: .04em; --intro-angle: 5deg; }
     .identity-letter:nth-child(3) {
@@ -351,12 +352,10 @@ html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opa
 @keyframes identity-letter-spacing {
   from {
     translate: var(--letter-spread) 0;
-    animation-timing-function: cubic-bezier(.28,.1,.36,1);
+    animation-timing-function: cubic-bezier(.42,0,.3,1);
   }
-  64% {
-    translate: calc(-.0045em * var(--letter-index)) 0;
-    animation-timing-function: ease-in-out;
-  }
+  50% { translate: calc(-.014em * var(--letter-index)) 0; }
+  78% { translate: calc(.0035em * var(--letter-index)) 0; }
   to { translate: 0 0; }
 }
 @keyframes identity-art-first {
