@@ -61,17 +61,14 @@ p { margin: 0; }
 .intro-line { font-size: clamp(18px, calc(1vw + 15px), 22px); font-weight: 500; line-height: 1.3; letter-spacing: -.02em; }
 .identity-letter { position: relative; display: inline-block; }
 .identity-face { display: inline-block; }
-.identity-proof, .identity-sticker { display: none; position: absolute; inset: 0; pointer-events: none; }
+.identity-proof, .identity-sticker, .identity-gel { display: none; position: absolute; inset: 0; pointer-events: none; }
 .identity-proof { width: 100%; height: 100%; overflow: visible; }
-.identity-guides { fill: none; stroke: #ded9d6; stroke-width: 1; stroke-dasharray: 3 3; }
-.identity-outline { fill: none; stroke: var(--ink); stroke-width: 1.9; stroke-linejoin: round; }
-.identity-points line { stroke: #e07485; stroke-width: .9; }
-.identity-points rect { fill: white; stroke: var(--ink); stroke-width: 1.1; }
-.identity-points circle { fill: #d92151; }
+.identity-guides { fill: none; stroke: color-mix(in srgb, var(--material-edge) 28%, white); stroke-width: 1; stroke-dasharray: 3 3; }
+.identity-outline { fill: none; stroke: var(--material-shadow); stroke-width: 1.9; stroke-linejoin: round; }
+.identity-points line { stroke: var(--material-edge); stroke-width: .9; }
+.identity-points rect { fill: white; stroke: var(--material-shadow); stroke-width: 1.1; }
+.identity-points circle { fill: var(--material-edge); }
 .identity-sticker {
-  --sticker-pink: #ed79c7;
-  --sticker-red: #eb3226;
-  --sticker-burgundy: #5b0d25;
   font-weight: 900;
   font-variation-settings: "ROND" 100;
   font-feature-settings: "ss01";
@@ -84,13 +81,24 @@ p { margin: 0; }
   paint-order: stroke fill;
 }
 .identity-sticker::before {
-  color: var(--sticker-burgundy);
-  -webkit-text-stroke: .18em var(--sticker-burgundy);
-  filter: drop-shadow(.015em .032em 0 var(--sticker-burgundy)) drop-shadow(.015em .032em 0 var(--sticker-burgundy));
+  color: var(--material-shadow);
+  -webkit-text-stroke: .18em var(--material-shadow);
+  filter: drop-shadow(.015em .032em 0 var(--material-shadow)) drop-shadow(.015em .032em 0 var(--material-shadow));
 }
 .identity-sticker::after {
-  color: var(--sticker-pink);
-  -webkit-text-stroke: .094em var(--sticker-red);
+  color: var(--material-fill);
+  -webkit-text-stroke: .094em var(--material-edge);
+}
+.identity-gel img {
+  position: absolute;
+  top: .027em;
+  left: calc(50% - .345em);
+  width: .69em;
+  height: .92em;
+  max-width: none;
+  object-fit: contain;
+  filter: drop-shadow(0 .018em .026em rgb(18 55 76 / .23));
+  transform-origin: 50% 77%;
 }
 .portfolio-head { padding-top: 40px; font-size: 15px; line-height: 1.5; }
 .intro-line { color: var(--ink); }
@@ -256,25 +264,67 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
 .is-home {
   --letter-start: 200ms;
   --letter-span: 500ms;
-  --name-end: calc(var(--letter-start) + 4 * var(--letter-span));
+  --gel-span: 600ms;
+  --name-end: calc(var(--letter-start) + 3 * var(--letter-span) + var(--gel-span));
 }
 html:is([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-copy-window:not(:focus-within) { overflow: clip; overflow-clip-margin: 2px; }
 html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) { opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
   .identity-letter {
     --letter-index: 0;
+    --letter-duration: var(--letter-span);
     --letter-delay: calc(var(--letter-start) + var(--letter-index) * var(--letter-span));
+    --material-fill: #ffdf4f;
+    --material-edge: #ef970c;
+    --material-shadow: #76490c;
     --sticker-tilt: -6deg;
   }
-  .identity-letter:nth-child(2) { --letter-index: 1; --sticker-tilt: 5deg; }
-  .identity-letter:nth-child(3) { --letter-index: 2; --sticker-tilt: -4deg; }
-  .identity-letter:nth-child(4) { --letter-index: 3; --sticker-tilt: 5deg; }
+  .identity-letter:nth-child(2) {
+    --letter-index: 1;
+    --material-fill: #b7eb53;
+    --material-edge: #439a32;
+    --material-shadow: #1b512c;
+    --sticker-tilt: 5deg;
+  }
+  .identity-letter:nth-child(3) {
+    --letter-index: 2;
+    --letter-duration: var(--gel-span);
+    --material-fill: #73d5f9;
+    --material-edge: #1685ca;
+    --material-shadow: #153d69;
+    --sticker-tilt: -4deg;
+  }
+  .identity-letter:nth-child(4) {
+    --letter-delay: calc(var(--name-end) - var(--letter-span));
+    --material-fill: #69e0c9;
+    --material-edge: #139a91;
+    --material-shadow: #164e50;
+    --sticker-tilt: 5deg;
+  }
   html[data-entrance="ready"] .is-home .identity-name:not(:focus-visible) {
-    .identity-proof { display: block; animation: identity-proof-in var(--letter-span) linear var(--letter-delay) both; }
+    .identity-proof { display: block; animation: identity-proof-in var(--letter-duration) linear var(--letter-delay) both; }
     .identity-outline { animation: identity-trace 145ms var(--ease-out) var(--letter-delay) both; }
     .identity-points { animation: identity-points-in 105ms ease calc(var(--letter-delay) + 35ms) both; }
-    .identity-sticker { display: block; animation: identity-sticker-in var(--letter-span) ease-in-out var(--letter-delay) both; }
-    .identity-face { animation: identity-face-in var(--letter-span) var(--ease-out) var(--letter-delay) both; }
+    .identity-sticker { display: block; animation: identity-sticker-in var(--letter-duration) ease-in-out var(--letter-delay) both; }
+    .identity-face { animation: identity-face-in var(--letter-duration) var(--ease-out) var(--letter-delay) both; }
+    .identity-letter[data-material="gel"] {
+      .identity-proof, .identity-gel { mask-size: 100% 225%; mask-repeat: no-repeat; }
+      .identity-proof {
+        mask-image: linear-gradient(#000 45%, transparent 51%);
+        animation-name: identity-gel-outline;
+      }
+      .identity-gel {
+        display: block;
+        visibility: hidden;
+        mask-image: linear-gradient(transparent 45%, #000 51%);
+        animation: identity-gel-rise var(--letter-duration) linear var(--letter-delay) both;
+      }
+      .identity-gel img { animation: identity-gel-settle var(--letter-duration) ease-in-out var(--letter-delay) both; }
+    }
+    .identity-letter[data-gel-ready] {
+      .identity-sticker { visibility: hidden; }
+      .identity-gel { visibility: visible; }
+    }
   }
 }
 html[data-entrance="ready"] .is-home :where(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) {
@@ -301,6 +351,26 @@ html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opa
   0%, 32% { opacity: 0; transform: translateY(5px) rotate(var(--sticker-tilt)) scale(.88); }
   49%, 65% { opacity: 1; transform: translateY(-2px) rotate(var(--sticker-tilt)) scale(.93); }
   86%, 100% { opacity: 0; transform: translateY(0) rotate(0) scale(.97); }
+}
+/* The outline and the blue material share the same rising, feathered seam. */
+@keyframes identity-gel-outline {
+  0% { opacity: 0; transform: translateY(4px); mask-position: 0 0; }
+  10%, 28% { opacity: 1; transform: translateY(0); mask-position: 0 0; }
+  54% { opacity: 1; transform: translateY(0); mask-position: 0 100%; }
+  55%, 100% { opacity: 0; transform: translateY(0); mask-position: 0 100%; }
+}
+@keyframes identity-gel-rise {
+  0%, 27% { opacity: 0; mask-position: 0 0; }
+  28% { opacity: 1; mask-position: 0 0; }
+  54%, 70% { opacity: 1; mask-position: 0 100%; }
+  88%, 100% { opacity: 0; mask-position: 0 100%; }
+}
+@keyframes identity-gel-settle {
+  0%, 28% { transform: translateY(.055em) rotate(-6deg) skewX(-5deg) scale(.92, 1.07); }
+  47% { transform: translateY(-.032em) rotate(-2deg) skewX(3deg) scale(.94, 1.07); }
+  56% { transform: translateY(.01em) rotate(2deg) skewX(-2deg) scale(1.06, .94); }
+  66% { transform: rotate(-1deg) scale(.985, 1.025); }
+  77%, 100% { transform: rotate(0) scale(1); }
 }
 @keyframes identity-face-in {
   0%, 71% { opacity: 0; transform: translateY(3px); }

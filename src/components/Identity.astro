@@ -9,7 +9,7 @@ const letters = ["B", "a", "b", "e"] as const;
   <div class="identity-copy-window"><p class="identity-eyebrow">I’m Matthieu</p></div>
   <a class="identity-name" href="/" aria-label="Babe — home">{letters.map(letter => {
     const { width, path, handles } = construction[letter];
-    return <span class="identity-letter"><span class="identity-face">{letter}</span><svg class="identity-proof" viewBox={`0 0 ${width} 204.8`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    return <span class="identity-letter" data-material={letter === "b" ? "gel" : undefined}><span class="identity-face">{letter}</span><svg class="identity-proof" viewBox={`0 0 ${width} 204.8`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
         <path class="identity-guides" d={`M0 27.9H${width}M0 65.1H${width}M0 176.9H${width}M5 16V186`} />
         <path class="identity-outline" d={path} pathLength="1" />
         <g class="identity-points">
@@ -19,7 +19,7 @@ const letters = ["B", "a", "b", "e"] as const;
             <circle cx={cx} cy={cy} r="2.4" />
           </g>)}
         </g>
-      </svg><span class="identity-sticker" data-glyph={letter} aria-hidden="true"></span></span>;
+      </svg><span class="identity-sticker" data-glyph={letter} aria-hidden="true"></span>{letter === "b" && <span class="identity-gel" aria-hidden="true"><img src="/images/identity/gummy-b.webp" alt="" width="360" height="480" decoding="async" /></span>}</span>;
   })}</a>
   <div class="identity-copy-window"><p class="intro-line">{site.intro} at <a class="datadog-link" href={site.company.href}>{site.company.name}</a>.</p></div>
 </header>

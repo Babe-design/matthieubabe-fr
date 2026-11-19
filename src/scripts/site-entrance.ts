@@ -1,6 +1,26 @@
+function loadGelWhileOpening(root: HTMLElement) {
+  const letter = document.querySelector<HTMLElement>('.identity-letter[data-material="gel"]');
+  const image = letter?.querySelector("img");
+  if (!letter || !image) return;
+
+  void image.decode().then(() => {
+    const face = letter.querySelector(".identity-face");
+    const entrance = face?.getAnimations().find(animation =>
+      animation instanceof CSSAnimation && animation.animationName === "identity-face-in"
+    );
+    // Enable the texture before this letter starts, or finish with its blue sticker.
+    const delay = entrance?.effect?.getTiming().delay;
+    const waitingForLetter = entrance && delay !== undefined && Number(entrance.currentTime) < delay;
+    if (root.dataset.entrance === "pending" || (root.dataset.entrance === "ready" && waitingForLetter)) {
+      letter.dataset.gelReady = "";
+    }
+  }, () => {});
+}
+
 function initEntrance() {
   const root = document.documentElement;
   if (root.dataset.entrance !== "pending") return;
+  loadGelWhileOpening(root);
   const ready = document.fonts.load('720 120px "Allo"', "Babe");
   const timeout = new Promise(resolve => setTimeout(resolve, 700));
   void Promise.race([ready.catch(() => {}), timeout]).then(() => {
@@ -22,4 +42,9 @@ function initEntrance() {
     }, 160);
   });
 }
-document.addEventListener("astro:page-load", initEntrance);
+// The first entrance is independent of window.load, which also waits for images.
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initEntrance, { once: true });
+} else {
+  initEntrance();
+}
