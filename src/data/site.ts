@@ -40,7 +40,7 @@ export const work: readonly WorkEntry[] = [
     title: "The care era",
     detail: "Writing · 2026",
     href: "https://medium.com/@MatthieuBabe/the-care-era-7342fbb5f832",
-    preview: { image: "/images/work/the-care-era.webp", width: 1024, height: 1024, caption: "“The surprise is that abundance is demanding.”" }
+    preview: { image: "/images/work/the-care-era.webp", width: 1024, height: 1024, caption: "Compose, don’t generate." }
   },
   {
     id: "luko",
@@ -77,6 +77,11 @@ type ChangelogEntry = {
 };
 
 export const changelog: ChangelogEntry[] = [
+  {
+    date: "2026-11-19T19:42:25Z",
+    title: "A new excerpt for The care era",
+    changes: ["Updated the caption in Work."]
+  },
   {
     date: "2026-11-19T19:35:10Z",
     title: "Smoother motion and a frosted changelog",
