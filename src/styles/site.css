@@ -293,20 +293,26 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
 .changelog-sheet::backdrop { background: #0003; backdrop-filter: blur(5px); animation: backdrop-in 300ms ease both; }
 .changelog-sheet.is-closing { animation: sheet-out 220ms ease-in both; }
 .changelog-sheet.is-closing::backdrop { animation: backdrop-out 220ms ease both; }
-.sheet-heading { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; gap: 24px; padding: 28px 28px 16px; }
+.sheet-heading { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 28px 28px 16px; background: var(--surface); }
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sheet-heading { background: rgb(255 255 255 / .76); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .sheet-heading { background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
 .sheet-heading h2 { margin: 0; font-size: 24px; }
-.sheet-close { min-height: 44px; padding: 8px 12px; color: var(--muted); background: #f3f3f3; border: 0; border-radius: 12px; font: inherit; font-size: 15px; cursor: pointer; }
-.sheet-close:hover { color: var(--ink); background: #e9e9e9; }
+.sheet-close { min-height: 44px; padding: 8px 12px; color: var(--ink); background: #f3f3f3; border: 0; border-radius: 12px; font: inherit; font-size: 15px; cursor: pointer; }
+.sheet-close:hover { background: #e9e9e9; }
 .sheet-close:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-.sheet-content { padding: 0 28px 12px; overflow-y: auto; overscroll-behavior: contain; }
-.sheet-content .changelog-list { margin-top: 8px; }
+.sheet-content { min-height: 0; padding-bottom: 12px; overflow-y: auto; overscroll-behavior: contain; }
+.sheet-content .changelog-list { margin: 8px 28px 0; }
 @keyframes sheet-in { from { opacity: 0; transform: translateY(calc(100% + 32px)); } to { opacity: 1; transform: translateY(0); } }
 @keyframes sheet-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(calc(100% + 32px)); } }
 @keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes backdrop-out { from { opacity: 1; } to { opacity: 0; } }
 @media (max-width: 600px) {
   .sheet-heading { padding: 20px 20px 16px; }
-  .sheet-content { padding-inline: 20px; }
+  .sheet-content .changelog-list { margin-inline: 20px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .changelog-sheet[open], .changelog-sheet.is-closing, .changelog-sheet::backdrop { animation: none; }
@@ -316,7 +322,7 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
 .is-home {
   --letter-start: 105ms;
   --letter-span: 405ms;
-  --letter-step: 340ms;
+  --letter-step: 220ms;
   --spacing-start: calc(var(--letter-start) + 3 * var(--letter-step) + var(--letter-span) - 120ms);
   --spacing-settle: 190ms;
   --name-end: calc(var(--spacing-start) + var(--spacing-settle));

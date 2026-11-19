@@ -30,11 +30,11 @@ const formatted = new Intl.DateTimeFormat("en", {dateStyle:"long", timeStyle:"sh
   </>}
 </footer>
 {showChangelog && <dialog class="changelog-sheet" aria-labelledby="changelog-heading">
-  <div class="sheet-heading">
-    <h2 id="changelog-heading">Changelog</h2>
-    <button class="sheet-close" type="button" autofocus>Close</button>
-  </div>
   <div class="sheet-content">
+    <div class="sheet-heading">
+      <h2 id="changelog-heading">Changelog</h2>
+      <button class="sheet-close" type="button" autofocus>Close</button>
+    </div>
     <ChangelogEntries />
   </div>
 </dialog>}

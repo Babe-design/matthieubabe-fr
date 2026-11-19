@@ -103,7 +103,7 @@
     box-shadow: var(--thumb-shadow);
     transform: var(--thumb-transform);
     transition: transform var(--thumb-motion), border-radius var(--thumb-motion);
-    animation: var(--thumb-settle, none);
+    translate: var(--thumb-offset, 0px) 0;
   }
 
   .sensitivity-range::-moz-range-thumb {
@@ -115,7 +115,7 @@
     box-shadow: var(--thumb-shadow);
     transform: var(--thumb-transform);
     transition: transform var(--thumb-motion), border-radius var(--thumb-motion);
-    animation: var(--thumb-settle, none);
+    translate: var(--thumb-offset, 0px) 0;
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -125,12 +125,6 @@
       --thumb-motion: 85ms cubic-bezier(.2,.65,.32,1);
     }
     .sensitivity-range[data-snapped] { --thumb-scale: 1.12; }
-    .sensitivity-range[data-settling] { --thumb-settle: sensitivity-settle 180ms cubic-bezier(.18,.8,.26,1); }
-  }
-
-  @keyframes sensitivity-settle {
-    from { translate: var(--thumb-offset) 0; }
-    to { translate: 0 0; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -196,9 +190,17 @@
       const snapRadius = 5;
       const releaseRadius = 11;
       const settleRadius = 24;
-      let drag: { id: number; offset: number; startValue: number; snapped?: number } | undefined;
+      let drag: {
+        id: number;
+        offset: number;
+        startValue: number;
+        snapped?: number;
+        trackPress?: { x: number; y: number; value: number };
+      } | undefined;
       let hovered: HTMLElement | undefined;
-      let settleTimer: number | undefined;
+      let thumbFrame = 0;
+      let thumbOffset = 0;
+      const normalize = (value: number) => Math.round(Math.max(0, Math.min(100, value)));
 
       const measure = () => {
         const first = marks[0].element.getBoundingClientRect();
@@ -229,23 +231,52 @@
         const canHover = event.pointerType !== "touch" && !forcedColors.matches && event.buttons === 0;
         const { xAt, centerY, radius, markAt } = measure();
         const y = event.clientY - centerY;
-        const onThumb = canHover && Math.hypot(event.clientX - xAt(input.valueAsNumber), y) <= radius + 1;
+        const onThumb = canHover && Math.hypot(event.clientX - xAt(input.valueAsNumber) - thumbOffset, y) <= radius + 1;
         input.toggleAttribute("data-thumb-hovered", onThumb);
         const mark = canHover && !onThumb ? markAt(event.clientX, event.clientY) : undefined;
         highlight(mark?.element);
       };
 
       const setValue = (value: number) => {
-        const next = Math.round(Math.max(0, Math.min(100, value)));
+        const next = normalize(value);
         if (next === input.valueAsNumber) return;
         input.valueAsNumber = next;
         input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
       };
 
       const stopSettling = () => {
-        window.clearTimeout(settleTimer);
+        cancelAnimationFrame(thumbFrame);
+        thumbFrame = 0;
+        thumbOffset = 0;
         input.style.removeProperty("--thumb-offset");
         delete input.dataset.settling;
+      };
+
+      const glideTo = (value: number, duration: number, width: number) => {
+        const offset = (input.valueAsNumber - value) * width / 100 + thumbOffset;
+        stopSettling();
+        if (Math.abs(offset) > .25 && !reducedMotion.matches) {
+          const writeOffset = (offset: number) => {
+            thumbOffset = offset;
+            input.style.setProperty("--thumb-offset", `${offset}px`);
+          };
+          writeOffset(offset);
+          input.dataset.settling = "";
+          const start = performance.now();
+          const frame = (now: number) => {
+            const progress = Math.max(0, (now - start) / duration);
+            if (progress >= 1 || reducedMotion.matches || !input.isConnected) {
+              stopSettling();
+              return;
+            }
+            const eased = progress * progress * (3 - 2 * progress);
+            writeOffset(offset * (1 - eased));
+            thumbFrame = requestAnimationFrame(frame);
+          };
+          thumbFrame = requestAnimationFrame(frame);
+        }
+        // Keep the input value and its accessible label in sync with the destination.
+        setValue(value);
       };
 
       const resetThumb = () => {
@@ -253,19 +284,9 @@
         input.style.removeProperty("--thumb-outline");
       };
 
-      const settle = () => {
-        const current = input.valueAsNumber;
-        const nearest = marks.reduce((best, mark) => Math.abs(current - mark.value) < Math.abs(current - best.value) ? mark : best);
-        const offset = (current - nearest.value) * measure().width / 100;
-        if (!offset || Math.abs(offset) > settleRadius) return;
-
-        if (!reducedMotion.matches) {
-          // Commit the value immediately and animate the thumb from its prior position.
-          input.style.setProperty("--thumb-offset", `${offset}px`);
-          input.dataset.settling = "";
-          settleTimer = window.setTimeout(stopSettling, 220);
-        }
-        setValue(nearest.value);
+      const snapTarget = (value: number, width: number) => {
+        const nearest = marks.reduce((best, mark) => Math.abs(value - mark.value) < Math.abs(value - best.value) ? mark : best);
+        return Math.abs(value - nearest.value) * width / 100 <= settleRadius ? nearest.value : value;
       };
 
       input.dataset.enhanced = "";
@@ -285,25 +306,29 @@
         if (forcedColors.matches) return;
 
         event.preventDefault();
-        stopSettling();
         input.focus({ preventScroll: true });
         input.setPointerCapture(event.pointerId);
         const { xAt, centerY, radius, left, width, markAt } = measure();
         const startValue = input.valueAsNumber;
-        const onThumb = Math.hypot(event.clientX - xAt(startValue), event.clientY - centerY) <= radius + 2;
+        const paintedX = xAt(startValue) + thumbOffset;
+        const onThumb = Math.hypot(event.clientX - paintedX, event.clientY - centerY) <= radius + 2;
         const mark = onThumb ? undefined : markAt(event.clientX, event.clientY);
-        const anchor = onThumb ? startValue : mark?.value;
+        const clickedValue = mark?.value ?? normalize((event.clientX - left) / width * 100);
+        if (onThumb) {
+          stopSettling();
+          setValue((paintedX - left) / width * 100);
+          input.dataset.dragging = "";
+        }
+        const anchor = onThumb ? input.valueAsNumber : mark?.value;
         drag = {
           id: event.pointerId,
           offset: anchor === undefined ? 0 : event.clientX - xAt(anchor),
           startValue,
           snapped: mark?.value,
+          trackPress: onThumb ? undefined : { x: event.clientX, y: event.clientY, value: clickedValue },
         };
-        input.dataset.dragging = "";
-        input.toggleAttribute("data-snapped", !!mark);
         delete input.dataset.thumbHovered;
         highlight();
-        if (!onThumb) setValue(mark?.value ?? (event.clientX - left) / width * 100);
       };
 
       input.onpointermove = event => {
@@ -312,6 +337,12 @@
           return;
         }
         if (event.pointerId !== drag.id) return;
+        if (drag.trackPress) {
+          if (Math.hypot(event.clientX - drag.trackPress.x, event.clientY - drag.trackPress.y) < 3) return;
+          stopSettling();
+          drag.trackPress = undefined;
+          input.dataset.dragging = "";
+        }
 
         const { xAt, left, width, radius } = measure();
         let x = event.clientX - drag.offset;
@@ -352,13 +383,18 @@
 
       input.onpointerup = input.onpointercancel = input.onlostpointercapture = event => {
         if (drag?.id !== event.pointerId) return;
-        if (event.type === "pointerup") settle();
+        const press = drag.trackPress;
+        if (event.type === "pointerup") {
+          const { width } = measure();
+          const value = press?.value ?? input.valueAsNumber;
+          glideTo(snapTarget(value, width), press ? 380 : 180, width);
+        }
         const changed = drag.startValue !== input.valueAsNumber;
         drag = undefined;
         resetThumb();
         delete input.dataset.dragging;
         delete input.dataset.snapped;
-        if (event.type === "pointerup") updateHover(event);
+        if (event.type === "pointerup" && !press) updateHover(event);
         if (changed) input.dispatchEvent(new Event("change", { bubbles: true }));
       };
 

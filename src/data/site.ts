@@ -78,6 +78,11 @@ type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "2026-11-19T19:35:10Z",
+    title: "Smoother motion and a frosted changelog",
+    changes: ["The gauge thumb glides to a clicked position.", "Changelog entries scroll beneath a frosted header.", "Babe’s letters overlap as they appear."]
+  },
+  {
     date: "2026-11-19T19:28:22Z",
     title: "A synchronized entrance",
     changes: ["Portfolio content appears after the header settles on reload."]
