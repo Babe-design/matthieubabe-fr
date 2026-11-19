@@ -8,8 +8,10 @@ function initEntrance() {
       if (root.dataset.entrance !== "pending") return;
       root.dataset.entrance = "ready";
       const complete = () => {
+        clearTimeout(fallback);
         if (root.dataset.entrance === "ready") root.dataset.entrance = "complete";
       };
+      const fallback = setTimeout(complete, 3500);
       // Release the copy masks and animation styles when the entrance settles.
       requestAnimationFrame(() => {
         const animations = document.getAnimations().filter(animation =>
@@ -17,7 +19,6 @@ function initEntrance() {
         );
         void Promise.allSettled(animations.map(animation => animation.finished)).then(complete);
       });
-      setTimeout(complete, 2200);
     }, 160);
   });
 }

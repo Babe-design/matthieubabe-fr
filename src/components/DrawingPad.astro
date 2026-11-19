@@ -1,16 +1,14 @@
 ---
 const descriptionId = `drawing-pad-${crypto.randomUUID()}`;
 ---
-<temporary-drawing-pad class="experiment-frame">
-  <div class="experiment-surface sketch-shell">
-    <div class="sketch-screen">
-      <canvas
-        hidden
-        aria-label="Temporary drawing pad"
-        aria-describedby={descriptionId}
-        title="Draw here. Strokes start fading three seconds after release."
-      ></canvas>
-    </div>
+<temporary-drawing-pad class="experiment-surface sketch-shell">
+  <div class="sketch-screen">
+    <canvas
+      hidden
+      aria-label="Temporary drawing pad"
+      aria-describedby={descriptionId}
+      title="Draw here. Strokes start fading three seconds after release."
+    ></canvas>
   </div>
   <p id={descriptionId} class="sr-only">
     Draw with your mouse, finger or pen. With a keyboard, use the arrow keys to move the pen,
@@ -20,12 +18,12 @@ const descriptionId = `drawing-pad-${crypto.randomUUID()}`;
 </temporary-drawing-pad>
 
 <style>
-  temporary-drawing-pad { display: block; }
-
   .sketch-shell {
+    position: relative;
     display: grid;
-    padding: clamp(8px, 2vw, 12px);
-    border-radius: 12px;
+    --rim: clamp(8px, 2vw, 12px);
+    padding: var(--rim);
+    border-radius: 16px;
     background:
       radial-gradient(ellipse at 24% 0%, rgb(255 255 255 / .35), transparent 65%),
       linear-gradient(145deg, #f16a5b, #de3020 48%, #a5150d);
@@ -41,7 +39,7 @@ const descriptionId = `drawing-pad-${crypto.randomUUID()}`;
     isolation: isolate;
     overflow: hidden;
     border: 1px solid #931e16;
-    border-radius: 6px;
+    border-radius: 7px;
     background:
       radial-gradient(ellipse at 22% 10%, rgb(255 255 255 / .28), transparent 75%),
       linear-gradient(155deg, #d6d8d8, #b9bec0);
@@ -75,12 +73,20 @@ const descriptionId = `drawing-pad-${crypto.randomUUID()}`;
     cursor: crosshair;
   }
 
-  canvas:focus:not([data-pointer-focus]) {
-    outline: 2px solid #2a490d;
-    outline-offset: -3px;
-  }
+  canvas:focus { outline: none; }
 
-  canvas[data-pointer-focus] { outline: none; }
+  .sketch-shell:has(canvas:focus-visible:not([data-pointer-focus]))::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 50%;
+    inset-block-end: calc(var(--rim) / 2 - 1px);
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    background: #fff;
+    pointer-events: none;
+  }
 </style>
 
 <script>

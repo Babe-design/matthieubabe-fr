@@ -51,12 +51,6 @@ function mountPad(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) 
     }
 
     context.globalAlpha = 1;
-    if (canvas.matches(":focus") && !canvas.hasAttribute("data-pointer-focus")) {
-      context.beginPath();
-      context.arc(pen.x * width, pen.y * height, 4, 0, Math.PI * 2);
-      context.lineWidth = 1;
-      context.stroke();
-    }
 
     // A stationary stroke doesn't need a render loop until it starts fading.
     if (nextFade <= now) schedule();
@@ -159,10 +153,8 @@ function mountPad(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) 
     const step = event.shiftKey ? 18 : 6;
     pen = { x: clamp(pen.x + direction.x * step / width), y: clamp(pen.y + direction.y * step / height) };
     addPoint(pen);
-    schedule();
   }, { signal });
 
-  canvas.addEventListener("focus", schedule, { signal });
   canvas.addEventListener("blur", () => {
     delete canvas.dataset.pointerFocus;
     finishStroke();

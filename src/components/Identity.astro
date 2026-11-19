@@ -1,8 +1,25 @@
 ---
 import { site } from "../data/site";
+import construction from "../assets/identity-construction.json";
+
+// Construction outlines and Bézier handles sampled from the site's Allo font.
+const letters = ["B", "a", "b", "e"] as const;
 ---
 <header class="site-header" transition:name="identity" transition:persist="identity" transition:animate="none">
   <div class="identity-copy-window"><p class="identity-eyebrow">I’m Matthieu</p></div>
-  <a class="identity-name" href="/" aria-label="Babe — home"><span class="identity-letter">B</span><span class="identity-letter">a</span><span class="identity-letter">b</span><span class="identity-letter">e</span></a>
+  <a class="identity-name" href="/" aria-label="Babe — home">{letters.map(letter => {
+    const { width, path, handles } = construction[letter];
+    return <span class="identity-letter"><span class="identity-face">{letter}</span><svg class="identity-proof" viewBox={`0 0 ${width} 204.8`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path class="identity-guides" d={`M0 27.9H${width}M0 65.1H${width}M0 176.9H${width}M5 16V186`} />
+        <path class="identity-outline" d={path} pathLength="1" />
+        <g class="identity-points">
+          {handles.map(([[x, y], [cx, cy]]) => <g>
+            <line x1={x} y1={y} x2={cx} y2={cy} />
+            <rect x={x - 2.45} y={y - 2.45} width="4.9" height="4.9" />
+            <circle cx={cx} cy={cy} r="2.4" />
+          </g>)}
+        </g>
+      </svg><span class="identity-sticker" data-glyph={letter} aria-hidden="true"></span></span>;
+  })}</a>
   <div class="identity-copy-window"><p class="intro-line">{site.intro} at <a class="datadog-link" href={site.company.href}>{site.company.name}</a>.</p></div>
 </header>

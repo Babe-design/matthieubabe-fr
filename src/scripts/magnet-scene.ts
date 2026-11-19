@@ -109,7 +109,9 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
   const grain = makePlasticGrain();
   const letters: { mesh: Mesh; position: Vector3; rotation: Vector3 }[] = [];
   const footprints: FilledPolygon[][] = [];
-  const halfDepths: number[] = [];
+  const bevelClearances: number[] = [];
+  const bevelSize = .018;
+  const curveSegments = 32;
   for (const spec of options.icon ? specs.slice(0, 1) : specs) {
     const path = new ShapePath();
     for (const command of outlines[spec.letter] as OutlineCommand[]) {
@@ -124,9 +126,9 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
       depth: .045,
       bevelEnabled: true,
       bevelThickness: .012,
-      bevelSize: .018,
+      bevelSize,
       bevelSegments: 12,
-      curveSegments: 32,
+      curveSegments,
       steps: 1
     });
     geometry.computeBoundingBox();
@@ -135,10 +137,11 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
     const scale = spec.height / size.y;
     const localPoint = (point: Point2) => ({ x: (point.x - outlineCenter.x) * scale, y: (point.y - outlineCenter.y) * scale });
     footprints.push(shapes.map(shape => {
-      const points = shape.extractPoints(16);
+      const points = shape.extractPoints(curveSegments);
       return { outer: points.shape.map(localPoint), holes: points.holes.map(hole => hole.map(localPoint)) };
     }));
-    halfDepths.push(size.z / 2);
+    // ExtrudeGeometry caps corner miters at sqrt(2) times the bevel size.
+    bevelClearances.push(Math.SQRT2 * bevelSize * scale);
     geometry.scale(scale, scale, 1);
     geometry.center();
     const width = size.x * scale;
@@ -183,30 +186,40 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
   };
   const render = () => renderer.render(scene, camera);
   const footprintCache: { x: number; y: number; angle: number; footprint: Footprint }[] = [];
-  const footprintAt = (index: number) => {
-    const { position, rotation } = letters[index].mesh;
+  const footprintAt = (index: number, x: number, y: number) => {
+    const { rotation } = letters[index].mesh;
     const cached = footprintCache[index];
-    if (cached && cached.x === position.x && cached.y === position.y && cached.angle === rotation.z) return cached.footprint;
+    if (cached && cached.x === x && cached.y === y && cached.angle === rotation.z) return cached.footprint;
     const cos = Math.cos(rotation.z), sin = Math.sin(rotation.z);
-    const transform = (point: Point2) => ({ x: point.x * cos - point.y * sin + position.x, y: point.x * sin + point.y * cos + position.y });
+    const transform = (point: Point2) => ({ x: point.x * cos - point.y * sin + x, y: point.x * sin + point.y * cos + y });
     const footprint = makeFootprint(footprints[index].map(polygon => ({ outer: polygon.outer.map(transform), holes: polygon.holes.map(hole => hole.map(transform)) })));
-    footprintCache[index] = { x: position.x, y: position.y, angle: rotation.z, footprint };
+    footprintCache[index] = { x, y, angle: rotation.z, footprint };
     return footprint;
   };
-  const setStackingOrder = (order: number[]) => {
-    order.forEach((index, rank) => {
-      const letter = letters[index];
-      let height = letter.position.z;
-      for (let lowerRank = 0; lowerRank < rank; lowerRank++) {
-        const lower = order[lowerRank];
-        if (footprintsTouch(footprintAt(index), footprintAt(lower))) {
-          // One real plastic thickness above the letter underneath. The tiny
-          // clearance prevents coincident faces; separated magnets stay flush.
-          height = Math.max(height, letters[lower].mesh.position.z + halfDepths[lower] + halfDepths[index] + .0004);
-        }
-      }
-      letter.mesh.position.z = height;
+  const collides = (index: number, x: number, y: number) => {
+    const moving = footprintAt(index, x, y);
+    return letters.some(({ mesh }, other) => other !== index && footprintsTouch(
+      moving, footprintAt(other, mesh.position.x, mesh.position.y),
+      bevelClearances[index] + bevelClearances[other] + .004
+    ));
+  };
+
+  const updateLift = (held: number | undefined, elapsed: number, reducedMotion: boolean) => {
+    const lift = .24;
+    let height = 0;
+    let moving = false;
+    letters.forEach(({ mesh, position }, index) => {
+      const target = position.z + (index === held ? lift : 0);
+      const timeConstant = index === held ? 32 : 23;
+      const remaining = (mesh.position.z - target) * Math.exp(-elapsed / timeConstant);
+      const animating = !reducedMotion && Math.abs(remaining) > .001;
+      mesh.position.z = target + (animating ? remaining : 0);
+      height = Math.max(height, mesh.position.z - position.z);
+      moving ||= animating;
     });
+    light.shadow.radius = 3 + 2.5 * height / lift;
+    (surface.material as ShadowMaterial).opacity = .15 + .045 * height / lift;
+    return moving;
   };
   const raycaster = new Raycaster();
   const pickLetter = (x: number, y: number) => {
@@ -228,14 +241,72 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
     const max = box.max.clone().project(camera);
     return { x: (min.x + 1) / 2, y: (1 - max.y) / 2, width: (max.x - min.x) / 2, height: (max.y - min.y) / 2 };
   };
-  const moveLetter = (index: number, x: number, y: number, padding: number) => {
+  const boundPosition = (index: number, x: number, y: number, padding: number) => {
     const mesh = letters[index].mesh;
-    mesh.position.x = x;
-    mesh.position.y = y;
     mesh.updateWorldMatrix(true, false);
     const box = new Box3().setFromObject(mesh);
-    mesh.position.x += Math.max(0, camera.left + padding - box.min.x) + Math.min(0, camera.right - padding - box.max.x);
-    mesh.position.y += Math.max(0, camera.bottom + padding - box.min.y) + Math.min(0, camera.top - padding - box.max.y);
+    const minX = mesh.position.x + camera.left + padding - box.min.x;
+    const maxX = mesh.position.x + camera.right - padding - box.max.x;
+    const minY = mesh.position.y + camera.bottom + padding - box.min.y;
+    const maxY = mesh.position.y + camera.top - padding - box.max.y;
+    return { x: Math.max(minX, Math.min(x, maxX)), y: Math.max(minY, Math.min(y, maxY)) };
+  };
+
+  const moveLetter = (index: number, x: number, y: number, padding: number) => {
+    const { position } = letters[index].mesh;
+    const target = boundPosition(index, x, y, padding);
+    const start = { x: position.x, y: position.y };
+
+    function sweep(to: Point2) {
+      const fromX = position.x, fromY = position.y;
+      const dx = to.x - fromX, dy = to.y - fromY;
+      if (Math.abs(dx) + Math.abs(dy) < .0001) return true;
+      const steps = Math.ceil(Math.hypot(dx, dy) / .065);
+      for (let step = 1; step <= steps; step++) {
+        let end = step / steps;
+        if (collides(index, fromX + dx * end, fromY + dy * end)) {
+          let safe = (step - 1) / steps;
+          for (let j = 0; j < 7; j++) {
+            const mid = (safe + end) / 2;
+            if (collides(index, fromX + dx * mid, fromY + dy * mid)) end = mid;
+            else safe = mid;
+          }
+          position.x = fromX + dx * safe;
+          position.y = fromY + dy * safe;
+          return false;
+        }
+      }
+      position.x = to.x;
+      position.y = to.y;
+      return true;
+    }
+
+    // Follow the pointer's path, then let the free axis slide along the edge.
+    if (!sweep(target)) {
+      sweep({ x: target.x, y: position.y });
+      sweep({ x: position.x, y: target.y });
+    }
+    return Math.abs(position.x - start.x) + Math.abs(position.y - start.y) > .001;
+  };
+
+  const resetLetters = (index?: number) => {
+    if (index === undefined) {
+      letters.forEach(({ mesh, position }) => mesh.position.copy(position));
+    } else {
+      const { mesh, position } = letters[index];
+      if (collides(index, position.x, position.y)) return false;
+      mesh.position.copy(position);
+    }
+    return true;
+  };
+
+  const fitLetters = (padding: number) => {
+    letters.forEach(({ mesh }, index) => {
+      const bounded = boundPosition(index, mesh.position.x, mesh.position.y, padding);
+      mesh.position.x = bounded.x;
+      mesh.position.y = bounded.y;
+    });
+    if (letters.some(({ mesh }, index) => collides(index, mesh.position.x, mesh.position.y))) resetLetters();
   };
   const resize = (cssWidth: number, cssHeight: number) => {
     renderer.setSize(cssWidth, cssHeight, false);
@@ -257,5 +328,5 @@ export function createMagnetScene(canvas: HTMLCanvasElement, pixelRatio = Math.m
     grain.dispose();
     renderer.dispose();
   };
-  return { renderer, scene, camera, word, letters, poseEntrance, setStackingOrder, pickLetter, pointerPosition, letterRect, moveLetter, resize, render, dispose };
+  return { renderer, scene, camera, word, letters, poseEntrance, updateLift, pickLetter, pointerPosition, letterRect, moveLetter, resetLetters, fitLetters, resize, render, dispose };
 }
