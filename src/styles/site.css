@@ -241,10 +241,11 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
 
 /* The letters overlap in reading order, then the page follows the final settle. */
 .is-home {
-  --letter-start: 200ms;
-  --letter-span: 650ms;
-  --letter-step: 465ms;
+  --letter-start: 135ms;
+  --letter-span: 510ms;
+  --letter-step: 345ms;
   --name-end: calc(var(--letter-start) + 3 * var(--letter-step) + var(--letter-span));
+  --spacing-settle: calc(.32 * var(--letter-span));
 }
 html:is([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-copy-window:not(:focus-within) { overflow: clip; overflow-clip-margin: 2px; }
 html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) { opacity: 0; }
@@ -274,7 +275,9 @@ html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, 
       --intro-squash: .975;
       isolation: isolate;
       transform-origin: 50% 78%;
-      animation: identity-letter-in var(--letter-span) linear var(--letter-delay) both;
+      animation:
+        identity-letter-in var(--letter-span) linear var(--letter-delay) both,
+        identity-letter-spacing var(--spacing-settle) var(--ease-out) calc(var(--name-end) - var(--spacing-settle)) both;
     }
     .identity-letter:nth-child(2) { --intro-x: .055em; --intro-y: .04em; --intro-angle: 5deg; }
     .identity-letter:nth-child(3) {
@@ -342,6 +345,10 @@ html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opa
   52% { transform: translate(0, calc(-.46 * var(--intro-crest))) rotate(calc(.09 * var(--intro-angle))) scale(.991, 1.013); animation-timing-function: ease-in-out; }
   76% { transform: translate(0, calc(.14 * var(--intro-crest))) rotate(calc(-.03 * var(--intro-angle))) scale(1.004, .996); animation-timing-function: ease-out; }
   100% { transform: translate(0, 0) rotate(0) scale(1); }
+}
+@keyframes identity-letter-spacing {
+  from { translate: calc(.038em * var(--letter-index)) 0; }
+  to { translate: 0 0; }
 }
 @keyframes identity-art-first {
   0% { opacity: 0; }
