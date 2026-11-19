@@ -242,10 +242,10 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
 /* The letters overlap in reading order, then the page follows the final settle. */
 .is-home {
   --letter-start: 120ms;
-  --letter-span: 480ms;
+  --letter-span: 440ms;
   --letter-step: 360ms;
   --name-end: calc(var(--letter-start) + 3 * var(--letter-step) + var(--letter-span));
-  --spacing-settle: calc(.36 * var(--letter-span));
+  --spacing-settle: calc(.4 * var(--letter-span));
 }
 html:is([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-copy-window:not(:focus-within) { overflow: clip; overflow-clip-margin: 2px; }
 html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) { opacity: 0; }
@@ -267,6 +267,7 @@ html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, 
   html[data-entrance="ready"] .is-home .identity-name:not(:focus-visible) {
     .identity-letter {
       --letter-delay: calc(var(--letter-start) + var(--letter-index) * var(--letter-step));
+      --letter-spread: 0em;
       --face-fade: calc(.14 * var(--letter-span));
       --intro-x: -.09em;
       --intro-y: .065em;
@@ -279,15 +280,16 @@ html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, 
         identity-letter-in var(--letter-span) linear var(--letter-delay) both,
         identity-letter-spacing var(--spacing-settle) linear calc(var(--name-end) - var(--spacing-settle)) both;
     }
-    .identity-letter:nth-child(2) { --intro-x: .055em; --intro-y: .04em; --intro-angle: 5deg; }
+    .identity-letter:nth-child(2) { --letter-spread: .042em; --intro-x: .055em; --intro-y: .04em; --intro-angle: 5deg; }
     .identity-letter:nth-child(3) {
+      --letter-spread: .121em;
       --intro-x: .012em;
       --intro-y: -.11em;
       --intro-angle: -6deg;
       --intro-crest: .024em;
       --intro-squash: .93;
     }
-    .identity-letter:nth-child(4) { --intro-x: .09em; --intro-y: .03em; --intro-angle: 8deg; }
+    .identity-letter:nth-child(4) { --letter-spread: .261em; --intro-x: .09em; --intro-y: .03em; --intro-angle: 8deg; }
     .identity-face, .identity-art { mix-blend-mode: plus-lighter; }
     .identity-face {
       animation: identity-face-in var(--face-fade) ease-in-out calc(var(--letter-delay) + var(--face-offset, 0ms)) both;
@@ -348,7 +350,7 @@ html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opa
 }
 @keyframes identity-letter-spacing {
   from {
-    translate: calc(.047em * var(--letter-index)) 0;
+    translate: var(--letter-spread) 0;
     animation-timing-function: cubic-bezier(.28,.1,.36,1);
   }
   64% {
