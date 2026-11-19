@@ -1,6 +1,7 @@
 ---
 import { site } from "../data/site";
 import construction from "../assets/identity-construction.json";
+import IdentityMaterial from "./IdentityMaterial.astro";
 
 // Construction outlines and Bézier handles sampled from the site's Allo font.
 const letters = ["B", "a", "b", "e"] as const;
@@ -19,7 +20,7 @@ const letters = ["B", "a", "b", "e"] as const;
             <circle cx={cx} cy={cy} r="2.4" />
           </g>)}
         </g>
-      </svg><span class="identity-sticker" data-glyph={letter} aria-hidden="true"></span>{letter === "b" && <span class="identity-gel" aria-hidden="true"><img src="/images/identity/gummy-b.webp" alt="" width="360" height="480" decoding="async" /></span>}</span>;
+      </svg>{letter === "b" ? <><span class="identity-sticker" data-glyph={letter} aria-hidden="true"></span><span class="identity-gel" aria-hidden="true"><img src="/images/identity/gummy-b.webp" alt="" width="360" height="480" decoding="async" /></span></> : <IdentityMaterial letter={letter} />}</span>;
   })}</a>
   <div class="identity-copy-window"><p class="intro-line">{site.intro} at <a class="datadog-link" href={site.company.href}>{site.company.name}</a>.</p></div>
 </header>

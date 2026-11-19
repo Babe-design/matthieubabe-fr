@@ -6,7 +6,7 @@ function loadGelWhileOpening(root: HTMLElement) {
   void image.decode().then(() => {
     const face = letter.querySelector(".identity-face");
     const entrance = face?.getAnimations().find(animation =>
-      animation instanceof CSSAnimation && animation.animationName === "identity-face-in"
+      animation instanceof CSSAnimation && animation.animationName === "identity-gel-face"
     );
     // Enable the texture before this letter starts, or finish with its blue sticker.
     const delay = entrance?.effect?.getTiming().delay;
@@ -31,7 +31,7 @@ function initEntrance() {
         clearTimeout(fallback);
         if (root.dataset.entrance === "ready") root.dataset.entrance = "complete";
       };
-      const fallback = setTimeout(complete, 3500);
+      const fallback = setTimeout(complete, 3700);
       // Release the copy masks and animation styles when the entrance settles.
       requestAnimationFrame(() => {
         const animations = document.getAnimations().filter(animation =>

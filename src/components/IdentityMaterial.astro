@@ -1,0 +1,162 @@
+---
+interface Props {
+  letter: "B" | "a" | "e";
+}
+
+const { letter } = Astro.props;
+const ribbon = "M21 99H81C81 75 69 61 50 61C27 61 13 78 13 99C13 121 30 134 51 134C67 134 76 126 82 117";
+---
+<svg class="letter-material" data-letter={letter} viewBox="0 0 100 160" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+  {letter === "B" ? (
+    <>
+      <g class="fold-spine">
+        <path d="M14 24L31 19V137L14 142Z" fill="#e3a321" />
+        <path d="M7 27L14 24V142L7 136Z" fill="#ad6d10" />
+        <path d="M14 24L31 19V55L14 67Z" fill="#ffe896" />
+        <path d="M14 67L31 55V105L14 116Z" fill="#f4bf32" />
+        <path d="M14 116L31 105V137L14 142Z" fill="#ffd347" />
+      </g>
+      <g class="fold-upper">
+        <path d="M31 19H60L83 29L97 46V60L85 76L62 89H31V65H59L71 56V48L59 41H31Z" fill="#ffd549" />
+        <path d="M31 19H60L83 29L59 41H31Z" fill="#fff2ad" />
+        <path d="M59 41L83 29L97 46V60L71 56V48Z" fill="#ffdf64" />
+        <path d="M59 65L71 56L97 60L85 76L62 89H31V65Z" fill="#db9118" />
+        <path d="M31 65H59L62 89H31Z" fill="#f8bc36" />
+      </g>
+      <g class="fold-lower">
+        <path d="M31 79H64L88 90L99 108V120L87 133L65 142H31V119H63L73 114V105L62 100H31Z" fill="#fad14b" />
+        <path d="M31 79H64L88 90L62 100H31Z" fill="#fff0a2" />
+        <path d="M62 100L88 90L99 108V120L73 114V105Z" fill="#ffe273" />
+        <path d="M63 119L73 114L99 120L87 133L65 142H31V119Z" fill="#d68a13" />
+        <path d="M31 119H63L65 142H31Z" fill="#f6b92e" />
+      </g>
+    </>
+  ) : letter === "a" ? (
+    <>
+      <g class="tile-top">
+        <path d="M7 91C8 66 25 50 47 50C61 50 72 56 81 67L70 83C65 76 58 73 49 73C39 73 31 79 29 91Z" fill="#bcea54" />
+        <path d="M7 91C8 66 25 50 47 50C59 50 70 55 78 64C67 58 57 56 47 56C28 56 14 70 11 91Z" fill="#d7f77e" />
+      </g>
+      <g class="tile-bottom">
+        <path d="M7 96H29C31 108 38 116 49 116C58 116 65 112 70 105L80 122C72 134 61 141 47 141C24 141 8 123 7 96Z" fill="#449537" />
+        <path d="M8 111C14 128 29 135 47 135C58 135 68 131 76 119L80 122C72 134 61 141 47 141C28 141 14 128 8 111Z" fill="#2d752f" />
+      </g>
+      <g class="tile-stem">
+        <rect x="74" y="53" width="23" height="88" rx="4" fill="#226843" />
+        <path d="M78 53H93Q97 53 97 57V101L74 91V57Q74 53 78 53Z" fill="#75c246" />
+        <path d="M74 91L97 101V108L74 98Z" fill="#428c3e" />
+      </g>
+    </>
+  ) : (
+    <>
+      <defs>
+        <linearGradient id="identity-mint-ribbon" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stop-color="#21a892" />
+          <stop offset=".35" stop-color="#8af0d3" />
+          <stop offset=".49" stop-color="#dcfff3" />
+          <stop offset=".58" stop-color="#6fddc2" />
+          <stop offset=".83" stop-color="#58c8b2" />
+          <stop offset="1" stop-color="#b3f8e4" />
+        </linearGradient>
+      </defs>
+      <g class="ribbon-roll">
+        <path class="ribbon-line" d={ribbon} pathLength="1" fill="none" stroke="#167d73" stroke-width="16" transform="translate(1 4)" />
+        <path class="ribbon-line" d={ribbon} pathLength="1" fill="none" stroke="url(#identity-mint-ribbon)" stroke-width="16" />
+      </g>
+    </>
+  )}
+</svg>
+
+<style>
+  .letter-material {
+    display: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html[data-entrance="ready"] .is-home .identity-name:not(:focus-visible)) .letter-material {
+      display: block;
+      animation-duration: var(--letter-duration);
+      animation-delay: var(--letter-delay);
+      animation-fill-mode: both;
+    }
+
+    .letter-material[data-letter="B"] { animation-name: identity-material-fold; }
+    .letter-material[data-letter="a"] { animation-name: identity-material-tiles; }
+    .letter-material[data-letter="e"] { animation-name: identity-material-ribbon; }
+
+    .fold-spine, .fold-upper, .fold-lower, .tile-top, .tile-bottom, .tile-stem, .ribbon-roll, .ribbon-line {
+      transform-box: view-box;
+      animation-duration: var(--letter-duration);
+      animation-delay: var(--letter-delay);
+      animation-fill-mode: both;
+    }
+
+    .fold-spine { animation-name: identity-material-fold-spine; }
+    .fold-upper { transform-origin: 31% 35%; animation-name: identity-material-fold-upper; }
+    .fold-lower { transform-origin: 31% 66%; animation-name: identity-material-fold-lower; }
+
+    .tile-top { animation-name: identity-material-tile-top; }
+    .tile-bottom { animation-name: identity-material-tile-bottom; }
+    .tile-stem { animation-name: identity-material-tile-stem; }
+
+    .ribbon-roll { transform-origin: 50% 70%; animation-name: identity-material-ribbon-roll; }
+    .ribbon-line { animation-name: identity-material-ribbon-trace; }
+  }
+
+  @keyframes identity-material-fold {
+    0%, 29% { opacity: 0; }
+    43%, 68% { opacity: 1; }
+    88%, 100% { opacity: 0; }
+  }
+  @keyframes identity-material-fold-spine {
+    0%, 28% { transform: translateY(7px); }
+    48%, 100% { transform: translateY(0); }
+  }
+  @keyframes identity-material-fold-upper {
+    0%, 30% { transform: scaleX(.06) skewY(-12deg); }
+    48% { transform: scaleX(1.028) skewY(1deg); }
+    58%, 100% { transform: scaleX(1); }
+  }
+  @keyframes identity-material-fold-lower {
+    0%, 35% { transform: scaleX(.06) skewY(10deg); }
+    53% { transform: scaleX(1.018) skewY(-1deg); }
+    62%, 100% { transform: scaleX(1); }
+  }
+  @keyframes identity-material-tiles {
+    0%, 28% { opacity: 0; }
+    42%, 67% { opacity: 1; }
+    87%, 100% { opacity: 0; }
+  }
+  @keyframes identity-material-tile-top {
+    0%, 29% { transform: translate(-13px, -4px); opacity: 0; }
+    49%, 100% { transform: translate(0, 0); opacity: 1; }
+  }
+  @keyframes identity-material-tile-bottom {
+    0%, 34% { transform: translate(9px, 6px); opacity: 0; }
+    53%, 100% { transform: translate(0, 0); opacity: 1; }
+  }
+  @keyframes identity-material-tile-stem {
+    0%, 38% { transform: translateY(-12px); opacity: 0; }
+    57%, 100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes identity-material-ribbon {
+    0%, 27% { opacity: 0; }
+    38%, 68% { opacity: 1; }
+    89%, 100% { opacity: 0; }
+  }
+  @keyframes identity-material-ribbon-roll {
+    0%, 28% { transform: rotate(-6deg) scaleY(.88); }
+    56% { transform: rotate(1deg) scaleY(1.024); }
+    68%, 100% { transform: rotate(0) scaleY(1); }
+  }
+  @keyframes identity-material-ribbon-trace {
+    0%, 28% { stroke-dasharray: 1; stroke-dashoffset: 1; }
+    55%, 100% { stroke-dasharray: 1; stroke-dashoffset: 0; }
+  }
+</style>

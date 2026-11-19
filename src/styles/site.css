@@ -264,7 +264,7 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
 .is-home {
   --letter-start: 200ms;
   --letter-span: 500ms;
-  --gel-span: 600ms;
+  --gel-span: 760ms;
   --name-end: calc(var(--letter-start) + 3 * var(--letter-span) + var(--gel-span));
 }
 html:is([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-copy-window:not(:focus-within) { overflow: clip; overflow-clip-margin: 2px; }
@@ -274,17 +274,13 @@ html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, 
     --letter-index: 0;
     --letter-duration: var(--letter-span);
     --letter-delay: calc(var(--letter-start) + var(--letter-index) * var(--letter-span));
-    --material-fill: #ffdf4f;
     --material-edge: #ef970c;
     --material-shadow: #76490c;
-    --sticker-tilt: -6deg;
   }
   .identity-letter:nth-child(2) {
     --letter-index: 1;
-    --material-fill: #b7eb53;
     --material-edge: #439a32;
     --material-shadow: #1b512c;
-    --sticker-tilt: 5deg;
   }
   .identity-letter:nth-child(3) {
     --letter-index: 2;
@@ -292,14 +288,11 @@ html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, 
     --material-fill: #73d5f9;
     --material-edge: #1685ca;
     --material-shadow: #153d69;
-    --sticker-tilt: -4deg;
   }
   .identity-letter:nth-child(4) {
     --letter-delay: calc(var(--name-end) - var(--letter-span));
-    --material-fill: #69e0c9;
     --material-edge: #139a91;
     --material-shadow: #164e50;
-    --sticker-tilt: 5deg;
   }
   html[data-entrance="ready"] .is-home .identity-name:not(:focus-visible) {
     .identity-proof { display: block; animation: identity-proof-in var(--letter-duration) linear var(--letter-delay) both; }
@@ -308,18 +301,19 @@ html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, 
     .identity-sticker { display: block; animation: identity-sticker-in var(--letter-duration) ease-in-out var(--letter-delay) both; }
     .identity-face { animation: identity-face-in var(--letter-duration) var(--ease-out) var(--letter-delay) both; }
     .identity-letter[data-material="gel"] {
-      .identity-proof, .identity-gel { mask-size: 100% 225%; mask-repeat: no-repeat; }
+      .identity-proof, .identity-gel { mask-size: 100% 245%; mask-repeat: no-repeat; }
       .identity-proof {
-        mask-image: linear-gradient(#000 45%, transparent 51%);
+        mask-image: linear-gradient(169deg, #000 46%, transparent 54%);
         animation-name: identity-gel-outline;
       }
       .identity-gel {
         display: block;
         visibility: hidden;
-        mask-image: linear-gradient(transparent 45%, #000 51%);
+        mask-image: linear-gradient(169deg, transparent 46%, #000 54%);
         animation: identity-gel-rise var(--letter-duration) linear var(--letter-delay) both;
       }
-      .identity-gel img { animation: identity-gel-settle var(--letter-duration) ease-in-out var(--letter-delay) both; }
+      .identity-gel img { animation: identity-gel-settle var(--letter-duration) linear var(--letter-delay) both; }
+      .identity-face { animation: identity-gel-face var(--letter-duration) ease-in-out var(--letter-delay) both; }
     }
     .identity-letter[data-gel-ready] {
       .identity-sticker { visibility: hidden; }
@@ -348,29 +342,35 @@ html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opa
 @keyframes identity-trace { from { stroke-dasharray: 1; stroke-dashoffset: 1; } to { stroke-dasharray: 1; stroke-dashoffset: 0; } }
 @keyframes identity-points-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes identity-sticker-in {
-  0%, 32% { opacity: 0; transform: translateY(5px) rotate(var(--sticker-tilt)) scale(.88); }
-  49%, 65% { opacity: 1; transform: translateY(-2px) rotate(var(--sticker-tilt)) scale(.93); }
+  0%, 32% { opacity: 0; transform: translateY(5px) rotate(-4deg) scale(.88); }
+  49%, 65% { opacity: 1; transform: translateY(-2px) rotate(-4deg) scale(.93); }
   86%, 100% { opacity: 0; transform: translateY(0) rotate(0) scale(.97); }
 }
 /* The outline and the blue material share the same rising, feathered seam. */
 @keyframes identity-gel-outline {
-  0% { opacity: 0; transform: translateY(4px); mask-position: 0 0; }
-  10%, 28% { opacity: 1; transform: translateY(0); mask-position: 0 0; }
-  54% { opacity: 1; transform: translateY(0); mask-position: 0 100%; }
-  55%, 100% { opacity: 0; transform: translateY(0); mask-position: 0 100%; }
+  0% { opacity: 0; transform: translateY(3px); mask-position: 0 0; }
+  12%, 24% { opacity: 1; transform: translateY(0); mask-position: 0 0; animation-timing-function: cubic-bezier(.42,.05,.27,1); }
+  56% { opacity: 1; transform: translateY(0); mask-position: 0 100%; }
+  60%, 100% { opacity: 0; transform: translateY(0); mask-position: 0 100%; }
 }
 @keyframes identity-gel-rise {
-  0%, 27% { opacity: 0; mask-position: 0 0; }
-  28% { opacity: 1; mask-position: 0 0; }
-  54%, 70% { opacity: 1; mask-position: 0 100%; }
-  88%, 100% { opacity: 0; mask-position: 0 100%; }
+  0%, 20% { opacity: 0; mask-position: 0 0; }
+  24% { opacity: 1; mask-position: 0 0; animation-timing-function: cubic-bezier(.42,.05,.27,1); }
+  56%, 69% { opacity: 1; mask-position: 0 100%; animation-timing-function: ease-in-out; }
+  94%, 100% { opacity: 0; mask-position: 0 100%; }
 }
 @keyframes identity-gel-settle {
-  0%, 28% { transform: translateY(.055em) rotate(-6deg) skewX(-5deg) scale(.92, 1.07); }
-  47% { transform: translateY(-.032em) rotate(-2deg) skewX(3deg) scale(.94, 1.07); }
-  56% { transform: translateY(.01em) rotate(2deg) skewX(-2deg) scale(1.06, .94); }
-  66% { transform: rotate(-1deg) scale(.985, 1.025); }
-  77%, 100% { transform: rotate(0) scale(1); }
+  0%, 24% { transform: translateY(.035em) rotate(-4.5deg) skewX(-3deg) scale(.964, 1.042); }
+  34% { transform: translateY(.022em) rotate(-3.8deg) skewX(-2.3deg) scale(.971, 1.035); }
+  44% { transform: translateY(-.009em) rotate(-1deg) skewX(-.2deg) scale(.995, 1.012); }
+  53% { transform: translateY(-.017em) rotate(1.35deg) skewX(1.1deg) scale(1.024, .98); }
+  60% { transform: translateY(-.006em) rotate(.55deg) skewX(.45deg) scale(1.013, .991); }
+  67% { transform: translateY(.004em) rotate(-.44deg) skewX(-.32deg) scale(.993, 1.007); }
+  75%, 100% { transform: translateY(0em) rotate(0deg) skewX(0deg) scale(1, 1); }
+}
+@keyframes identity-gel-face {
+  0%, 69% { opacity: 0; transform: translateY(.012em); }
+  94%, 100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes identity-face-in {
   0%, 71% { opacity: 0; transform: translateY(3px); }
