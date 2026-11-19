@@ -239,11 +239,12 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
   .changelog-sheet[open], .changelog-sheet.is-closing, .changelog-sheet::backdrop { animation: none; }
 }
 
-/* Reading order: a quiet hello, the name letter by letter, then the page. */
+/* The letters overlap in reading order, then the page follows the final settle. */
 .is-home {
   --letter-start: 200ms;
   --letter-span: 650ms;
-  --name-end: calc(var(--letter-start) + 4 * var(--letter-span));
+  --letter-step: 465ms;
+  --name-end: calc(var(--letter-start) + 3 * var(--letter-step) + var(--letter-span));
 }
 html:is([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-copy-window:not(:focus-within) { overflow: clip; overflow-clip-margin: 2px; }
 html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) { opacity: 0; }
@@ -264,7 +265,7 @@ html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, 
   }
   html[data-entrance="ready"] .is-home .identity-name:not(:focus-visible) {
     .identity-letter {
-      --letter-delay: calc(var(--letter-start) + var(--letter-index) * var(--letter-span));
+      --letter-delay: calc(var(--letter-start) + var(--letter-index) * var(--letter-step));
       --face-fade: calc(.14 * var(--letter-span));
       --intro-x: -.09em;
       --intro-y: .065em;
