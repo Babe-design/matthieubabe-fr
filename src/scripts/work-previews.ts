@@ -7,7 +7,7 @@ function initWorkPreviews() {
   const desktop = matchMedia("(min-width: 1024px) and (any-hover: hover)");
   const cards = [...previews.querySelectorAll<HTMLElement>("[data-preview-card]")];
   let imagesWarmed = false;
-  let hovered: string | undefined;
+  let hovered: string | null | undefined;
   let focused: string | undefined;
   const update = () => {
     previews.hidden = !desktop.matches;
@@ -18,7 +18,7 @@ function initWorkPreviews() {
         void image.decode().catch(() => {});
       });
     }
-    const active = desktop.matches ? hovered || focused : undefined;
+    const active = desktop.matches ? (hovered === undefined ? focused : hovered) : undefined;
     cards.forEach(card => card.toggleAttribute("data-visible", card.dataset.previewCard === active));
     if (active) {
       const height = cards.find(card => card.dataset.previewCard === active)?.offsetHeight || 0;
@@ -26,13 +26,17 @@ function initWorkPreviews() {
       previews.style.top = `${Math.max(32, Math.min(top, innerHeight - height - 32))}px`;
     }
   };
-  list.querySelectorAll<HTMLAnchorElement>("[data-preview]").forEach(link => {
+  list.querySelectorAll<HTMLAnchorElement>(".work-link").forEach(link => {
     link.addEventListener("pointerenter", event => {
       if (event.pointerType === "touch") return;
-      hovered = link.dataset.preview;
+      hovered = link.dataset.preview ?? null;
       update();
     }, { signal });
-    link.addEventListener("focus", () => { focused = link.dataset.preview; update(); }, { signal });
+    link.addEventListener("focus", () => {
+      if (link.matches(":focus-visible")) hovered = undefined;
+      focused = link.dataset.preview;
+      update();
+    }, { signal });
     link.addEventListener("blur", () => { focused = undefined; update(); }, { signal });
   });
   list.addEventListener("pointerleave", () => { hovered = undefined; update(); }, { signal });

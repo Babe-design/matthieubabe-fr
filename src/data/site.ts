@@ -19,7 +19,15 @@ export const site = {
   ]
 };
 
-export const work = [
+type WorkEntry = {
+  id: string;
+  title: string;
+  detail: string;
+  href: string;
+  preview?: { image: string; width: number; height: number; caption: string };
+};
+
+export const work: readonly WorkEntry[] = [
   {
     id: "ai-guard",
     title: "AI Guard",
@@ -28,13 +36,39 @@ export const work = [
     preview: { image: "/images/work/ai-guard-signals.webp", width: 1600, height: 900, caption: "AI Guard · Datadog" }
   },
   {
+    id: "luko",
+    title: "Luko",
+    detail: "Senior Product Designer · 2022",
+    href: "https://dribbble.com/shots/22707764-Staging-App-icon",
+    preview: { image: "/images/work/luko-staging-icon.webp", width: 1600, height: 1200, caption: "Staging app icon · Luko" }
+  },
+  {
+    id: "weweb",
+    title: "WeWeb",
+    detail: "Design system · 2020",
+    href: "https://dribbble.com/shots/14641587-WeWeb-Cube-Design-system",
+    preview: { image: "/images/work/weweb-cube.webp", width: 1600, height: 1200, caption: "Cube Design System · WeWeb" }
+  },
+  {
+    id: "cityscoot",
+    title: "Cityscoot",
+    detail: "Product design · 2019",
+    href: "https://medium.com/cityscoot"
+  },
+  {
+    id: "pinpo",
+    title: "Pinpo",
+    detail: "Co-founder & Head of Design · 2015",
+    href: "https://www.maddyness.com/2016/04/19/app-pinpo/"
+  },
+  {
     id: "the-care-era",
     title: "The care era",
     detail: "Writing · 2026",
     href: "https://medium.com/@MatthieuBabe/the-care-era-7342fbb5f832",
     preview: { image: "/images/work/the-care-era.webp", width: 1024, height: 1024, caption: "The care era · Medium" }
   }
-] as const;
+];
 
 // Newest first. Use an ISO timestamp with a timezone for every published update.
 // One descriptive title, then up to three short bullets.
@@ -45,6 +79,11 @@ type ChangelogEntry = {
 };
 
 export const changelog: ChangelogEntry[] = [
+  {
+    date: "2026-11-19T17:10:52Z",
+    title: "Earlier projects in Work",
+    changes: ["Added Luko, WeWeb, Cityscoot and Pinpo to the portfolio."]
+  },
   {
     date: "2026-11-19T17:00:12Z",
     title: "A springier landing",
