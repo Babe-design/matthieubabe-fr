@@ -23,7 +23,7 @@ const canonical = new URL(Astro.url.pathname, site.url);
           document.documentElement.dataset.entrance = "pending";
           // Reveal even if the module or font fails to load.
           setTimeout(() => {
-            if (document.documentElement.dataset.entrance === "pending") document.documentElement.dataset.entrance = "ready";
+            if (document.documentElement.dataset.entrance === "pending") document.documentElement.dataset.entrance = "complete";
           }, 1600);
         }
       })();

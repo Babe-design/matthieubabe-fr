@@ -61,44 +61,21 @@ p { margin: 0; }
 .intro-line { font-size: clamp(18px, calc(1vw + 15px), 22px); font-weight: 500; line-height: 1.3; letter-spacing: -.02em; }
 .identity-letter { position: relative; display: inline-block; }
 .identity-face { display: inline-block; }
-.identity-proof, .identity-sticker, .identity-gel { display: none; position: absolute; inset: 0; pointer-events: none; }
-.identity-proof { width: 100%; height: 100%; overflow: visible; }
-.identity-guides { fill: none; stroke: color-mix(in srgb, var(--material-edge) 28%, white); stroke-width: 1; stroke-dasharray: 3 3; }
-.identity-outline { fill: none; stroke: var(--material-shadow); stroke-width: 1.9; stroke-linejoin: round; }
-.identity-points line { stroke: var(--material-edge); stroke-width: .9; }
-.identity-points rect { fill: white; stroke: var(--material-shadow); stroke-width: 1.1; }
-.identity-points circle { fill: var(--material-edge); }
-.identity-sticker {
-  font-weight: 900;
-  font-variation-settings: "ROND" 100;
-  font-feature-settings: "ss01";
-  transform-origin: 50% 65%;
-}
-.identity-sticker::before, .identity-sticker::after {
-  content: attr(data-glyph);
+.identity-art {
   position: absolute;
   inset: 0;
-  paint-order: stroke fill;
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: 50% 78%;
 }
-.identity-sticker::before {
-  color: var(--material-shadow);
-  -webkit-text-stroke: .18em var(--material-shadow);
-  filter: drop-shadow(.015em .032em 0 var(--material-shadow)) drop-shadow(.015em .032em 0 var(--material-shadow));
-}
-.identity-sticker::after {
-  color: var(--material-fill);
-  -webkit-text-stroke: .094em var(--material-edge);
-}
-.identity-gel img {
+.identity-art img {
   position: absolute;
-  top: .027em;
-  left: calc(50% - .345em);
-  width: .69em;
-  height: .92em;
+  top: 0;
+  left: calc(50% - .444444em);
+  width: .888889em;
+  height: 1em;
   max-width: none;
-  object-fit: contain;
-  filter: drop-shadow(0 .018em .026em rgb(18 55 76 / .23));
-  transform-origin: 50% 77%;
+  user-select: none;
 }
 .portfolio-head { padding-top: 40px; font-size: 15px; line-height: 1.5; }
 .intro-line { color: var(--ink); }
@@ -263,62 +240,61 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
 /* Reading order: a quiet hello, the name letter by letter, then the page. */
 .is-home {
   --letter-start: 200ms;
-  --letter-span: 500ms;
-  --gel-span: 760ms;
-  --name-end: calc(var(--letter-start) + 3 * var(--letter-span) + var(--gel-span));
+  --letter-span: 660ms;
+  --name-end: calc(var(--letter-start) + 4 * var(--letter-span));
 }
 html:is([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-copy-window:not(:focus-within) { overflow: clip; overflow-clip-margin: 2px; }
 html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) { opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
-  .identity-letter {
-    --letter-index: 0;
-    --letter-duration: var(--letter-span);
-    --letter-delay: calc(var(--letter-start) + var(--letter-index) * var(--letter-span));
-    --material-edge: #ef970c;
-    --material-shadow: #76490c;
+  .identity-art {
+    --entry-x: -.11em;
+    --entry-y: -.085em;
+    --entry-angle: -16deg;
+    --squash: .92;
   }
+  .identity-art[data-variant="2"] { --entry-x: .08em; --entry-y: .075em; --entry-angle: 13deg; }
   .identity-letter:nth-child(2) {
-    --letter-index: 1;
-    --material-edge: #439a32;
-    --material-shadow: #1b512c;
+    .identity-art[data-variant="1"] { --entry-x: -.13em; --entry-y: -.02em; --entry-angle: 8deg; --squash: .97; }
+    .identity-art[data-variant="2"] { --entry-x: .025em; --entry-y: .1em; --entry-angle: -13deg; }
   }
   .identity-letter:nth-child(3) {
-    --letter-index: 2;
-    --letter-duration: var(--gel-span);
-    --material-fill: #73d5f9;
-    --material-edge: #1685ca;
-    --material-shadow: #153d69;
+    .identity-art[data-variant="1"] { --entry-x: .016em; --entry-y: -.18em; --entry-angle: 11deg; --squash: .8; }
+    .identity-art[data-variant="2"] { --entry-x: -.032em; --entry-y: -.115em; --entry-angle: -9deg; --squash: .84; }
   }
   .identity-letter:nth-child(4) {
-    --letter-delay: calc(var(--name-end) - var(--letter-span));
-    --material-edge: #139a91;
-    --material-shadow: #164e50;
+    .identity-art[data-variant="1"] { --entry-x: .12em; --entry-y: .022em; --entry-angle: -8deg; --squash: .97; }
+    .identity-art[data-variant="2"] { --entry-x: .06em; --entry-y: .075em; --entry-angle: 20deg; --squash: .89; }
   }
   html[data-entrance="ready"] .is-home .identity-name:not(:focus-visible) {
-    .identity-proof { display: block; animation: identity-proof-in var(--letter-duration) linear var(--letter-delay) both; }
-    .identity-outline { animation: identity-trace 145ms var(--ease-out) var(--letter-delay) both; }
-    .identity-points { animation: identity-points-in 105ms ease calc(var(--letter-delay) + 35ms) both; }
-    .identity-sticker { display: block; animation: identity-sticker-in var(--letter-duration) ease-in-out var(--letter-delay) both; }
-    .identity-face { animation: identity-face-in var(--letter-duration) var(--ease-out) var(--letter-delay) both; }
-    .identity-letter[data-material="gel"] {
-      .identity-proof, .identity-gel { mask-size: 100% 245%; mask-repeat: no-repeat; }
-      .identity-proof {
-        mask-image: linear-gradient(169deg, #000 46%, transparent 54%);
-        animation-name: identity-gel-outline;
-      }
-      .identity-gel {
-        display: block;
-        visibility: hidden;
-        mask-image: linear-gradient(169deg, transparent 46%, #000 54%);
-        animation: identity-gel-rise var(--letter-duration) linear var(--letter-delay) both;
-      }
-      .identity-gel img { animation: identity-gel-settle var(--letter-duration) linear var(--letter-delay) both; }
-      .identity-face { animation: identity-gel-face var(--letter-duration) ease-in-out var(--letter-delay) both; }
+    .identity-letter { --letter-delay: calc(var(--letter-start) + var(--letter-index) * var(--letter-span)); }
+    .identity-face {
+      animation: identity-face-in calc(var(--letter-span) - var(--face-offset, 0ms)) linear calc(var(--letter-delay) + var(--face-offset, 0ms)) both;
     }
-    .identity-letter[data-gel-ready] {
-      .identity-sticker { visibility: hidden; }
-      .identity-gel { visibility: visible; }
+    .identity-art {
+      display: block;
+      visibility: hidden;
+      animation: identity-art-first var(--letter-span) linear var(--letter-delay) both;
     }
+    .identity-art[data-variant="2"] { animation-name: identity-art-second; }
+    .identity-art[data-entrance-art] { visibility: visible; }
+    .identity-letter:has([data-variant="1"][data-entrance-art]) { --face-offset: 248ms; }
+    .identity-letter:has([data-variant="2"][data-entrance-art]) { --face-offset: 511ms; }
+  }
+}
+@media (any-hover: hover) and (any-pointer: fine) and (prefers-reduced-motion: no-preference) {
+  html:not([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-name:not(:focus-visible) {
+    .identity-face { transition: opacity 140ms ease-out, transform 320ms cubic-bezier(.2,.82,.3,1.25); }
+    .identity-art { display: block; transition: opacity 145ms ease-out; }
+    .identity-art img {
+      transform: var(--pointer-pose, none);
+      transform-origin: 50% 78%;
+      transition: transform 180ms cubic-bezier(.2,.8,.3,1.22);
+    }
+    .identity-letter[data-preview] { z-index: 1; }
+    .identity-letter[data-preview] .identity-face { opacity: 0; transform: translateY(.045em) scale(.92); }
+    .identity-letter[data-preview="1"] .identity-art[data-variant="1"],
+    .identity-letter[data-preview="2"] .identity-art[data-variant="2"] { opacity: 1; }
+    .identity-art[data-popping] { animation: identity-art-pop 430ms linear both; }
   }
 }
 html[data-entrance="ready"] .is-home :where(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) {
@@ -334,47 +310,35 @@ html[data-entrance="ready"] .is-home .about-copy > p:nth-child(n+4) { --from-y: 
 html[data-entrance="ready"] .is-home .signature { --from-y: -6px; animation-delay: calc(var(--name-end) + 355ms); }
 html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .signature):focus-within,
 html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opacity: 1; transform: none; animation: none; }
-@keyframes identity-proof-in {
-  0% { opacity: 0; transform: translateY(4px); }
-  10%, 30% { opacity: 1; transform: translateY(0); }
-  45%, 100% { opacity: 0; transform: translateY(-2px); }
+/* Moving out of the first landing overlaps with the second material's arrival. */
+@keyframes identity-art-first {
+  0% { opacity: 0; transform: translate(var(--entry-x), var(--entry-y)) rotate(var(--entry-angle)) scale(.72, 1.08); animation-timing-function: cubic-bezier(.21,.65,.38,1); }
+  14% { opacity: 1; transform: translate(0, .019em) rotate(calc(-.21 * var(--entry-angle))) scale(calc(2 - var(--squash)), var(--squash)); animation-timing-function: ease-out; }
+  24% { opacity: 1; transform: translateY(-.046em) rotate(calc(.16 * var(--entry-angle))) scale(.984, 1.035); animation-timing-function: ease-in-out; }
+  32% { opacity: 1; transform: translateY(.008em) rotate(calc(-.08 * var(--entry-angle))) scale(1.012, .988); animation-timing-function: ease-out; }
+  38% { opacity: 1; transform: translateY(0) rotate(0) scale(1); animation-timing-function: ease-in; }
+  51%, 100% { opacity: 0; transform: translateY(-.04em) rotate(calc(-.27 * var(--entry-angle))) scale(.88); }
 }
-@keyframes identity-trace { from { stroke-dasharray: 1; stroke-dashoffset: 1; } to { stroke-dasharray: 1; stroke-dashoffset: 0; } }
-@keyframes identity-points-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes identity-sticker-in {
-  0%, 32% { opacity: 0; transform: translateY(5px) rotate(-4deg) scale(.88); }
-  49%, 65% { opacity: 1; transform: translateY(-2px) rotate(-4deg) scale(.93); }
-  86%, 100% { opacity: 0; transform: translateY(0) rotate(0) scale(.97); }
-}
-/* The outline and the blue material share the same rising, feathered seam. */
-@keyframes identity-gel-outline {
-  0% { opacity: 0; transform: translateY(3px); mask-position: 0 0; }
-  12%, 24% { opacity: 1; transform: translateY(0); mask-position: 0 0; animation-timing-function: cubic-bezier(.42,.05,.27,1); }
-  56% { opacity: 1; transform: translateY(0); mask-position: 0 100%; }
-  60%, 100% { opacity: 0; transform: translateY(0); mask-position: 0 100%; }
-}
-@keyframes identity-gel-rise {
-  0%, 20% { opacity: 0; mask-position: 0 0; }
-  24% { opacity: 1; mask-position: 0 0; animation-timing-function: cubic-bezier(.42,.05,.27,1); }
-  56%, 69% { opacity: 1; mask-position: 0 100%; animation-timing-function: ease-in-out; }
-  94%, 100% { opacity: 0; mask-position: 0 100%; }
-}
-@keyframes identity-gel-settle {
-  0%, 24% { transform: translateY(.035em) rotate(-4.5deg) skewX(-3deg) scale(.964, 1.042); }
-  34% { transform: translateY(.022em) rotate(-3.8deg) skewX(-2.3deg) scale(.971, 1.035); }
-  44% { transform: translateY(-.009em) rotate(-1deg) skewX(-.2deg) scale(.995, 1.012); }
-  53% { transform: translateY(-.017em) rotate(1.35deg) skewX(1.1deg) scale(1.024, .98); }
-  60% { transform: translateY(-.006em) rotate(.55deg) skewX(.45deg) scale(1.013, .991); }
-  67% { transform: translateY(.004em) rotate(-.44deg) skewX(-.32deg) scale(.993, 1.007); }
-  75%, 100% { transform: translateY(0em) rotate(0deg) skewX(0deg) scale(1, 1); }
-}
-@keyframes identity-gel-face {
-  0%, 69% { opacity: 0; transform: translateY(.012em); }
-  94%, 100% { opacity: 1; transform: translateY(0); }
+@keyframes identity-art-second {
+  0%, 36% { opacity: 0; transform: translate(var(--entry-x), var(--entry-y)) rotate(var(--entry-angle)) scale(.8, .88); animation-timing-function: cubic-bezier(.16,.61,.35,1); }
+  51% { opacity: 1; transform: translateY(.014em) rotate(calc(-.27 * var(--entry-angle))) scale(calc(2 - var(--squash)), var(--squash)); animation-timing-function: ease-out; }
+  61% { opacity: 1; transform: translateY(-.042em) rotate(calc(.16 * var(--entry-angle))) scale(.985, 1.045); animation-timing-function: ease-in-out; }
+  69% { opacity: 1; transform: translateY(.008em) rotate(calc(-.075 * var(--entry-angle))) scale(1.014, .985); animation-timing-function: ease-out; }
+  78% { opacity: 1; transform: translateY(0) rotate(0) scale(1); animation-timing-function: ease-in; }
+  93%, 100% { opacity: 0; transform: translateY(-.038em) rotate(calc(-.23 * var(--entry-angle))) scale(.9); }
 }
 @keyframes identity-face-in {
-  0%, 71% { opacity: 0; transform: translateY(3px); }
-  96%, 100% { opacity: 1; transform: translateY(0); }
+  0% { opacity: 0; transform: translateY(.055em) scale(.91, .95); animation-timing-function: ease-out; }
+  35% { opacity: 1; transform: translateY(-.027em) scale(1.02, 1.035); animation-timing-function: ease-in-out; }
+  63% { opacity: 1; transform: translateY(.008em) scale(.997, .995); animation-timing-function: ease-out; }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes identity-art-pop {
+  0% { transform: translateY(.055em) rotate(calc(.72 * var(--entry-angle))) scale(.86, .9); animation-timing-function: cubic-bezier(.19,.72,.4,1); }
+  28% { transform: translateY(-.073em) rotate(calc(-.32 * var(--entry-angle))) scale(1.04, 1.087); animation-timing-function: ease-in-out; }
+  53% { transform: translateY(.014em) rotate(calc(.155 * var(--entry-angle))) scale(1.024, .972); animation-timing-function: ease-out; }
+  75% { transform: translateY(-.021em) rotate(calc(-.075 * var(--entry-angle))) scale(1, 1.016); animation-timing-function: ease-in-out; }
+  100% { transform: translateY(0) rotate(0) scale(1); }
 }
 @keyframes identity-copy-in { from { opacity: 0; transform: translateY(var(--from-y, -8px)); } to { opacity: 1; transform: translateY(0); } }
 @keyframes portfolio-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }

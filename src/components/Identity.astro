@@ -1,26 +1,25 @@
 ---
 import { site } from "../data/site";
-import construction from "../assets/identity-construction.json";
-import IdentityMaterial from "./IdentityMaterial.astro";
 
-// Construction outlines and Bézier handles sampled from the site's Allo font.
-const letters = ["B", "a", "b", "e"] as const;
+const letters = [
+  { face: "B", art: ["cap-b-wireframe", "cap-b-pop-sticker"] },
+  { face: "a", art: ["a-lemon", "a-green-enamel"] },
+  { face: "b", art: ["b-yellow-gel", "b-indigo-foam"] },
+  { face: "e", art: ["e-blue-riso", "e-orange-satin"] }
+];
 ---
 <header class="site-header" transition:name="identity" transition:persist="identity" transition:animate="none">
   <div class="identity-copy-window"><p class="identity-eyebrow">I’m Matthieu</p></div>
-  <a class="identity-name" href="/" aria-label="Babe — home">{letters.map(letter => {
-    const { width, path, handles } = construction[letter];
-    return <span class="identity-letter" data-material={letter === "b" ? "gel" : undefined}><span class="identity-face">{letter}</span><svg class="identity-proof" viewBox={`0 0 ${width} 204.8`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
-        <path class="identity-guides" d={`M0 27.9H${width}M0 65.1H${width}M0 176.9H${width}M5 16V186`} />
-        <path class="identity-outline" d={path} pathLength="1" />
-        <g class="identity-points">
-          {handles.map(([[x, y], [cx, cy]]) => <g>
-            <line x1={x} y1={y} x2={cx} y2={cy} />
-            <rect x={x - 2.45} y={y - 2.45} width="4.9" height="4.9" />
-            <circle cx={cx} cy={cy} r="2.4" />
-          </g>)}
-        </g>
-      </svg>{letter === "b" ? <><span class="identity-sticker" data-glyph={letter} aria-hidden="true"></span><span class="identity-gel" aria-hidden="true"><img src="/images/identity/gummy-b.webp" alt="" width="360" height="480" decoding="async" /></span></> : <IdentityMaterial letter={letter} />}</span>;
-  })}</a>
+  <a class="identity-name" href="/" aria-label="Babe — home">{letters.map(({ face, art }, index) => <span class="identity-letter" style={`--letter-index:${index}`}><span class="identity-face">{face}</span>{art.map((material, variant) => (
+    <span class="identity-art" data-variant={variant + 1} hidden aria-hidden="true"><img
+      src={`/images/identity/${material}.webp`}
+      alt=""
+      width="320"
+      height="360"
+      decoding="async"
+      fetchpriority={index === 0 ? "high" : undefined}
+      draggable="false"
+    /></span>
+  ))}</span>)}</a>
   <div class="identity-copy-window"><p class="intro-line">{site.intro} at <a class="datadog-link" href={site.company.href}>{site.company.name}</a>.</p></div>
 </header>
