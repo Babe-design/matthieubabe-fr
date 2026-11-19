@@ -46,14 +46,14 @@ export const work: readonly WorkEntry[] = [
     id: "luko",
     title: "Luko",
     detail: "Lead Design · 2022",
-    href: "https://dribbble.com/shots/22707764-Staging-App-icon",
+    href: "https://www.fr.luko.eu/",
     preview: { image: "/images/work/luko-staging-icon.webp", width: 1600, height: 1200, caption: "Simplifying home insurance claims" }
   },
   {
     id: "weweb",
     title: "WeWeb",
     detail: "Design system · 2020",
-    href: "https://dribbble.com/shots/14641587-WeWeb-Cube-Design-system",
+    href: "https://www.weweb.io/",
     preview: { image: "/images/work/weweb-cube.webp", width: 1600, height: 1200, caption: "Cube Design System" }
   },
   {
@@ -79,6 +79,11 @@ type ChangelogEntry = {
 };
 
 export const changelog: ChangelogEntry[] = [
+  {
+    date: "2026-11-19T18:06:28Z",
+    title: "Project links in Work",
+    changes: ["Luko and WeWeb now link to their official homepages."]
+  },
   {
     date: "2026-11-19T17:59:30Z",
     title: "Softer motion in Work and Experiment",
