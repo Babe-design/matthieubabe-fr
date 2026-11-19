@@ -2,15 +2,25 @@
 import { work } from "../data/site";
 ---
 <ul class="work-list" aria-label="Selected work and writing">
-  {work.map((entry, index) => <li style={`--work-index:${index}`}>
-    <a class="work-link" data-preview={entry.preview ? entry.id : undefined} href={entry.href} target="_blank" rel="noopener noreferrer">
-      <span class="work-title">{entry.title}</span>
-      <span class="work-detail">{entry.detail}</span>
-    </a>
-  </li>)}
+  {work.map((entry, index) => {
+    const Row = entry.href ? "a" : "div";
+    const link = entry.href ? {
+      href: entry.href,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      "data-preview": entry.preview ? entry.id : undefined,
+    } : {};
+
+    return <li style={`--work-index:${index}`}>
+      <Row class:list={["work-row", { "work-link": entry.href }]} {...link}>
+        <span class="work-title">{entry.title}</span>
+        <span class="work-detail">{entry.detail}</span>
+      </Row>
+    </li>;
+  })}
 </ul>
 <aside class="work-previews" aria-hidden="true" hidden>
-  {work.map(({ id, preview }) => preview && <figure class="work-preview" data-preview-card={id}>
+  {work.map(({ id, href, preview }) => href && preview && <figure class="work-preview" data-preview-card={id}>
     <img src={preview.image} width={preview.width} height={preview.height} alt="" loading="lazy" decoding="async" />
     <figcaption>{preview.caption}</figcaption>
   </figure>)}

@@ -6,7 +6,7 @@ const { section } = Astro.props;
 const title = section === "work" ? site.name : `${section === "experiment" ? "Experiment" : "About"} — ${site.name}`;
 const panelAnimation = {
   old: { name: "portfolio-out", duration: "180ms", easing: "var(--ease-out)", fillMode: "both" },
-  new: { name: "portfolio-in", duration: "640ms", easing: "var(--ease-out)", fillMode: "both" }
+  new: { name: "portfolio-in", duration: section === "experiment" ? "1ms" : "640ms", easing: "var(--ease-out)", fillMode: "both" }
 };
 ---
 <SiteLayout home title={title} description={`${site.intro} at ${site.company.name}. ${site.about[0]}`}>

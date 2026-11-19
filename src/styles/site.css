@@ -90,10 +90,12 @@ p { margin: 0; }
 .portfolio-nav a[aria-current="page"]::after { opacity: .28; transform: scaleX(1); }
 .portfolio-content { padding-top: 48px; font-size: 15px; line-height: 1.65; }
 .work-list { position: relative; isolation: isolate; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin: 0; padding: 0; list-style: none; --work-highlight-color: #f8f8f8; }
-.work-link { display: grid; position: relative; isolation: isolate; gap: 4px; padding: 8px 16px; margin-inline: -16px; border-radius: 14px; line-height: 1.5; text-decoration: none; }
+.work-row { display: grid; gap: 4px; padding: 8px 16px; margin-inline: -16px; line-height: 1.5; }
+.work-link { position: relative; isolation: isolate; border-radius: 14px; text-decoration: none; }
 .work-link::before { content: ""; position: absolute; z-index: -1; inset: 0; border-radius: inherit; background: var(--work-highlight-color); opacity: 0; transition: opacity 90ms ease; }
 .work-link:focus-visible::before { opacity: 1; transition-duration: 130ms; }
-.work-title { font-weight: 500; text-decoration: underline; text-decoration-color: #e6e6e6; text-underline-offset: .18em; }
+.work-title { font-weight: 500; }
+.work-link .work-title { text-decoration: underline; text-decoration-color: #e6e6e6; text-underline-offset: .18em; }
 .work-detail { color: #8a8a8a; font-size: 15px; }
 .about-copy { display: grid; gap: 32px; }
 .experiment-feed { display: grid; grid-template-columns: minmax(0, 1fr); gap: 56px; margin: 0; padding: 0; list-style: none; }
@@ -273,7 +275,7 @@ html:has(.changelog-sheet[open]) { overflow: hidden; }
   --name-end: calc(var(--spacing-start) + var(--spacing-settle));
 }
 html:is([data-entrance="pending"], [data-entrance="ready"]) .is-home .identity-copy-window:not(:focus-within) { overflow: clip; overflow-clip-margin: 2px; }
-html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) { opacity: 0; }
+html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) { opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
   .identity-art { --entry-angle: -16deg; }
   .identity-art[data-variant="2"] { --entry-angle: 13deg; }
@@ -352,19 +354,19 @@ html[data-entrance="pending"] .is-home :is(.identity-letter, .identity-eyebrow, 
     .identity-art[data-popping] { animation: identity-art-pop 430ms linear both; }
   }
 }
-html[data-entrance="ready"] .is-home :where(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) {
+html[data-entrance="ready"] .is-home :where(.identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) {
   animation: identity-copy-in 580ms var(--ease-out) both;
 }
 html[data-entrance="ready"] .is-home .identity-eyebrow { --from-y: 8px; animation-duration: 520ms; }
 html[data-entrance="ready"] .is-home .intro-line { --from-y: calc(-100% - 8px); animation-delay: var(--name-end); }
 html[data-entrance="ready"] .is-home .portfolio-nav { --from-y: -14px; animation-delay: calc(var(--name-end) + 85ms); }
 html[data-entrance="ready"] .is-home .work-list > li { --from-y: -10px; animation-delay: calc(var(--name-end) + 160ms + 70ms * var(--work-index)); }
-html[data-entrance="ready"] .is-home :is(.experiment-feed > li, .about-copy > p) { --from-y: -10px; animation-delay: calc(var(--name-end) + 160ms); }
-html[data-entrance="ready"] .is-home :is(.experiment-feed > li, .about-copy > p):nth-child(2) { --from-y: -8px; animation-delay: calc(var(--name-end) + 230ms); }
-html[data-entrance="ready"] .is-home :is(.experiment-feed > li, .about-copy > p):nth-child(3) { --from-y: -7px; animation-delay: calc(var(--name-end) + 290ms); }
-html[data-entrance="ready"] .is-home :is(.experiment-feed > li, .about-copy > p):nth-child(n+4) { --from-y: -6px; animation-delay: calc(var(--name-end) + 335ms); }
+html[data-entrance="ready"] .is-home .about-copy > p { --from-y: -10px; animation-delay: calc(var(--name-end) + 160ms); }
+html[data-entrance="ready"] .is-home .about-copy > p:nth-child(2) { --from-y: -8px; animation-delay: calc(var(--name-end) + 230ms); }
+html[data-entrance="ready"] .is-home .about-copy > p:nth-child(3) { --from-y: -7px; animation-delay: calc(var(--name-end) + 290ms); }
+html[data-entrance="ready"] .is-home .about-copy > p:nth-child(n+4) { --from-y: -6px; animation-delay: calc(var(--name-end) + 335ms); }
 html[data-entrance="ready"] .is-home .signature { --from-y: -6px; animation-delay: calc(var(--name-end) + 355ms); }
-html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .signature):focus-within,
+html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .signature):focus-within,
 html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opacity: 1; transform: none; animation: none; }
 /* Each letter keeps a single path as its three faces dissolve into one another. */
 @keyframes identity-letter-in {
@@ -407,7 +409,7 @@ html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opa
 ::view-transition { pointer-events: none; }
 ::view-transition-group(portfolio-panel) { animation-duration: 0s; }
 @media (prefers-reduced-motion: reduce) {
-  html[data-entrance] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .about-copy > p, .signature) {
+  html[data-entrance] .is-home :is(.identity-letter, .identity-eyebrow, .intro-line, .portfolio-nav, .work-list > li, .about-copy > p, .signature) {
     opacity: 1;
     animation: none;
     transform: none;

@@ -1,24 +1,4 @@
-<div class="experiment-frame">
-  <div class="experiment-surface sensitivity-stage">
-    <sensitivity-slider class="sensitivity-control">
-      <div class="sensitivity-rail" aria-hidden="true"></div>
-      <div class="sensitivity-marks" aria-hidden="true">
-        {[0, 50, 100].map(value => <span class="sensitivity-mark" data-sensitivity-mark={value}></span>)}
-      </div>
-      <input
-        class="sensitivity-range"
-        type="range"
-        min="0"
-        max="100"
-        step="1"
-        value="70"
-        aria-label="Sensitivity"
-      />
-    </sensitivity-slider>
-  </div>
-</div>
-
-<style>
+<style is:inline>
   .sensitivity-stage {
     display: grid;
     place-items: center;
@@ -80,7 +60,7 @@
   }
 
   .sensitivity-range {
-    --thumb-transform: scale(var(--thumb-scale)) var(--thumb-squash, scale(1, 1));
+    --thumb-transform: scale(var(--thumb-scale)) var(--thumb-squash, translateX(0) scale(1, 1));
     display: block;
     position: relative;
     appearance: none;
@@ -117,24 +97,24 @@
     width: var(--thumb-size);
     height: var(--thumb-size);
     margin-top: calc((var(--rail-height) - var(--thumb-size)) / 2);
-    border-radius: 50%;
+    border-radius: var(--thumb-outline, 50%);
     border: 0;
     background: #fff;
     box-shadow: var(--thumb-shadow);
     transform: var(--thumb-transform);
-    transition: transform var(--thumb-motion);
+    transition: transform var(--thumb-motion), border-radius var(--thumb-motion);
     animation: var(--thumb-settle, none);
   }
 
   .sensitivity-range::-moz-range-thumb {
     width: var(--thumb-size);
     height: var(--thumb-size);
-    border-radius: 50%;
+    border-radius: var(--thumb-outline, 50%);
     border: 0;
     background: #fff;
     box-shadow: var(--thumb-shadow);
     transform: var(--thumb-transform);
-    transition: transform var(--thumb-motion);
+    transition: transform var(--thumb-motion), border-radius var(--thumb-motion);
     animation: var(--thumb-settle, none);
   }
 
@@ -163,6 +143,26 @@
     .sensitivity-rail, .sensitivity-marks { visibility: hidden; }
   }
 </style>
+
+<div class="experiment-frame">
+  <div class="experiment-surface sensitivity-stage">
+    <sensitivity-slider class="sensitivity-control">
+      <div class="sensitivity-rail" aria-hidden="true"></div>
+      <div class="sensitivity-marks" aria-hidden="true">
+        {[0, 50, 100].map(value => <span class="sensitivity-mark" data-sensitivity-mark={value}></span>)}
+      </div>
+      <input
+        class="sensitivity-range"
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        value="70"
+        aria-label="Sensitivity"
+      />
+    </sensitivity-slider>
+  </div>
+</div>
 
 <script>
   class SensitivitySlider extends HTMLElement {
@@ -248,6 +248,11 @@
         delete input.dataset.settling;
       };
 
+      const resetThumb = () => {
+        input.style.removeProperty("--thumb-squash");
+        input.style.removeProperty("--thumb-outline");
+      };
+
       const settle = () => {
         const current = input.valueAsNumber;
         const nearest = marks.reduce((best, mark) => Math.abs(current - mark.value) < Math.abs(current - best.value) ? mark : best);
@@ -308,18 +313,25 @@
         }
         if (event.pointerId !== drag.id) return;
 
-        const { xAt, left, width } = measure();
+        const { xAt, left, width, radius } = measure();
         let x = event.clientX - drag.offset;
         const overflow = Math.max(left - x, x - (left + width));
         if (overflow > 0) {
-          drag.snapped = x < left ? 0 : 100;
+          const direction = x < left ? -1 : 1;
+          drag.snapped = direction < 0 ? 0 : 100;
           if (!reducedMotion.matches) {
-            // Additional pull deforms the pinned thumb with diminishing resistance.
+            // Keep the contact edge pinned and flatten that side as pressure increases.
             const pressure = overflow / (overflow + 24);
-            input.style.setProperty("--thumb-squash", `scale(${1 - .215 * pressure}, ${1 + .09 * pressure})`);
+            const compression = .215 * pressure;
+            const offset = direction * radius * compression;
+            const contact = 50 - 28 * pressure;
+            const leftCurve = direction < 0 ? contact : 50;
+            const rightCurve = direction > 0 ? contact : 50;
+            input.style.setProperty("--thumb-squash", `translateX(${offset}px) scale(${1 - compression}, ${1 + .09 * pressure})`);
+            input.style.setProperty("--thumb-outline", `50% / ${leftCurve}% ${rightCurve}% ${rightCurve}% ${leftCurve}%`);
           }
         } else {
-          input.style.removeProperty("--thumb-squash");
+          resetThumb();
           if (drag.snapped !== undefined && Math.abs(x - xAt(drag.snapped)) >= releaseRadius) {
             drag.snapped = undefined;
           }
@@ -343,7 +355,7 @@
         if (event.type === "pointerup") settle();
         const changed = drag.startValue !== input.valueAsNumber;
         drag = undefined;
-        input.style.removeProperty("--thumb-squash");
+        resetThumb();
         delete input.dataset.dragging;
         delete input.dataset.snapped;
         if (event.type === "pointerup") updateHover(event);

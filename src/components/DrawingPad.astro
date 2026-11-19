@@ -1,23 +1,7 @@
 ---
 const descriptionId = `drawing-pad-${crypto.randomUUID()}`;
 ---
-<temporary-drawing-pad class="experiment-surface sketch-shell">
-  <div class="sketch-screen">
-    <canvas
-      hidden
-      aria-label="Temporary drawing pad"
-      aria-describedby={descriptionId}
-      title="Draw here. Strokes start fading three seconds after release."
-    ></canvas>
-  </div>
-  <p id={descriptionId} class="sr-only">
-    Draw with your mouse, finger or pen. With a keyboard, use the arrow keys to move the pen,
-    Enter or Space to lower or lift it, and Shift to move faster. Escape clears the pad.
-    Strokes start fading three seconds after release. Drawings are never saved.
-  </p>
-</temporary-drawing-pad>
-
-<style>
+<style is:inline>
   .sketch-shell {
     position: relative;
     display: grid;
@@ -61,7 +45,7 @@ const descriptionId = `drawing-pad-${crypto.randomUUID()}`;
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='grain' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' seed='12' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23grain)'/%3E%3C/svg%3E");
   }
 
-  canvas {
+  .sketch-screen canvas {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -73,7 +57,7 @@ const descriptionId = `drawing-pad-${crypto.randomUUID()}`;
     cursor: crosshair;
   }
 
-  canvas:focus { outline: none; }
+  .sketch-screen canvas:focus { outline: none; }
 
   .sketch-shell:has(canvas:focus-visible:not([data-pointer-focus]))::after {
     content: "";
@@ -88,6 +72,22 @@ const descriptionId = `drawing-pad-${crypto.randomUUID()}`;
     pointer-events: none;
   }
 </style>
+
+<temporary-drawing-pad class="experiment-surface sketch-shell">
+  <div class="sketch-screen">
+    <canvas
+      hidden
+      aria-label="Temporary drawing pad"
+      aria-describedby={descriptionId}
+      title="Draw here. Strokes start fading three seconds after release."
+    ></canvas>
+  </div>
+  <p id={descriptionId} class="sr-only">
+    Draw with your mouse, finger or pen. With a keyboard, use the arrow keys to move the pen,
+    Enter or Space to lower or lift it, and Shift to move faster. Escape clears the pad.
+    Strokes start fading three seconds after release. Drawings are never saved.
+  </p>
+</temporary-drawing-pad>
 
 <script>
   import "../scripts/drawing-pad";

@@ -1,17 +1,4 @@
-<div class="experiment-frame">
-  <gummy-playground class="experiment-surface gummy-stage">
-    <div class="gummy-object" data-gummy-object>
-      <div class="gummy-material" data-gummy-material>
-        <img data-gummy-art src="/images/identity/b-yellow-gel.webp" alt="A yellow gummy letter b" width="320" height="360" decoding="async" draggable="false" />
-        <canvas hidden aria-hidden="true"></canvas>
-      </div>
-      <button class="gummy-handle" data-gummy-handle type="button" aria-label="Stretch the gummy b" aria-describedby="gummy-instructions" hidden></button>
-    </div>
-    <p id="gummy-instructions" class="sr-only">Drag and release the letter. Use the arrow keys to pull it, Space or Enter to bounce it, and Escape to reset it.</p>
-  </gummy-playground>
-</div>
-
-<style>
+<style is:inline>
   .gummy-stage {
     display: grid;
     place-items: center;
@@ -73,6 +60,19 @@
   .gummy-handle:focus { outline: none; }
   .gummy-handle:focus-visible:not([data-pointer-focus]) { outline: 2px solid var(--ink); outline-offset: 5px; }
 </style>
+
+<div class="experiment-frame">
+  <gummy-playground class="experiment-surface gummy-stage">
+    <div class="gummy-object" data-gummy-object>
+      <div class="gummy-material" data-gummy-material>
+        <img data-gummy-art src="/images/identity/b-yellow-gel.webp" alt="A yellow gummy letter b" width="320" height="360" decoding="async" draggable="false" />
+        <canvas hidden aria-hidden="true"></canvas>
+      </div>
+      <button class="gummy-handle" data-gummy-handle type="button" aria-label="Stretch the gummy b" aria-describedby="gummy-instructions" hidden></button>
+    </div>
+    <p id="gummy-instructions" class="sr-only">Drag and release the letter. Use the arrow keys to pull it, Space or Enter to bounce it, and Escape to reset it.</p>
+  </gummy-playground>
+</div>
 
 <script>
   import "../scripts/gummy-playground";

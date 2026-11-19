@@ -4,28 +4,33 @@ import MagnetPlayground from "../components/MagnetPlayground.astro";
 import DrawingPad from "../components/DrawingPad.astro";
 import GummyPlayground from "../components/GummyPlayground.astro";
 import SensitivitySlider from "../components/SensitivitySlider.astro";
+
+const experiments = [
+  { label: "AI Guard sensitivity", Card: SensitivitySlider },
+  { label: "Yellow gummy b", Card: GummyPlayground },
+  { label: "Drawing pad", Card: DrawingPad },
+  { label: "Fridge magnets", Card: MagnetPlayground },
+];
 ---
 <PortfolioLayout section="experiment">
+  <style is:inline>
+    @media (prefers-reduced-motion: no-preference) {
+      .experiment-feed > li {
+        animation: experiment-entry-in 490ms cubic-bezier(.22,.75,.28,1)
+          calc(90ms + var(--experiment-index) * 105ms) backwards;
+      }
+      .experiment-feed > li:focus-within { animation-delay: 0ms; animation-duration: 1ms; }
+    }
+    @keyframes experiment-entry-in {
+      from { opacity: 0; filter: blur(7px); transform: translateY(8px); }
+      to { opacity: 1; filter: blur(0); transform: translateY(0); }
+    }
+  </style>
   <ol class="experiment-feed" aria-label="Experiments">
-    <li>
-      <article class="experiment-entry" aria-label="AI Guard sensitivity">
-        <SensitivitySlider />
+    {experiments.map(({ label, Card }, index) => <li style={`--experiment-index:${index}`}>
+      <article class="experiment-entry" aria-label={label}>
+        <Card />
       </article>
-    </li>
-    <li>
-      <article class="experiment-entry" aria-label="Yellow gummy b">
-        <GummyPlayground />
-      </article>
-    </li>
-    <li>
-      <article class="experiment-entry" aria-label="Drawing pad">
-        <DrawingPad />
-      </article>
-    </li>
-    <li>
-      <article class="experiment-entry" aria-label="Fridge magnets">
-        <MagnetPlayground />
-      </article>
-    </li>
+    </li>)}
   </ol>
 </PortfolioLayout>

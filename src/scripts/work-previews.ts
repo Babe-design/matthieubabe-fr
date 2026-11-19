@@ -6,10 +6,10 @@ function initWorkPreviews() {
   const { signal } = controller;
   const desktop = matchMedia("(min-width: 1024px) and (any-hover: hover)");
   const cards = [...previews.querySelectorAll<HTMLElement>("[data-preview-card]")];
-  const links = [...list.querySelectorAll<HTMLAnchorElement>(".work-link")];
+  const rows = [...list.querySelectorAll<HTMLElement>(".work-row")];
   let imagesWarmed = false;
-  let hovered: HTMLAnchorElement | undefined;
-  let focused: HTMLAnchorElement | undefined;
+  let hovered: HTMLElement | undefined;
+  let focused: HTMLElement | undefined;
   let highlightExit = 0;
 
   const updatePreview = () => {
@@ -32,7 +32,7 @@ function initWorkPreviews() {
 
   const updateHighlight = () => {
     list.toggleAttribute("data-work-highlight-ready", desktop.matches);
-    const row = hovered?.matches(":hover") ? hovered : focused?.matches(":focus-visible") ? focused : undefined;
+    const row = hovered?.matches(".work-link:hover") ? hovered : focused?.matches(":focus-visible") ? focused : undefined;
     if (!desktop.matches || !row) {
       list.removeAttribute("data-work-highlight-visible");
       return;
@@ -55,25 +55,25 @@ function initWorkPreviews() {
     updatePreview();
   };
 
-  for (const link of links) {
-    link.addEventListener("pointerenter", event => {
+  for (const row of rows) {
+    row.addEventListener("pointerenter", event => {
       if (event.pointerType === "touch") return;
       clearTimeout(highlightExit);
-      hovered = link;
+      hovered = row;
       update();
     }, { signal });
-    link.addEventListener("pointerleave", event => {
+    row.addEventListener("pointerleave", event => {
       if (event.pointerType === "touch") return;
       clearTimeout(highlightExit);
       // Let the pointer cross the small gap between rows before fading out.
       highlightExit = window.setTimeout(updateHighlight, 40);
     }, { signal });
-    link.addEventListener("focus", () => {
-      if (link.matches(":focus-visible")) hovered = undefined;
-      focused = link;
+    row.addEventListener("focus", () => {
+      if (row.matches(":focus-visible")) hovered = undefined;
+      focused = row;
       update();
     }, { signal });
-    link.addEventListener("blur", () => { focused = undefined; update(); }, { signal });
+    row.addEventListener("blur", () => { focused = undefined; update(); }, { signal });
   }
   list.addEventListener("pointerleave", event => {
     clearTimeout(highlightExit);
@@ -89,7 +89,7 @@ function initWorkPreviews() {
   }, { signal });
   const resize = new ResizeObserver(updateHighlight);
   resize.observe(list);
-  links.forEach(link => resize.observe(link));
+  rows.forEach(row => resize.observe(row));
   desktop.addEventListener("change", update, { signal });
   window.addEventListener("resize", update, { signal });
   window.addEventListener("scroll", updatePreview, { passive: true, signal });

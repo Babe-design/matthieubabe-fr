@@ -23,7 +23,7 @@ type WorkEntry = {
   id: string;
   title: string;
   detail: string;
-  href: string;
+  href?: string;
   preview?: { image: string; width: number; height: number; caption: string };
 };
 
@@ -59,14 +59,12 @@ export const work: readonly WorkEntry[] = [
   {
     id: "cityscoot",
     title: "Cityscoot",
-    detail: "Product design · 2019",
-    href: "https://medium.com/cityscoot"
+    detail: "Product design · 2019"
   },
   {
     id: "pinpo",
     title: "Pinpo",
-    detail: "Co-founder Design · 2015",
-    href: "https://www.maddyness.com/2016/04/19/app-pinpo/"
+    detail: "Co-founder Design · 2015"
   }
 ];
 
@@ -79,6 +77,11 @@ type ChangelogEntry = {
 };
 
 export const changelog: ChangelogEntry[] = [
+  {
+    date: "2026-11-19T18:20:13Z",
+    title: "A quieter entrance for Experiment",
+    changes: ["Cards come into focus in order, and the gauge flexes against the edge you pull toward.", "Cityscoot and Pinpo are now plain entries in Work."]
+  },
   {
     date: "2026-11-19T18:08:22Z",
     title: "Softer stops for the gauge",
