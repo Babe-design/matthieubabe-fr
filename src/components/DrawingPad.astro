@@ -1,0 +1,88 @@
+---
+const descriptionId = `drawing-pad-${crypto.randomUUID()}`;
+---
+<temporary-drawing-pad class="experiment-frame">
+  <div class="experiment-surface sketch-shell">
+    <div class="sketch-screen">
+      <canvas
+        hidden
+        aria-label="Temporary drawing pad"
+        aria-describedby={descriptionId}
+        title="Draw here. Strokes start fading three seconds after release."
+      ></canvas>
+    </div>
+  </div>
+  <p id={descriptionId} class="sr-only">
+    Draw with your mouse, finger or pen. With a keyboard, use the arrow keys to move the pen,
+    Enter or Space to lower or lift it, and Shift to move faster. Escape clears the pad.
+    Strokes start fading three seconds after release. Drawings are never saved.
+  </p>
+</temporary-drawing-pad>
+
+<style>
+  temporary-drawing-pad { display: block; }
+
+  .sketch-shell {
+    display: grid;
+    padding: clamp(8px, 2vw, 12px);
+    border-radius: 12px;
+    background:
+      radial-gradient(ellipse at 24% 0%, rgb(255 255 255 / .35), transparent 65%),
+      linear-gradient(145deg, #f16a5b, #de3020 48%, #a5150d);
+    box-shadow:
+      inset 0 1px 1px rgb(255 255 255 / .65),
+      inset 1px 0 2px rgb(255 255 255 / .28),
+      inset 0 -2px 3px rgb(126 16 9 / .65),
+      0 1px 2px rgb(37 40 43 / .18);
+  }
+
+  .sketch-screen {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid #931e16;
+    border-radius: 6px;
+    background:
+      radial-gradient(ellipse at 22% 10%, rgb(255 255 255 / .28), transparent 75%),
+      linear-gradient(155deg, #d6d8d8, #b9bec0);
+    box-shadow:
+      inset 0 2px 4px rgb(37 40 43 / .27),
+      inset 1px 0 2px rgb(37 40 43 / .18),
+      inset 0 -1px 1px rgb(255 255 255 / .65),
+      0 1px 1px rgb(255 255 255 / .45),
+      0 -1px 2px rgb(165 21 13 / .65);
+  }
+
+  .sketch-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .22;
+    mix-blend-mode: multiply;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='grain' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' seed='12' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23grain)'/%3E%3C/svg%3E");
+  }
+
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: crosshair;
+  }
+
+  canvas:focus:not([data-pointer-focus]) {
+    outline: 2px solid #2a490d;
+    outline-offset: -3px;
+  }
+
+  canvas[data-pointer-focus] { outline: none; }
+</style>
+
+<script>
+  import "../scripts/drawing-pad";
+</script>

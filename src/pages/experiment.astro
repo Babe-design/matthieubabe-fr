@@ -1,12 +1,18 @@
 ---
 import PortfolioLayout from "../layouts/PortfolioLayout.astro";
 import MagnetPlayground from "../components/MagnetPlayground.astro";
+import DrawingPad from "../components/DrawingPad.astro";
 ---
 <PortfolioLayout section="experiment">
   <ol class="experiment-feed" aria-label="Experiments">
     <li>
       <article class="experiment-entry" aria-label="Fridge magnets">
         <MagnetPlayground />
+      </article>
+    </li>
+    <li>
+      <article class="experiment-entry" aria-label="Drawing pad">
+        <DrawingPad />
       </article>
     </li>
   </ol>
