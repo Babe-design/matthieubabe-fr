@@ -6,10 +6,13 @@ function initWorkPreviews() {
   const { signal } = controller;
   const desktop = matchMedia("(min-width: 1024px) and (any-hover: hover)");
   const cards = [...previews.querySelectorAll<HTMLElement>("[data-preview-card]")];
+  const links = [...list.querySelectorAll<HTMLAnchorElement>(".work-link")];
   let imagesWarmed = false;
-  let hovered: string | null | undefined;
-  let focused: string | undefined;
-  const update = () => {
+  let hovered: HTMLAnchorElement | undefined;
+  let focused: HTMLAnchorElement | undefined;
+  let highlightExit = 0;
+
+  const updatePreview = () => {
     previews.hidden = !desktop.matches;
     if (desktop.matches && !imagesWarmed) {
       imagesWarmed = true;
@@ -18,7 +21,7 @@ function initWorkPreviews() {
         void image.decode().catch(() => {});
       });
     }
-    const active = desktop.matches ? (hovered === undefined ? focused : hovered) : undefined;
+    const active = desktop.matches ? (hovered ?? focused)?.dataset.preview : undefined;
     cards.forEach(card => card.toggleAttribute("data-visible", card.dataset.previewCard === active));
     if (active) {
       const height = cards.find(card => card.dataset.previewCard === active)?.offsetHeight || 0;
@@ -26,24 +29,77 @@ function initWorkPreviews() {
       previews.style.top = `${Math.max(32, Math.min(top, innerHeight - height - 32))}px`;
     }
   };
-  list.querySelectorAll<HTMLAnchorElement>(".work-link").forEach(link => {
+
+  const updateHighlight = () => {
+    list.toggleAttribute("data-work-highlight-ready", desktop.matches);
+    const row = hovered?.matches(":hover") ? hovered : focused?.matches(":focus-visible") ? focused : undefined;
+    if (!desktop.matches || !row) {
+      list.removeAttribute("data-work-highlight-visible");
+      return;
+    }
+
+    // After a complete fade, place the highlight immediately under its new row.
+    const stillVisible = Number(getComputedStyle(list, "::before").opacity) > 0;
+    list.toggleAttribute("data-work-highlight-moving", stillVisible);
+    const bounds = list.getBoundingClientRect();
+    const { left, top, width, height } = row.getBoundingClientRect();
+    list.style.setProperty("--work-highlight-x", `${left - bounds.left}px`);
+    list.style.setProperty("--work-highlight-y", `${top - bounds.top}px`);
+    list.style.setProperty("--work-highlight-width", `${width}px`);
+    list.style.setProperty("--work-highlight-height", `${height}px`);
+    list.setAttribute("data-work-highlight-visible", "");
+  };
+
+  const update = () => {
+    updateHighlight();
+    updatePreview();
+  };
+
+  for (const link of links) {
     link.addEventListener("pointerenter", event => {
       if (event.pointerType === "touch") return;
-      hovered = link.dataset.preview ?? null;
+      clearTimeout(highlightExit);
+      hovered = link;
       update();
+    }, { signal });
+    link.addEventListener("pointerleave", event => {
+      if (event.pointerType === "touch") return;
+      clearTimeout(highlightExit);
+      // Let the pointer cross the small gap between rows before fading out.
+      highlightExit = window.setTimeout(updateHighlight, 40);
     }, { signal });
     link.addEventListener("focus", () => {
       if (link.matches(":focus-visible")) hovered = undefined;
-      focused = link.dataset.preview;
+      focused = link;
       update();
     }, { signal });
     link.addEventListener("blur", () => { focused = undefined; update(); }, { signal });
-  });
-  list.addEventListener("pointerleave", () => { hovered = undefined; update(); }, { signal });
+  }
+  list.addEventListener("pointerleave", event => {
+    clearTimeout(highlightExit);
+    const rowBounds = hovered?.getBoundingClientRect();
+    const { top, bottom } = list.getBoundingClientRect();
+    // The links extend past the list's edge, so a row gap can also leave the list.
+    const crossingGap = rowBounds && event.clientX >= rowBounds.left && event.clientX <= rowBounds.right
+      && event.clientY >= top && event.clientY <= bottom;
+    hovered = undefined;
+    if (crossingGap) highlightExit = window.setTimeout(updateHighlight, 40);
+    else updateHighlight();
+    updatePreview();
+  }, { signal });
+  const resize = new ResizeObserver(updateHighlight);
+  resize.observe(list);
+  links.forEach(link => resize.observe(link));
   desktop.addEventListener("change", update, { signal });
   window.addEventListener("resize", update, { signal });
-  window.addEventListener("scroll", update, { passive: true, signal });
-  const cleanup = () => controller.abort();
+  window.addEventListener("scroll", updatePreview, { passive: true, signal });
+  const cleanup = () => {
+    clearTimeout(highlightExit);
+    resize.disconnect();
+    list.removeAttribute("data-work-highlight-ready");
+    list.removeAttribute("data-work-highlight-visible");
+    controller.abort();
+  };
   document.addEventListener("astro:before-swap", cleanup, { once: true, signal });
   window.addEventListener("pagehide", cleanup, { once: true, signal });
   update();
