@@ -2,9 +2,15 @@
 import PortfolioLayout from "../layouts/PortfolioLayout.astro";
 import MagnetPlayground from "../components/MagnetPlayground.astro";
 import DrawingPad from "../components/DrawingPad.astro";
+import GummyPlayground from "../components/GummyPlayground.astro";
 ---
 <PortfolioLayout section="experiment">
   <ol class="experiment-feed" aria-label="Experiments">
+    <li>
+      <article class="experiment-entry" aria-label="Yellow gummy b">
+        <GummyPlayground />
+      </article>
+    </li>
     <li>
       <article class="experiment-entry" aria-label="Drawing pad">
         <DrawingPad />

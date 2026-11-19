@@ -329,7 +329,7 @@ html[data-entrance="ready"] .is-home .intro-line { --from-y: calc(-100% - 8px); 
 html[data-entrance="ready"] .is-home .portfolio-nav { --from-y: -14px; animation-delay: calc(var(--name-end) + 85ms); }
 html[data-entrance="ready"] .is-home :is(.work-list > li, .experiment-feed > li, .about-copy > p) { --from-y: -10px; animation-delay: calc(var(--name-end) + 160ms); }
 html[data-entrance="ready"] .is-home :is(.work-list > li, .experiment-feed > li, .about-copy > p):nth-child(2) { --from-y: -8px; animation-delay: calc(var(--name-end) + 230ms); }
-html[data-entrance="ready"] .is-home .about-copy > p:nth-child(3) { --from-y: -7px; animation-delay: calc(var(--name-end) + 290ms); }
+html[data-entrance="ready"] .is-home :is(.experiment-feed > li, .about-copy > p):nth-child(3) { --from-y: -7px; animation-delay: calc(var(--name-end) + 290ms); }
 html[data-entrance="ready"] .is-home .about-copy > p:nth-child(n+4) { --from-y: -6px; animation-delay: calc(var(--name-end) + 335ms); }
 html[data-entrance="ready"] .is-home .signature { --from-y: -6px; animation-delay: calc(var(--name-end) + 355ms); }
 html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .signature):focus-within,
