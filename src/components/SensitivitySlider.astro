@@ -1,0 +1,140 @@
+<div class="experiment-frame">
+  <div class="sensitivity-stage">
+    <sensitivity-slider class="sensitivity-control">
+      <input
+        class="sensitivity-range"
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        value="70"
+        aria-label="Sensitivity"
+      />
+    </sensitivity-slider>
+  </div>
+</div>
+
+<style>
+  .sensitivity-stage {
+    display: grid;
+    place-items: center;
+    padding: clamp(20px, 5vw, 28px) clamp(18px, 6vw, 42px);
+  }
+
+  .sensitivity-control {
+    display: block;
+    width: min(100%, 360px);
+    --rail-height: 16px;
+    --thumb-size: 24px;
+    --mark-inset: calc((var(--thumb-size) - 4px) / 2);
+    --mark: radial-gradient(circle, rgb(255 255 255 / .8) 0 1.2px, transparent 1.8px);
+    --rail:
+      var(--mark) var(--mark-inset) center / 4px 4px no-repeat,
+      var(--mark) calc(25% + var(--mark-inset) / 2) center / 4px 4px no-repeat,
+      var(--mark) center / 4px 4px no-repeat,
+      var(--mark) calc(75% - var(--mark-inset) / 2) center / 4px 4px no-repeat,
+      var(--mark) right var(--mark-inset) center / 4px 4px no-repeat,
+      linear-gradient(rgb(255 255 255 / .17), transparent 65%),
+      linear-gradient(90deg, #39a976, #83ca78 25%, #e8c766 50%, #ef9b64 75%, #dc5d5c);
+    --rail-shadow: inset 0 1px 2px rgb(70 47 34 / .16), inset 0 -1px 0 rgb(255 255 255 / .22);
+    --thumb-shadow: 0 1px 3px rgb(53 39 27 / .24), 0 0 0 1px rgb(53 39 27 / .16);
+    --thumb-motion: 150ms cubic-bezier(.2,.75,.3,1.2);
+  }
+
+  .sensitivity-range {
+    display: block;
+    appearance: none;
+    width: 100%;
+    height: 44px;
+    margin: 0;
+    background: transparent;
+    cursor: grab;
+  }
+
+  .sensitivity-range:active { cursor: grabbing; }
+
+  .sensitivity-range:focus-visible {
+    outline: 2px solid #335d4b;
+    border-radius: 8px;
+    outline-offset: 2px;
+  }
+
+  .sensitivity-range::-webkit-slider-runnable-track {
+    height: var(--rail-height);
+    border-radius: 999px;
+    background: var(--rail);
+    box-shadow: var(--rail-shadow);
+  }
+
+  .sensitivity-range::-moz-range-track {
+    height: var(--rail-height);
+    border-radius: 999px;
+    background: var(--rail);
+    box-shadow: var(--rail-shadow);
+  }
+
+  .sensitivity-range::-webkit-slider-thumb {
+    appearance: none;
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    margin-top: calc((var(--rail-height) - var(--thumb-size)) / 2);
+    border-radius: 50%;
+    border: 0;
+    background: #fff;
+    box-shadow: var(--thumb-shadow);
+    transition: transform var(--thumb-motion);
+  }
+
+  .sensitivity-range::-moz-range-thumb {
+    width: var(--thumb-size);
+    height: var(--thumb-size);
+    border-radius: 50%;
+    border: 0;
+    background: #fff;
+    box-shadow: var(--thumb-shadow);
+    transition: transform var(--thumb-motion);
+  }
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .sensitivity-range:hover::-webkit-slider-thumb { transform: scale(1.09); }
+    .sensitivity-range:hover::-moz-range-thumb { transform: scale(1.09); }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .sensitivity-range:active::-webkit-slider-thumb { transform: scale(1.18); }
+    .sensitivity-range:active::-moz-range-thumb { transform: scale(1.18); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sensitivity-control { --thumb-motion: 0ms; }
+  }
+
+  @media (forced-colors: active) {
+    .sensitivity-range { appearance: auto; }
+  }
+</style>
+
+<script>
+  class SensitivitySlider extends HTMLElement {
+    connectedCallback() {
+      const input = this.querySelector("input");
+      if (!input) return;
+
+      const update = () => {
+        // Moving right lowers the threshold and makes detection more aggressive.
+        const threshold = 100 - input.valueAsNumber;
+        const level = threshold < 25 ? "Aggressive"
+          : threshold < 50 ? "Moderate"
+          : threshold === 50 ? "Balanced"
+          : threshold < 75 ? "Lenient"
+          : "Very lenient";
+        input.setAttribute("aria-valuetext", level + ", " + threshold + "% minimum confidence");
+      };
+
+      input.oninput = update;
+      update();
+    }
+  }
+
+  if (!customElements.get("sensitivity-slider")) customElements.define("sensitivity-slider", SensitivitySlider);
+</script>

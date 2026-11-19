@@ -3,9 +3,15 @@ import PortfolioLayout from "../layouts/PortfolioLayout.astro";
 import MagnetPlayground from "../components/MagnetPlayground.astro";
 import DrawingPad from "../components/DrawingPad.astro";
 import GummyPlayground from "../components/GummyPlayground.astro";
+import SensitivitySlider from "../components/SensitivitySlider.astro";
 ---
 <PortfolioLayout section="experiment">
   <ol class="experiment-feed" aria-label="Experiments">
+    <li>
+      <article class="experiment-entry" aria-label="AI Guard sensitivity">
+        <SensitivitySlider />
+      </article>
+    </li>
     <li>
       <article class="experiment-entry" aria-label="Yellow gummy b">
         <GummyPlayground />

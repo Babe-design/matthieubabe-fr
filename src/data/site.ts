@@ -80,6 +80,11 @@ type ChangelogEntry = {
 
 export const changelog: ChangelogEntry[] = [
   {
+    date: "2026-11-19T17:18:54Z",
+    title: "A sensitivity slider",
+    changes: ["Explore AI Guard’s detection threshold in a compact Experiment card."]
+  },
+  {
     date: "2026-11-19T17:10:52Z",
     title: "Earlier projects in Work",
     changes: ["Added Luko, WeWeb, Cityscoot and Pinpo to the portfolio."]

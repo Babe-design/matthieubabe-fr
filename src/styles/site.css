@@ -338,7 +338,7 @@ html[data-entrance="ready"] .is-home .work-list > li { --from-y: -10px; animatio
 html[data-entrance="ready"] .is-home :is(.experiment-feed > li, .about-copy > p) { --from-y: -10px; animation-delay: calc(var(--name-end) + 160ms); }
 html[data-entrance="ready"] .is-home :is(.experiment-feed > li, .about-copy > p):nth-child(2) { --from-y: -8px; animation-delay: calc(var(--name-end) + 230ms); }
 html[data-entrance="ready"] .is-home :is(.experiment-feed > li, .about-copy > p):nth-child(3) { --from-y: -7px; animation-delay: calc(var(--name-end) + 290ms); }
-html[data-entrance="ready"] .is-home .about-copy > p:nth-child(n+4) { --from-y: -6px; animation-delay: calc(var(--name-end) + 335ms); }
+html[data-entrance="ready"] .is-home :is(.experiment-feed > li, .about-copy > p):nth-child(n+4) { --from-y: -6px; animation-delay: calc(var(--name-end) + 335ms); }
 html[data-entrance="ready"] .is-home .signature { --from-y: -6px; animation-delay: calc(var(--name-end) + 355ms); }
 html[data-entrance] .is-home :is(.intro-line, .portfolio-nav, .work-list > li, .experiment-feed > li, .signature):focus-within,
 html[data-entrance] .is-home .identity-name:focus-visible .identity-letter { opacity: 1; transform: none; animation: none; }
